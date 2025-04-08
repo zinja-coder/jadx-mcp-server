@@ -19,6 +19,8 @@
 
 Think: "Decompile → Context-Aware Code Review → AI Recommendations" — all in real time.
 
+## Download now: https://github.com/zinja-coder/jadx-ai/releases
+
 Watch the demo!
 
 [![Watch the video](https://img.youtube.com/vi/Od86IOkkaHg/0.jpg)](https://www.youtube.com/watch?v=Od86IOkkaHg&autoplay=1)

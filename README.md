@@ -10,7 +10,7 @@
 
 ## 🤖 What is JADX-MCP-SERVER?
 
-**JADX MCP Server** is a standalone Python server that interacts with a modified version of `jadx-gui` (see: [jadx-ai](https://github.com/zinja-coder/jadx-ai)) via MCP (Model Context Protocol). It lets LLMs communicate with the decompiled Android app context live, enabling:
+**JADX MCP Server** is a standalone Python server that interacts with a modified version of `jadx-gui` (see: [jadx-ai](https://github.com/zinja-coder/jadx-ai)) via MCP (Model Context Protocol). It lets LLMs communicate with the decompiled Android app context live.
 
 
 ## 🤖 What is JADX-AI?

@@ -117,6 +117,23 @@ This is a **developer beta** — designed for reverse engineers, AI researchers,
 
 [READ HERE](https://github.com/zinja-coder/jadx-ai?tab=readme-ov-file#%EF%B8%8F-getting-started)
 
+## 🛣️ Future Roadmap
+
+ - Add Support for apktool
+
+ - Add support for hermes code (ReactNative Application)
+
+ - Add more useful MCP Tools
+
+ - Make LLM be able to modify code on JADX
+
+## NOTE For Contributors
+
+ - The files related to JADX-AI can be found under `/jadx-ai/jadx-gui/src/main/java/jadx/gui/plugins/` which are [here](https://github.com/zinja-coder/jadx-ai)
+
+ - The files related to **jadx-mcp-server** can be found in this repository only.
+
+
 ## 🙏 Credits
 
 This project is a fork of the original JADX, an amazing open-source Android decompiler created and maintained by [@skylot](https://github.com/skylot). All core decompilation logic belongs to them. I have only extended it to support my MCP server with AI capabilities.

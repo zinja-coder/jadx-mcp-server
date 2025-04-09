@@ -1,4 +1,4 @@
-# JADX-MCP-SERVER (v0.0.1-beta)
+# JADX-MCP-SERVER
 
 > Still in beta — expect bugs, crashes, and logical errors.
 

@@ -1,8 +1,8 @@
 # JADX-MCP-SERVER
 
-> Still in beta — expect bugs, crashes, and logical errors.
+> Still in early stage of development — expect bugs, crashes, and logical errors.
 
-> MCP (Model Context Protocol) server that connects to a custom fork of [JADX](https://github.com/skylot/jadx) called [JADX-AI](https://github.com/zinja-coder/jadx-ai) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.
+> MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI](https://github.com/zinja-coder/jadx-ai) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.
 
 ![jadx-mcp-banner](image.png)
 
@@ -136,7 +136,7 @@ This is a **developer beta** — designed for reverse engineers, AI researchers,
 
 ## 🙏 Credits
 
-This project is a fork of the original JADX, an amazing open-source Android decompiler created and maintained by [@skylot](https://github.com/skylot). All core decompilation logic belongs to them. I have only extended it to support my MCP server with AI capabilities.
+This project is a plugin for JADX, an amazing open-source Android decompiler created and maintained by [@skylot](https://github.com/skylot). All core decompilation logic belongs to them. I have only extended it to support my MCP server with AI capabilities.
 
 [📎 Original README (JADX)](https://github.com/skylot/jadx)
 
@@ -148,7 +148,7 @@ Also huge thanks to [@aaddrick](https://github.com/aaddrick) for developing Clau
 
 ## 📄 License
 
-This fork inherits the Apache 2.0 License from the original JADX repository.
+This plugin inherits the Apache 2.0 License from the original JADX repository.
 
 ## ⚖️ Legal Warning
 

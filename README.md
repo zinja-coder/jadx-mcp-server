@@ -6,6 +6,10 @@
 
 ![jadx-mcp-banner](image.png)
 
+--- 
+
+# Download now: https://github.com/zinja-coder/jadx-ai/releases
+
 ---
 
 ## 🤖 What is JADX-MCP-SERVER?
@@ -15,11 +19,9 @@
 
 ## 🤖 What is JADX-AI?
 
-**JADX-AI** is a modified version of the [original JADX decompiler](https://github.com/skylot/jadx) that integrates directly with [Model Context Protocol (MCP)](https://github.com/anthropic/mcp) to provide **live reverse engineering support with LLMs like Claude**.
+**JADX-AI** is a plugin for the [JADX decompiler](https://github.com/skylot/jadx) that integrates directly with [Model Context Protocol (MCP)](https://github.com/anthropic/mcp) to provide **live reverse engineering support with LLMs like Claude**.
 
 Think: "Decompile → Context-Aware Code Review → AI Recommendations" — all in real time.
-
-## Download now: https://github.com/zinja-coder/jadx-ai/releases
 
 Watch the demo!
 
@@ -108,8 +110,6 @@ The following MCP tools are available:
 - ✅ Built-in Claude Desktop integration
 - ✅ Beta support for real-time code review
 - ✅ MCP client interoperability via local loopback
-
-This is a **developer beta** — designed for reverse engineers, AI researchers, and LLM tool builders.
 
 ---
 

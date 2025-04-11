@@ -1,5 +1,13 @@
 # JADX-MCP-SERVER
 
+![GitHub contributors](https://img.shields.io/github/contributors/zinja-coder/jadx-ai)
+![GitHub all releases](https://img.shields.io/github/downloads/zinja-coder/jadx-ai/total)
+![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/zinja-coder/jadx-ai/latest/total)
+![Latest release](https://img.shields.io/github/release/zinja-coder/jadx-ai.svg)
+![Java 11+](https://img.shields.io/badge/Java-11%2B-blue)
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+
+
 > Still in early stage of development — expect bugs, crashes, and logical errors.
 
 > MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI](https://github.com/zinja-coder/jadx-ai) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.

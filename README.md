@@ -155,6 +155,9 @@ This MCP server is made possible by the extensibility of JADX-GUI and the amazin
 
 Also huge thanks to [@aaddrick](https://github.com/aaddrick) for developing Claude desktop for Debian based linux.
 
+And in last thanks to [@anthropics](https://github.com/anthropics) for developing the Model Context Protocol and [@FastMCP](https://github.com/modelcontextprotocol/python-sdk) team
+
+
 ## 📄 License
 
 This plugin inherits the Apache 2.0 License from the original JADX repository.

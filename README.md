@@ -1,9 +1,9 @@
 # JADX-MCP-SERVER
 
-![GitHub contributors](https://img.shields.io/github/contributors/zinja-coder/jadx-ai)
-![GitHub all releases](https://img.shields.io/github/downloads/zinja-coder/jadx-ai/total)
-![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/zinja-coder/jadx-ai/latest/total)
-![Latest release](https://img.shields.io/github/release/zinja-coder/jadx-ai.svg)
+![GitHub contributors](https://img.shields.io/github/contributors/zinja-coder/jadx-ai-mcp)
+![GitHub all releases](https://img.shields.io/github/downloads/zinja-coder/jadx-ai-mcp/total)
+![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/zinja-coder/jadx-ai-mcp/latest/total)
+![Latest release](https://img.shields.io/github/release/zinja-coder/jadx-ai-mcp.svg)
 ![Java 11+](https://img.shields.io/badge/Java-11%2B-blue)
 ![Python 3.10+](https://img.shields.io/badge/python-3%2E10%2B-blue)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
@@ -11,24 +11,24 @@
 
 > Still in early stage of development — expect bugs, crashes, and logical errors.
 
-> MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI](https://github.com/zinja-coder/jadx-ai) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.
+> MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI-MCP](https://github.com/zinja-coder/jadx-ai-mcp) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.
 
 ![jadx-mcp-banner](image.png)
 
 --- 
 
-# Download now: https://github.com/zinja-coder/jadx-ai/releases
+# Download now: https://github.com/zinja-coder/jadx-ai-mcp/releases
 
 ---
 
 ## 🤖 What is JADX-MCP-SERVER?
 
-**JADX MCP Server** is a standalone Python server that interacts with a modified version of `jadx-gui` (see: [jadx-ai](https://github.com/zinja-coder/jadx-ai)) via MCP (Model Context Protocol). It lets LLMs communicate with the decompiled Android app context live.
+**JADX MCP Server** is a standalone Python server that interacts with a modified version of `jadx-gui` (see: [jadx-ai-mcp](https://github.com/zinja-coder/jadx-ai-mcp)) via MCP (Model Context Protocol). It lets LLMs communicate with the decompiled Android app context live.
 
 
-## 🤖 What is JADX-AI?
+## 🤖 What is JADX-AI-MCP?
 
-**JADX-AI** is a plugin for the [JADX decompiler](https://github.com/skylot/jadx) that integrates directly with [Model Context Protocol (MCP)](https://github.com/anthropic/mcp) to provide **live reverse engineering support with LLMs like Claude**.
+**JADX-AI-MCP** is a plugin for the [JADX decompiler](https://github.com/skylot/jadx) that integrates directly with [Model Context Protocol (MCP)](https://github.com/anthropic/mcp) to provide **live reverse engineering support with LLMs like Claude**.
 
 Think: "Decompile → Context-Aware Code Review → AI Recommendations" — all in real time.
 
@@ -37,7 +37,7 @@ Watch the demo!
 [![Watch the video](https://img.youtube.com/vi/Od86IOkkaHg/0.jpg)](https://www.youtube.com/watch?v=Od86IOkkaHg&autoplay=1)
 
 It is combination of two tools:
-1. [JADX-AI](https://github.com/zinja-coder/jadx-ai)
+1. [JADX-AI-MCP](https://github.com/zinja-coder/jadx-ai-mcp)
 2. JADX MCP SERVER
 
 ## Current MCP Tools
@@ -124,7 +124,7 @@ The following MCP tools are available:
 
 ## 🛠️ Getting Started
 
-[READ HERE](https://github.com/zinja-coder/jadx-ai?tab=readme-ov-file#%EF%B8%8F-getting-started)
+[READ HERE](https://github.com/zinja-coder/jadx-ai-mcp?tab=readme-ov-file#%EF%B8%8F-getting-started)
 
 ## 🛣️ Future Roadmap
 
@@ -138,7 +138,7 @@ The following MCP tools are available:
 
 ## NOTE For Contributors
 
- - The files related to JADX-AI can be found under `/jadx-ai/jadx-gui/src/main/java/jadx/gui/plugins/` which are [here](https://github.com/zinja-coder/jadx-ai)
+ - The files related to JADX-AI-MCP can be found [here](https://github.com/zinja-coder/jadx-ai-mcp)
 
  - The files related to **jadx-mcp-server** can be found in this repository only.
 
@@ -163,11 +163,11 @@ This plugin inherits the Apache 2.0 License from the original JADX repository.
 
 **Disclaimer**
 
-The tools `jadx-ai` and `jadx_mcp_server` are intended strictly for educational, research, and ethical security assessment purposes. They are provided "as-is" without any warranties, expressed or implied. Users are solely responsible for ensuring that their use of these tools complies with all applicable laws, regulations, and ethical guidelines.
+The tools `jadx-ai-mcp` and `jadx_mcp_server` are intended strictly for educational, research, and ethical security assessment purposes. They are provided "as-is" without any warranties, expressed or implied. Users are solely responsible for ensuring that their use of these tools complies with all applicable laws, regulations, and ethical guidelines.
 
-By using `jadx-ai` or `jadx_mcp_server`, you agree to use them only in environments you are authorized to test, such as applications you own or have explicit permission to analyze. Any misuse of these tools for unauthorized reverse engineering, infringement of intellectual property rights, or malicious activity is strictly prohibited.
+By using `jadx-ai-mcp` or `jadx_mcp_server`, you agree to use them only in environments you are authorized to test, such as applications you own or have explicit permission to analyze. Any misuse of these tools for unauthorized reverse engineering, infringement of intellectual property rights, or malicious activity is strictly prohibited.
 
-The developers of `jadx-ai` and `jadx_mcp_server` shall not be held liable for any damage, data loss, legal consequences, or other consequences resulting from the use or misuse of these tools. Users assume full responsibility for their actions and any impact caused by their usage.
+The developers of `jadx-ai-mcp` and `jadx_mcp_server` shall not be held liable for any damage, data loss, legal consequences, or other consequences resulting from the use or misuse of these tools. Users assume full responsibility for their actions and any impact caused by their usage.
 
 Use responsibly. Respect intellectual property. Follow ethical hacking practices.
 

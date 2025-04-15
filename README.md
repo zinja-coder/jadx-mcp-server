@@ -1,3 +1,5 @@
+<div align="center">
+
 # JADX-MCP-SERVER
 
 ![GitHub contributors](https://img.shields.io/github/contributors/zinja-coder/jadx-ai-mcp)
@@ -8,10 +10,10 @@
 ![Python 3.10+](https://img.shields.io/badge/python-3%2E10%2B-blue)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
+</div>
+<!-- Still in early stage of development — expect bugs, crashes, and logical errors.-->
 
-> Still in early stage of development — expect bugs, crashes, and logical errors.
-
-> MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI-MCP](https://github.com/zinja-coder/jadx-ai-mcp) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.
+<!-- MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI-MCP](https://github.com/zinja-coder/jadx-ai-mcp) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.-->
 
 ![jadx-mcp-banner](image.png)
 

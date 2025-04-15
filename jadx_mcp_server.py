@@ -1,3 +1,7 @@
+# /// script
+# dependencies = [ "fastmcp", "httpx" ]
+# ///
+
 import httpx
 from typing import List, Optional
 from mcp.server.fastmcp import FastMCP

@@ -2,7 +2,8 @@
 
 # JADX-MCP-SERVER
 
-![GitHub contributors](https://img.shields.io/github/contributors/zinja-coder/jadx-ai-mcp)
+![GitHub contributors JADX-AI-MCP](https://img.shields.io/github/contributors/zinja-coder/jadx-ai-mcp)
+![GitHub contributors JADX-MCP-SERVER](https://img.shields.io/github/contributors/zinja-coder/jadx-mcp-server)
 ![GitHub all releases](https://img.shields.io/github/downloads/zinja-coder/jadx-ai-mcp/total)
 ![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/zinja-coder/jadx-ai-mcp/latest/total)
 ![Latest release](https://img.shields.io/github/release/zinja-coder/jadx-ai-mcp.svg)

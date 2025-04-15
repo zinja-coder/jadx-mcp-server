@@ -3,9 +3,11 @@ from typing import List, Optional
 from mcp.server.fastmcp import FastMCP
 
 # Initialize the MCP server
-mcp = FastMCP("JADX-AI Reverse Engineering Server")
+mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 
-JADX_HTTP_BASE = "http://localhost:8650"
+# To do : implement logic to handle the scenario where port is not available
+JADX_HTTP_BASE = "http://localhost:8650" # Base URL for the JADX-AI-MCP Plugin
+
 
 # Generic function to request data from the plugin
 async def get_from_jadx(endpoint: str, params: dict = {}) -> Optional[str]:

@@ -138,6 +138,8 @@ The following MCP tools are available:
 
  - Make LLM be able to modify code on JADX
 
+ - Add prompts templates, give llm access to Android APK Files as Resources
+
 ## NOTE For Contributors
 
  - The files related to JADX-AI-MCP can be found [here](https://github.com/zinja-coder/jadx-ai-mcp)

@@ -1,6 +1,6 @@
 ---
 name: Question
-about: Ask a question about using or developing with the JADX-AI-MCP plugin
+about: Ask a question about using or developing with the JADX-MCP-SERVER
 title: '[QUESTION] '
 labels: question
 assignees: ''

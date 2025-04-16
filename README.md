@@ -60,6 +60,8 @@ The following MCP tools are available:
 
 ---
 
+#### Note: Tested on Claude Desktop. Support for other LLMs might be tested in future.
+
 ## 🗒️ Sample Prompts
 
 🔍 Basic Code Understanding

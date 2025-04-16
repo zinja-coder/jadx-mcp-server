@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug or issue with the JADX-AI-MCP plugin
+about: Report a bug or issue with the JADX-MCP-SERVER
 title: '[BUG] '
 labels: bug
 assignees: ''
@@ -11,7 +11,7 @@ A clear and concise description of the issue.
 
 ### Environment
 - JADX Version: [e.g. 1.4.7]
-- Plugin Version: [e.g. 1.0.2]
+- MCP Server Version: [e.g. 1.0.2]
 - OS: [e.g. Windows 11, macOS 14.4, Ubuntu 24.04]
 - Java Version: [e.g. OpenJDK 17.0.8]
 

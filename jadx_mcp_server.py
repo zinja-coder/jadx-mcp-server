@@ -1,10 +1,20 @@
 # /// script
-# dependencies = [ "fastmcp", "httpx" ]
+# dependencies = [ "fastmcp", "httpx", "logging" ]
 # ///
 
 import httpx
 from typing import List, Optional
 from mcp.server.fastmcp import FastMCP
+
+# Set up logging configuration
+logger = logging.getLogger()
+logger.setLevel(logging.ERROR)
+
+# Console handler for logging to the console
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.ERROR)
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(console_handler)
 
 # Initialize the MCP server
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
@@ -12,17 +22,25 @@ mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 # To do : implement logic to handle the scenario where port is not available
 JADX_HTTP_BASE = "http://localhost:8650" # Base URL for the JADX-AI-MCP Plugin
 
-
-# Generic function to request data from the plugin
-async def get_from_jadx(endpoint: str, params: dict = {}) -> Optional[str]:
+async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
+    """Generic helper to request data from the JADX plugin with proper error reporting and logging."""
     try:
         async with httpx.AsyncClient() as client:
             resp = await client.get(f"{JADX_HTTP_BASE}/{endpoint}", params=params, timeout=10)
             resp.raise_for_status()
             return resp.text
+    except httpx.HTTPStatusError as e:
+        error_message = f"HTTP error {e.response.status_code}: {e.response.text}"
+        logger.error(error_message)
+        return {"error": f"{error_message}."}
+    except httpx.RequestError as e:
+        error_message = f"Request failed: {str(e)}"
+        logger.error(error_message)
+        return {"error": f"{error_message}."}
     except Exception as e:
-        print(e)
-        return f"Error: {e}"
+        error_message = f"Unexpected error: {str(e)}"
+        logger.error(error_message)
+        return {"error": f"{error_message}."}
 
 # Specific MCP tools
 

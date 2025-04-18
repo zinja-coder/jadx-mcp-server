@@ -3,7 +3,7 @@
 # ///
 
 import httpx
-from typing import List, Optional
+from typing import List, Union
 from mcp.server.fastmcp import FastMCP
 
 # Set up logging configuration
@@ -26,7 +26,7 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
     """Generic helper to request data from the JADX plugin with proper error reporting and logging."""
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{JADX_HTTP_BASE}/{endpoint}", params=params, timeout=10)
+            resp = await client.get(f"{JADX_HTTP_BASE}/{endpoint}", params=params, timeout=60)
             resp.raise_for_status()
             return resp.text
     except httpx.HTTPStatusError as e:
@@ -46,14 +46,8 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
 
 @mcp.tool(name="fetch_current_class", description="Fetch the currently selected class and its code from the JADX-GUI plugin.")
 async def fetch_current_class() -> dict:
-    """Fetch the current class name and source code from the JADX-GUI plugin running locally."""
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f"{JADX_HTTP_BASE}/current-class", timeout=10.0)
-            response.raise_for_status()
-            return response.json()
-    except httpx.HTTPError as e:
-        return {"error": f"Failed to fetch from JADX plugin: {str(e)}"}
+    """Fetch currently opened class in jadx"""
+    return await get_from_jadx("current-class")
 
 @mcp.tool()
 async def get_selected_text() -> str:

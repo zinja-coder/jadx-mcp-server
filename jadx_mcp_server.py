@@ -3,8 +3,11 @@
 # ///
 
 import httpx
+import logging
+
 from typing import List, Union
 from mcp.server.fastmcp import FastMCP
+
 
 # Set up logging configuration
 logger = logging.getLogger()
@@ -22,6 +25,8 @@ mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 # To do : implement logic to handle the scenario where port is not available
 JADX_HTTP_BASE = "http://localhost:8650" # Base URL for the JADX-AI-MCP Plugin
 
+
+# Generic method to fetch data from jadx
 async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
     """Generic helper to request data from the JADX plugin with proper error reporting and logging."""
     try:

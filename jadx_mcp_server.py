@@ -21,6 +21,7 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Optional[str]:
             resp.raise_for_status()
             return resp.text
     except Exception as e:
+        print(e)
         return f"Error: {e}"
 
 # Specific MCP tools
@@ -85,5 +86,20 @@ async def get_smali_of_class(class_name: str) -> str:
     """Fetch the smali representation of a class."""
     return await get_from_jadx("smali-of-class", {"class": class_name})
 
+@mcp.tool()
+async def get_android_manifest() -> dict:
+    """Retrieve and return the AndroidManifest.xml content."""
+    return await get_from_jadx("manifest")
+    
+@mcp.tool()
+async def get_main_application_class() -> dict:
+    """Fetch the main application class as defined in the AndroidManifest.xml."""
+    return await get_from_jadx("main-application")
+    
+@mcp.tool()
+async def get_main_activity_class() -> dict:
+    """Fetch the main activity class as defined in the AndroidManifest.xml."""
+    return await get_from_jadx("main-activity")
+    
 if __name__ == "__main__":
     mcp.run(transport="stdio")

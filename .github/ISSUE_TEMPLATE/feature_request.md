@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement for the JADX-AI-MCP plugin
+about: Suggest a new feature or enhancement for the JADX-MCP-SERVER
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''

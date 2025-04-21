@@ -1,6 +1,6 @@
 ---
 name: Performance Issue
-about: Report performance problems with the JADX-AI-MCP plugin
+about: Report performance problems with the JADX-MCP-SERVER
 title: '[PERFORMANCE] '
 labels: performance
 assignees: ''
@@ -11,7 +11,7 @@ A clear and concise description of the performance issue you're experiencing.
 
 ### Environment
 - JADX Version: [e.g. 1.4.7]
-- Plugin Version: [e.g. 1.0.2]
+- Server Version: [e.g. 1.0.2]
 - OS: [e.g. Windows 11, macOS 14.4, Ubuntu 24.04]
 - Java Version: [e.g. OpenJDK 17.0.8]
 - System Specifications: [e.g. CPU, RAM, etc.]

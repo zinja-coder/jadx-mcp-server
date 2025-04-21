@@ -43,6 +43,12 @@ It is combination of two tools:
 1. [JADX-AI-MCP](https://github.com/zinja-coder/jadx-ai-mcp)
 2. JADX MCP SERVER
 
+---
+
+# Other MCP Servers For Android Reverse Engineering
+ - **[APKTool-MCP-Server](https://github.com/zinja-coder/apktool-mcp-server)**
+
+
 ## Current MCP Tools
 
 The following MCP tools are available:
@@ -117,7 +123,7 @@ The following MCP tools are available:
     "Can you identify the Android component type (Activity, Service, etc.)?"
 ---
 
-## 📦 Features (v0.0.1-beta)
+## 📦 Features
 
 - ✅ MCP server baked into JADX-GUI
 - ✅ Exposes currently selected class via HTTP

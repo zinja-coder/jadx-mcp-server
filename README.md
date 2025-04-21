@@ -1,6 +1,6 @@
 <div align="center">
 
-# JADX-MCP-SERVER
+# JADX-MCP-SERVER (Part of Zin's Reverse Engineering MCP Suite)
 
 ![GitHub contributors JADX-AI-MCP](https://img.shields.io/github/contributors/zinja-coder/jadx-ai-mcp)
 ![GitHub contributors JADX-MCP-SERVER](https://img.shields.io/github/contributors/zinja-coder/jadx-mcp-server)

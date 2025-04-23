@@ -2,6 +2,8 @@
 
 # JADX-MCP-SERVER (Part of Zin's Reverse Engineering MCP Suite)
 
+⚡ Fully automated MCP server built to communicate with JADX-AI-MCP Plugin to analyze Android APKs using LLMs like Claude — uncover vulnerabilities, parse manifests, and reverse engineer effortlessly.
+
 ![GitHub contributors JADX-AI-MCP](https://img.shields.io/github/contributors/zinja-coder/jadx-ai-mcp)
 ![GitHub contributors JADX-MCP-SERVER](https://img.shields.io/github/contributors/zinja-coder/jadx-mcp-server)
 ![GitHub all releases](https://img.shields.io/github/downloads/zinja-coder/jadx-ai-mcp/total)
@@ -178,6 +180,14 @@ By using `jadx-ai-mcp` or `jadx_mcp_server`, you agree to use them only in envir
 The developers of `jadx-ai-mcp` and `jadx_mcp_server` shall not be held liable for any damage, data loss, legal consequences, or other consequences resulting from the use or misuse of these tools. Users assume full responsibility for their actions and any impact caused by their usage.
 
 Use responsibly. Respect intellectual property. Follow ethical hacking practices.
+
+---
+
+## 🙌 Contribute or Support
+
+- Found it useful? Give it a ⭐️
+- Got ideas? Open an [issue](https://github.com/zinja-coder/jadx-mcp-server/issues) or submit a PR
+- Built something on top? DM me or mention me — I’ll add it to the README!
 
 ---
 

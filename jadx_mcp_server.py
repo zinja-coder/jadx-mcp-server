@@ -110,7 +110,12 @@ async def get_android_manifest() -> dict:
     
 @mcp.tool()
 async def get_main_application_class() -> dict:
-    """Fetch the main application class as defined in the AndroidManifest.xml."""
+    """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml."""
+    return await get_from_jadx("main-application-class-names")
+
+@mcp.tool()
+async def get_main_application_class_code() -> dict:
+    """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml."""
     return await get_from_jadx("main-application")
     
 @mcp.tool()

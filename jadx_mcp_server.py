@@ -119,7 +119,7 @@ async def get_all_classes(offset: int = 0, count: int = 0) -> List[str]:
     all_classes = _get_from_cache(cache_key)
     
     if all_classes is None:
-    response = await get_from_jadx(f"all-classes")
+        response = await get_from_jadx(f"all-classes")
         if isinstance(response, dict):
             all_classes = response.get("classes", [])
         else:
@@ -163,7 +163,7 @@ async def search_method_by_name(method_name: str, offset: int = 0, count: int = 
     all_matches = _get_from_cache(cache_key)
     
     if all_matches is None:
-    response = await get_from_jadx("search-method", {"method": method_name})
+        response = await get_from_jadx("search-method", {"method": method_name})
         all_matches = response.splitlines() if response else []
         _set_cache(cache_key, all_matches)
     
@@ -194,7 +194,7 @@ async def get_methods_of_class(class_name: str, offset: int = 0, count: int = 0)
     all_methods = _get_from_cache(cache_key)
     
     if all_methods is None:
-    response = await get_from_jadx("methods-of-class", {"class": class_name})
+        response = await get_from_jadx("methods-of-class", {"class": class_name})
         all_methods = response.splitlines() if response else []
         _set_cache(cache_key, all_methods)
     
@@ -225,7 +225,7 @@ async def get_fields_of_class(class_name: str, offset: int = 0, count: int = 0) 
     all_fields = _get_from_cache(cache_key)
     
     if all_fields is None:
-    response = await get_from_jadx("fields-of-class", {"class": class_name})
+        response = await get_from_jadx("fields-of-class", {"class": class_name})
         all_fields = response.splitlines() if response else []
         _set_cache(cache_key, all_fields)
     

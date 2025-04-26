@@ -263,11 +263,6 @@ async def get_fields_of_class(class_name: str, offset: int = 0, count: int = 0) 
     return all_fields[offset:]
 
 @mcp.tool()
-async def get_method_code(class_name: str, method_name: str) -> str:
-    """Fetch the full method code (alias for get_method_by_name)"""
-    return await get_method_by_name(class_name, method_name)
-
-@mcp.tool()
 async def get_smali_of_class(class_name: str) -> str:
     """Fetch the smali representation of a class.
     

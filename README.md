@@ -67,8 +67,11 @@ The following MCP tools are available:
 - `search_method_by_name(method_name)` — Search method across classes
 - `get_methods_of_class(class_name)` — List methods in a class
 - `get_fields_of_class(class_name)` — List fields in a class
-- `get_method_code(class_name, method_name)` — Alias for `get_method_by_name` //to be removed
 - `get_smali_of_class(class_name)` — Fetch smali of class
+- `get_main_activity_class()` — Fetch main activity from jadx mentioned in AndroidManifest.xml file. 
+- `get_main_application_class()` — Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
+- `get_main_application_class_names()` — Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
+- `get_android_manifest()` — Retrieve and return the AndroidManifest.xml content.
 
 ---
 

@@ -301,8 +301,29 @@ async def get_main_application_classes_names(offset: int = 0, count: int = 0) ->
         Dictionary containing all the main application's classes' names based on the package name defined in the AndroidManifest.xml file.
     """
     
+    offset = max(0, offset)
+    count = max(0, count)
 
-    return await get_from_jadx("main-application-class-names")
+    cache_key = "main_application_classes_names"
+    class_names = _get_from_cache(cache_key)
+
+    if class_names is None:
+        response = await get_from_jadx("main-application-classes-names")
+        if isinstance(response, dict):
+            class_names = response.get("classes", [])
+        else:
+            import json
+            try:
+                parsed = json.loads(response)
+                class_names = parsed.get("classes", [])
+            except (json.JSONDecodeError, AttributeError):
+                class_names = []
+        _set_cache(cache_key, class_names)
+    
+    if offset >= len(class_names):
+        return []
+    
+    return class_names[offset:offset + count] if count > 0 else class_names[offset:]
 
 @mcp.tool()
 async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:

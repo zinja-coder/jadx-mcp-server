@@ -105,7 +105,8 @@ async def get_selected_text() -> str:
         None
 
     Returns:
-        String containing currently highlighted/selected text in jadx-gui."""
+        String containing currently highlighted/selected text in jadx-gui.
+    """
     return await get_from_jadx("selected-text")
 
 @mcp.tool()
@@ -117,7 +118,8 @@ async def get_method_by_name(class_name: str, method_name: str) -> str:
         method_name: Name of the method whose code will be returned
 
     Returns:
-        Code of requested method as String."""
+        Code of requested method as String.
+    """
     return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
 
 @mcp.tool()
@@ -166,7 +168,8 @@ async def get_class_source(class_name: str) -> str:
         class_name: Name of the class whose source code will be returned
 
     Returns:
-        Code of requested class as String."""
+        Code of requested class as String.
+    """
     return await get_from_jadx("class-source", {"class": class_name})
 
 @mcp.tool()
@@ -270,7 +273,8 @@ async def get_smali_of_class(class_name: str) -> str:
         class_name: Name of the class whose smali is to be returned
 
     Returns:
-        Smali code of the requested class as String."""
+        Smali code of the requested class as String.
+    """
     return await get_from_jadx("smali-of-class", {"class": class_name})
 
 @mcp.tool()
@@ -281,7 +285,8 @@ async def get_android_manifest() -> dict:
         None
 
     Returns:
-        Dictionary containing content of AndroidManifest.xml file."""
+        Dictionary containing content of AndroidManifest.xml file.
+    """
     return await get_from_jadx("manifest")
     
 @mcp.tool()
@@ -292,7 +297,10 @@ async def get_main_application_class_names() -> dict:
         None
 
     Returns:
-        Dictionary containing all the main application's classes' names based on the package name defined in the AndroidManifest.xml file."""
+        Dictionary containing all the main application's classes' names based on the package name defined in the AndroidManifest.xml file.
+    """
+    
+
     return await get_from_jadx("main-application-class-names")
 
 @mcp.tool()
@@ -303,7 +311,8 @@ async def get_main_application_class() -> dict:
         None
 
     Returns:
-        Dictionary containing all classes' source code which are under main package only based on package name defined in the AndroidManifest.xml file."""
+        Dictionary containing all classes' source code which are under main package only based on package name defined in the AndroidManifest.xml file.
+    """
     return await get_from_jadx("main-application")
     
 @mcp.tool()
@@ -314,7 +323,8 @@ async def get_main_activity_class() -> dict:
         None
 
     Returns:
-        Dictionary containing content of main activity class defined in AndroidManifest.xml file."""
+        Dictionary containing content of main activity class defined in AndroidManifest.xml file.
+    """
     return await get_from_jadx("main-activity")
     
 if __name__ == "__main__":

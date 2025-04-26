@@ -4,11 +4,11 @@
 
 import httpx
 import logging
+import time  
+import random
 
 from typing import List, Union, Dict, Optional
-import time  
 from mcp.server.fastmcp import FastMCP
-import random
 
 # Cache configuration
 CACHE_EXPIRY = 300  # 5 minutes in seconds
@@ -87,17 +87,37 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
 
 @mcp.tool(name="fetch_current_class", description="Fetch the currently selected class and its code from the JADX-GUI plugin.")
 async def fetch_current_class() -> dict:
-    """Fetch currently opened class in jadx"""
+    """Fetch currently opened class in jadx.
+    
+    Args:
+        None
+
+    Returns:
+        Dictionary containing currently opened class in jadx. 
+    """
     return await get_from_jadx("current-class")
 
 @mcp.tool()
 async def get_selected_text() -> str:
-    """Returns the currently selected text in the decompiled code view."""
+    """Returns the currently selected text in the decompiled code view.
+    
+    Args:
+        None
+
+    Returns:
+        String containing currently highlighted/selected text in jadx-gui."""
     return await get_from_jadx("selected-text")
 
 @mcp.tool()
 async def get_method_by_name(class_name: str, method_name: str) -> str:
-    """Fetch the source code of a method from a specific class."""
+    """Fetch the source code of a method from a specific class.
+    
+    Args:
+        class_name: Name of the class whose method's code will be returned
+        method_name: Name of the method whose code will be returned
+
+    Returns:
+        Code of requested method as String."""
     return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
 
 @mcp.tool()
@@ -140,7 +160,13 @@ async def get_all_classes(offset: int = 0, count: int = 0) -> List[str]:
 
 @mcp.tool()
 async def get_class_source(class_name: str) -> str:
-    """Fetch the Java source of a specific class."""
+    """Fetch the Java source of a specific class.
+    
+    Args:
+        class_name: Name of the class whose source code will be returned
+
+    Returns:
+        Code of requested class as String."""
     return await get_from_jadx("class-source", {"class": class_name})
 
 @mcp.tool()
@@ -238,32 +264,62 @@ async def get_fields_of_class(class_name: str, offset: int = 0, count: int = 0) 
 
 @mcp.tool()
 async def get_method_code(class_name: str, method_name: str) -> str:
-    """Fetch the full method code (alias for get_method_by_name)."""
+    """Fetch the full method code (alias for get_method_by_name)"""
     return await get_method_by_name(class_name, method_name)
 
 @mcp.tool()
 async def get_smali_of_class(class_name: str) -> str:
-    """Fetch the smali representation of a class."""
+    """Fetch the smali representation of a class.
+    
+    Args:
+        class_name: Name of the class whose smali is to be returned
+
+    Returns:
+        Smali code of the requested class as String."""
     return await get_from_jadx("smali-of-class", {"class": class_name})
 
 @mcp.tool()
 async def get_android_manifest() -> dict:
-    """Retrieve and return the AndroidManifest.xml content."""
+    """Retrieve and return the AndroidManifest.xml content.
+    
+    Args:
+        None
+
+    Returns:
+        Dictionary containing content of AndroidManifest.xml file."""
     return await get_from_jadx("manifest")
     
 @mcp.tool()
 async def get_main_application_class_names() -> dict:
-    """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml."""
+    """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
+    
+    Args:
+        None
+
+    Returns:
+        Dictionary containing all the main application's classes' names based on the package name defined in the AndroidManifest.xml file."""
     return await get_from_jadx("main-application-class-names")
 
 @mcp.tool()
 async def get_main_application_class() -> dict:
-    """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml."""
+    """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
+    
+    Args:
+        None
+
+    Returns:
+        Dictionary containing all classes' source code which are under main package only based on package name defined in the AndroidManifest.xml file."""
     return await get_from_jadx("main-application")
     
 @mcp.tool()
 async def get_main_activity_class() -> dict:
-    """Fetch the main activity class as defined in the AndroidManifest.xml."""
+    """Fetch the main activity class as defined in the AndroidManifest.xml.
+    
+    Args:
+        None
+
+    Returns:
+        Dictionary containing content of main activity class defined in AndroidManifest.xml file."""
     return await get_from_jadx("main-activity")
     
 if __name__ == "__main__":

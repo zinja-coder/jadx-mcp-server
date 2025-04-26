@@ -309,15 +309,16 @@ async def get_main_application_classes_names(offset: int = 0, count: int = 0) ->
 
     if class_names is None:
         response = await get_from_jadx("main-application-classes-names")
-        if isinstance(response, dict):
-            class_names = response.get("classes", [])
-        else:
-            import json
-            try:
-                parsed = json.loads(response)
-                class_names = parsed.get("classes", [])
-            except (json.JSONDecodeError, AttributeError):
-                class_names = []
+        #if isinstance(response, dict):
+        #    class_names = response.get("classes", [])
+        #else:
+        import json
+        try:
+            parsed = json.loads(response)
+            class_info_list = parsed.get("allClassesInPackageName", [])
+            class_names = [cls_info.get("name") for cls_info in class_info_list if "name" in cls_info]
+        except (json.JSONDecodeError, AttributeError):
+            class_names = []
         _set_cache(cache_key, class_names)
     
     if offset >= len(class_names):
@@ -345,15 +346,12 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
 
     if class_sources is None:
         response = await get_from_jadx("main-application-classes-code")
-        if isinstance(response, dict):
-            class_sources = response.get("sources", [])
-        else:
-            import json
-            try:
-                parsed = json.loads(response)
-                class_sources = parsed.get("sources", [])
-            except (json.JSONDecodeError, AttributeError):
-                class_sources = []
+        import json
+        try:
+            parsed = json.loads(response)
+            class_sources = parsed.get("allClassesInPackage", [])
+        except (json.JSONDecodeError, AttributeError):
+            class_sources = []
         _set_cache(cache_key, class_sources)
     
     if offset >= len(class_sources):
@@ -362,7 +360,7 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
     return class_sources[offset:offset + count] if count > 0 else class_sources[offset:]
     
 @mcp.tool()
-async def get_main_activity_class() -> dict:
+async def get_main_activity_class(offset: int = 0, count: int = 0) -> List[dict]:
     """Fetch the main activity class as defined in the AndroidManifest.xml.
     
     Args:

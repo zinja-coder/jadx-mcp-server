@@ -290,7 +290,7 @@ async def get_android_manifest() -> dict:
     return await get_from_jadx("manifest")
     
 @mcp.tool()
-async def get_main_application_class_names(offset: int = 0, count: int = 0) -> List[dict]:
+async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[dict]:
     """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
     
     Args:
@@ -305,11 +305,12 @@ async def get_main_application_class_names(offset: int = 0, count: int = 0) -> L
     return await get_from_jadx("main-application-class-names")
 
 @mcp.tool()
-async def get_main_application_class() -> dict:
+async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:
     """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
     
     Args:
-        None
+        offset: Offset to start listing from (start at 0)
+        count: Number of strings to list (0 means remainder)
 
     Returns:
         Dictionary containing all classes' source code which are under main package only based on package name defined in the AndroidManifest.xml file.
@@ -318,11 +319,11 @@ async def get_main_application_class() -> dict:
     offset = max(0, offset)
     count = max(0, count)
 
-    cache_key = "main_application_class"
+    cache_key = "main_application_classes_code"
     class_sources = _get_from_cache(cache_key)
 
     if class_sources is None:
-        response = await get_from_jadx("main-application")
+        response = await get_from_jadx("main-application-classes-code")
         if isinstance(response, dict):
             class_sources = response.get("sources", [])
         else:

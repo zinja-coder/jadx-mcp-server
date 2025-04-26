@@ -5,8 +5,44 @@
 import httpx
 import logging
 
-from typing import List, Union
+from typing import List, Union, Dict, Optional
+import time  
 from mcp.server.fastmcp import FastMCP
+import random
+
+# Cache configuration
+CACHE_EXPIRY = 300  # 5 minutes in seconds
+_cache: Dict[str, tuple[float, List[str]]] = {}  # {key: (timestamp, data)}
+
+def _get_from_cache(key: str) -> Optional[List[str]]:
+    """Get data from cache if it exists and is not expired."""
+    current_time = time.time()
+    
+    # Check if key exists and is not expired
+    if key in _cache:
+        timestamp, data = _cache[key]
+        if current_time - timestamp < CACHE_EXPIRY:
+            return data
+        # Remove expired item
+        del _cache[key]
+    
+    # Periodically clean up other expired items (e.g., every 10 accesses)
+    # This helps prevent memory issues from accumulating expired entries
+    if random.random() < 0.1:  # ~10% chance to clean up
+        expired_keys = [k for k, (ts, _) in _cache.items() 
+                      if current_time - ts >= CACHE_EXPIRY]
+        for k in expired_keys:
+            del _cache[k]
+            
+    return None
+
+def _set_cache(key: str, data: List[str]) -> None:
+    """Store data in cache with current timestamp."""
+    _cache[key] = (time.time(), data)
+
+def _clear_cache() -> None:
+    """Clear all cached data."""
+    _cache.clear()
 
 
 # Set up logging configuration
@@ -65,10 +101,42 @@ async def get_method_by_name(class_name: str, method_name: str) -> str:
     return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
 
 @mcp.tool()
-async def get_all_classes() -> List[str]:
-    """Returns a list of all classes in the project."""
-    response = await get_from_jadx(f"all-classes")
-    return response.splitlines() if response else []
+async def get_all_classes(offset: int = 0, count: int = 0) -> List[str]:
+    """Returns a list of all classes in the project with pagination.
+    
+    Args:
+        offset: Offset to start listing from (start at 0)
+        count: Number of strings to list (0 means remainder)
+    
+    Returns:
+        A list of all classes in the project.
+    """
+    # Validate offset and count are non-negative
+    offset = max(0, offset)
+    count = max(0, count)
+    
+    cache_key = "all_classes"
+    all_classes = _get_from_cache(cache_key)
+    
+    if all_classes is None:
+        response = await get_from_jadx(f"all-classes")
+        if isinstance(response, dict):
+            all_classes = response.get("classes", [])
+        else:
+            import json
+            try:
+                parsed = json.loads(response)
+                all_classes = parsed.get("classes", [])
+            except (json.JSONDecodeError, AttributeError):
+                all_classes = []
+        _set_cache(cache_key, all_classes)
+    
+    if offset >= len(all_classes):
+        return []
+    
+    if count > 0:
+        return all_classes[offset:offset + count]
+    return all_classes[offset:]
 
 @mcp.tool()
 async def get_class_source(class_name: str) -> str:
@@ -76,22 +144,97 @@ async def get_class_source(class_name: str) -> str:
     return await get_from_jadx("class-source", {"class": class_name})
 
 @mcp.tool()
-async def search_method_by_name(method_name: str) -> List[str]:
-    """Search for a method name across all classes."""
-    response = await get_from_jadx("search-method", {"method": method_name})
-    return response.splitlines() if response else []
+async def search_method_by_name(method_name: str, offset: int = 0, count: int = 0) -> List[str]:
+    """Search for a method name across all classes with pagination.
+    
+    Args:
+        method_name: The name of the method to search for
+        offset: Offset to start listing from (start at 0)
+        count: Number of strings to list (0 means remainder)
+    
+    Returns:
+        A list of all classes containing the method.
+    """
+    # Validate offset and count are non-negative
+    offset = max(0, offset)
+    count = max(0, count)
+    
+    cache_key = f"search_method_{method_name}"
+    all_matches = _get_from_cache(cache_key)
+    
+    if all_matches is None:
+        response = await get_from_jadx("search-method", {"method": method_name})
+        all_matches = response.splitlines() if response else []
+        _set_cache(cache_key, all_matches)
+    
+    if offset >= len(all_matches):
+        return []
+    
+    if count > 0:
+        return all_matches[offset:offset + count]
+    return all_matches[offset:]
 
 @mcp.tool()
-async def get_methods_of_class(class_name: str) -> List[str]:
-    """List all method names in a class."""
-    response = await get_from_jadx("methods-of-class", {"class": class_name})
-    return response.splitlines() if response else []
+async def get_methods_of_class(class_name: str, offset: int = 0, count: int = 0) -> List[str]:
+    """List all method names in a class with pagination.
+    
+    Args:
+        class_name: The name of the class to search for
+        offset: Offset to start listing from (start at 0)
+        count: Number of strings to list (0 means remainder)
+    
+    Returns:
+        A list of all methods in the class.
+    """
+    # Validate offset and count are non-negative
+    offset = max(0, offset)
+    count = max(0, count)
+    
+    cache_key = f"methods_of_class_{class_name}"
+    all_methods = _get_from_cache(cache_key)
+    
+    if all_methods is None:
+        response = await get_from_jadx("methods-of-class", {"class": class_name})
+        all_methods = response.splitlines() if response else []
+        _set_cache(cache_key, all_methods)
+    
+    if offset >= len(all_methods):
+        return []
+    
+    if count > 0:
+        return all_methods[offset:offset + count]
+    return all_methods[offset:]
 
 @mcp.tool()
-async def get_fields_of_class(class_name: str) -> List[str]:
-    """List all field names in a class."""
-    response = await get_from_jadx("fields-of-class", {"class": class_name})
-    return response.splitlines() if response else []
+async def get_fields_of_class(class_name: str, offset: int = 0, count: int = 0) -> List[str]:
+    """List all field names in a class with pagination.
+    
+    Args:
+        class_name: The name of the class to search for
+        offset: Offset to start listing from (start at 0)
+        count: Number of strings to list (0 means remainder)
+    
+    Returns:
+        A list of all fields in the class.
+    """
+    # Validate offset and count are non-negative
+    offset = max(0, offset)
+    count = max(0, count)
+    
+    cache_key = f"fields_of_class_{class_name}"
+    all_fields = _get_from_cache(cache_key)
+    
+    if all_fields is None:
+        response = await get_from_jadx("fields-of-class", {"class": class_name})
+        all_fields = response.splitlines() if response else []
+        _set_cache(cache_key, all_fields)
+    
+    if offset >= len(all_fields):
+        return []
+    
+    if count > 0:
+        return all_fields[offset:offset + count]
+    return all_fields[offset:]
 
 @mcp.tool()
 async def get_method_code(class_name: str, method_name: str) -> str:

@@ -301,6 +301,20 @@ async def get_main_application_class_names(offset: int = 0, count: int = 0) -> L
         Dictionary containing all the main application's classes' names based on the package name defined in the AndroidManifest.xml file.
     """
     
+
+    return await get_from_jadx("main-application-class-names")
+
+@mcp.tool()
+async def get_main_application_class() -> dict:
+    """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
+    
+    Args:
+        None
+
+    Returns:
+        Dictionary containing all classes' source code which are under main package only based on package name defined in the AndroidManifest.xml file.
+    """
+
     offset = max(0, offset)
     count = max(0, count)
 
@@ -319,20 +333,11 @@ async def get_main_application_class_names(offset: int = 0, count: int = 0) -> L
             except (json.JSONDecodeError, AttributeError):
                 class_sources = []
         _set_cache(cache_key, class_sources)
-
-    return await get_from_jadx("main-application-class-names")
-
-@mcp.tool()
-async def get_main_application_class() -> dict:
-    """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
     
-    Args:
-        None
-
-    Returns:
-        Dictionary containing all classes' source code which are under main package only based on package name defined in the AndroidManifest.xml file.
-    """
-    return await get_from_jadx("main-application")
+    if offset >= len(class_sources):
+        return []
+    
+    return class_sources[offset:offset + count] if count > 0 else class_sources[offset:]
     
 @mcp.tool()
 async def get_main_activity_class() -> dict:

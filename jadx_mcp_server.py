@@ -290,7 +290,7 @@ async def get_android_manifest() -> dict:
     return await get_from_jadx("manifest")
     
 @mcp.tool()
-async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[dict]:
+async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[str]:
     """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
     
     Args:
@@ -326,7 +326,7 @@ async def get_main_application_classes_names(offset: int = 0, count: int = 0) ->
     return class_names[offset:offset + count] if count > 0 else class_names[offset:]
 
 @mcp.tool()
-async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:
+async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> List[dict]:
     """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
     
     Args:

@@ -173,6 +173,8 @@ Also huge thanks to [@aaddrick](https://github.com/aaddrick) for developing Clau
 
 And in last thanks to [@anthropics](https://github.com/anthropics) for developing the Model Context Protocol and [@FastMCP](https://github.com/modelcontextprotocol/python-sdk) team
 
+And all opensource maintainers and contributors that makes libraries and dependencies which allows project like this possible.
+
 
 ## 📄 License
 

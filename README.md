@@ -18,7 +18,12 @@
 
 <!-- MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI-MCP](https://github.com/zinja-coder/jadx-ai-mcp) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.-->
 
-![jadx-mcp-banner](static/image.png)
+
+<div align="center">
+    <img alt="banner" height="480px" widht="620px" src="static/image.png">
+</div>
+
+<!-- ![jadx-mcp-banner](static/image.png) -->
 
 --- 
 

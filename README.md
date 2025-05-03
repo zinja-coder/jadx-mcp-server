@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/zinja-coder-jadx-mcp-server-badge.png)](https://mseep.ai/app/zinja-coder-jadx-mcp-server)
+
 <div align="center">
 
 # JADX-MCP-SERVER (Part of Zin's Reverse Engineering MCP Suite)

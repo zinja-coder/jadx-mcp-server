@@ -163,12 +163,6 @@ The following MCP tools are available:
 
  - The files related to **jadx-mcp-server** can be found in this repository only.
 
-## Audited and Received Assessment Badge
-
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/zinja-coder-jadx-mcp-server-badge.png)](https://mseep.ai/app/zinja-coder-jadx-mcp-server)
-
-Thank you Mseep.net for auditing and providing Assessment Badge.
-
 ## 🙏 Credits
 
 This project is a plugin for JADX, an amazing open-source Android decompiler created and maintained by [@skylot](https://github.com/skylot). All core decompilation logic belongs to them. I have only extended it to support my MCP server with AI capabilities.
@@ -185,6 +179,11 @@ And in last thanks to [@anthropics](https://github.com/anthropics) for developin
 
 And all opensource maintainers and contributors that makes libraries and dependencies which allows project like this possible.
 
+## Audited and Received Assessment Badge
+
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/zinja-coder-jadx-mcp-server-badge.png)](https://mseep.ai/app/zinja-coder-jadx-mcp-server)
+
+Thank you Mseep.net for auditing and providing Assessment Badge.
 
 ## 📄 License
 

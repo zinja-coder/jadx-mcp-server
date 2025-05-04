@@ -27,7 +27,7 @@
 
 --- 
 
-# Download now: https://github.com/zinja-coder/jadx-ai-mcp/releases
+#### Download now: https://github.com/zinja-coder/jadx-ai-mcp/releases
 
 ---
 
@@ -56,9 +56,10 @@ It is combination of two tools:
 
 ---
 
-# Other MCP Servers For Android Reverse Engineering
+# Zin MCP Suie
  - **[APKTool-MCP-Server](https://github.com/zinja-coder/apktool-mcp-server)**
-
+ - **[JAD-AI-MCP-Plugin](https://github.com/zinja-coder/jadx-ai-mcp)**
+ - **[ZIN-MCP-Client](https://github.com/zinja-coder/zin-mcp-client)**
 
 ## Current MCP Tools
 
@@ -140,6 +141,22 @@ The following MCP tools are available:
 ## 🛠️ Getting Started
 
 [READ HERE](https://github.com/zinja-coder/jadx-ai-mcp?tab=readme-ov-file#%EF%B8%8F-getting-started)
+
+## Running on Local LLM Using Ollama and Zin MCP Client - Recommended
+
+<div align="center">
+    <a href="https://github.com/zinja-coder/zin-mcp-client">
+    <img alt="zin-mcp-client" height="360px" widht="480px" src="https://github.com/user-attachments/assets/0e8e0ecd-0520-422e-a007-03dc62c4118e">
+    </a>
+</div>
+
+⚡ Lightweight, Fast, Simple, CLI-Based MCP Client for STDIO MCP Servers, to fill the gap and provide bridge between your local LLMs running Ollama and MCP Servers.
+
+Check Now: https://github.com/zinja-coder/zin-mcp-client
+
+Demo: **Perform Code Review to Find Vulnerabilities locally**
+
+https://github.com/user-attachments/assets/4cd26715-b5e6-4b4b-95e4-054de6789f42
 
 ## 🛣️ Future Roadmap
 

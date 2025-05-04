@@ -163,6 +163,11 @@ The following MCP tools are available:
 
  - The files related to **jadx-mcp-server** can be found in this repository only.
 
+## Audited and Received Assessment Badge
+
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/zinja-coder-jadx-mcp-server-badge.png)](https://mseep.ai/app/zinja-coder-jadx-mcp-server)
+
+Thank you Mseep.net for auditing and providing Assessment Badge.
 
 ## 🙏 Credits
 

@@ -300,6 +300,18 @@ async def get_strings() -> dict:
         Dictionary containing contents of strings.xml file.
     """
     return await get_from_jadx("strings")
+
+@mcp.tool()
+async def get_all_resource_file_names() -> dict:
+    """Retrieve all resource files names that exists in application
+
+    Args:
+        None
+
+    Returns:
+        List of all resource files names.
+    """
+    return await get_from_jadx("list-all-resource-files-names")
     
 @mcp.tool()
 async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[str]:

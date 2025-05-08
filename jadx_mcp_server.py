@@ -302,7 +302,7 @@ async def get_strings() -> dict:
     return await get_from_jadx("strings")
 
 @mcp.tool()
-async def get_all_resource_file_names() -> dict:
+async def get_all_resource_file_names() -> list[str]:
     """Retrieve all resource files names that exists in application
 
     Args:
@@ -312,6 +312,18 @@ async def get_all_resource_file_names() -> dict:
         List of all resource files names.
     """
     return await get_from_jadx("list-all-resource-files-names")
+
+@mcp.tool()
+async def get_resource_file(resource_name: str) -> list[str]:
+    """Retrieve all resource files names that exists in application
+
+    Args:
+        resource_name: Name of the resource file
+
+    Returns:
+        Gets the content of resource file specified in 'resource_name' parameter
+    """
+    return await get_from_jadx("get-resource-file", {"name": resource_name})
     
 @mcp.tool()
 async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[str]:

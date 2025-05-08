@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP LLM Web UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .main {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input, textarea, button {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .chat-messages {
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+        .ai-message {
+            background-color: #f1f8e9;
+            margin-right: 20px;
+        }
+        .system-message {
+            background-color: #ffebee;
+            font-style: italic;
+        }
+        .server-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .connected {
+            background-color: #4CAF50;
+        }
+        .disconnected {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>MCP LLM Web UI</h1>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h2>Settings</h2>
+            
+            <div class="form-group">
+                <label for="modelSelect">LLM Model:</label>
+                <select id="modelSelect">
+                    {% for model in models %}
+                        <option value="{{ model }}">{{ model }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <h3>MCP Servers</h3>
+            <div id="serverList">
+                {% for server in servers %}
+                <div class="server-status">
+                    <div class="status-indicator disconnected" id="status-{{ server }}"></div>
+                    <label>
+                        <input type="checkbox" name="server" value="{{ server }}" id="server-{{ server }}">
+                        {{ server }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group" style="margin-top: 15px;">
+                <button id="connectButton">Connect Selected Servers</button>
+            </div>
+            
+            <div class="form-group">
+                <button id="resetButton">Reset Chat</button>
+            </div>
+        </div>
+        
+        <div class="main">
+            <h2>Chat</h2>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system-message">System: Welcome to MCP LLM Web UI. Connect to MCP servers and select a model to begin.</div>
+            </div>
+            
+            <div class="form-group">
+                <textarea id="userInput" rows="4" placeholder="Type your message here..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Connect to WebSocket
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+        
+        // WebSocket event handlers
+        ws.onopen = function(event) {
+            console.log("WebSocket connection established");
+        };
+        
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            if (data.type === 'chat') {
+                addMessage(data.role, data.content);
+            } else if (data.type === 'server_status') {
+                updateServerStatus(data.server, data.connected);
+            }
+        };
+        
+        ws.onclose = function(event) {
+            console.log("WebSocket connection closed");
+            addMessage("system", "WebSocket connection closed. Please refresh the page.");
+        };
+        
+        // UI functions
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            
+            if (role === 'user') {
+                messageDiv.className = 'message user-message';
+                messageDiv.textContent = content;
+            } else if (role === 'ai') {
+                messageDiv.className = 'message ai-message';
+                messageDiv.textContent = content;
+            } else if (role === 'system') {
+                messageDiv.className = 'message system-message';
+                messageDiv.textContent = 'System: ' + content;
+            }
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function updateServerStatus(server, connected) {
+            const statusIndicator = document.getElementById(`status-${server}`);
+            if (statusIndicator) {
+                statusIndicator.className = `status-indicator ${connected ? 'connected' : 'disconnected'}`;
+            }
+        }
+        
+        // Button event handlers
+        document.getElementById('sendButton').addEventListener('click', function() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message) {
+                addMessage('user', message);
+                
+                const selectedModel = document.getElementById('modelSelect').value;
+                
+                ws.send(JSON.stringify({
+                    action: 'message',
+                    message: message,
+                    model: selectedModel
+                }));
+                
+                userInput.value = '';
+            }
+        });
+        
+        document.getElementById('connectButton').addEventListener('click', function() {
+            const serverCheckboxes = document.querySelectorAll('input[name="server"]:checked');
+            const servers = Array.from(serverCheckboxes).map(checkbox => checkbox.value);
+            
+            ws.send(JSON.stringify({
+                action: 'connect_servers',
+                servers: servers
+            }));
+        });
+        
+        document.getElementById('resetButton').addEventListener('click', function() {
+            ws.send(JSON.stringify({
+                action: 'reset_chat'
+            }));
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML = '<div class="message system-message">System: Chat reset.</div>';
+        });
+        
+        // Allow Enter key to send message
+        document.getElementById('userInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                document.getElementById('sendButton').click();
+            }
+        });
+    </script>
+</body>
+</html>
+    

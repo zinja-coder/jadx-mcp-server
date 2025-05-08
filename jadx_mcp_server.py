@@ -288,6 +288,18 @@ async def get_android_manifest() -> dict:
         Dictionary containing content of AndroidManifest.xml file.
     """
     return await get_from_jadx("manifest")
+
+@mcp.tool()
+async def get_strings() -> dict:
+    """Retrieve contents of strings.xml files that exists in application
+
+    Args:
+        None
+
+    Returns:
+        Dictionary containing contents of strings.xml file.
+    """
+    return await get_from_jadx("strings")
     
 @mcp.tool()
 async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[str]:

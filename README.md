@@ -78,6 +78,9 @@ The following MCP tools are available:
 - `get_main_application_classes_code()` — Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
 - `get_main_application_classes_names()` — Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
 - `get_android_manifest()` — Retrieve and return the AndroidManifest.xml content.
+- `get_strings()` : Fetches the strings.xml file
+- `get_all_resource_file_names()` : Retrieve all resource files names that exists in application
+- `get_resource_file()` : Retrieve resource file content  
 
 ---
 

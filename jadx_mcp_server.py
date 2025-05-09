@@ -110,7 +110,7 @@ async def get_selected_text() -> str:
     return await get_from_jadx("selected-text")
 
 @mcp.tool()
-async def get_method_by_name(class_name: str, method_name: str) -> str:
+async def get_method_by_name(class_name: str, method_name: str) -> dict:
     """Fetch the source code of a method from a specific class.
     
     Args:

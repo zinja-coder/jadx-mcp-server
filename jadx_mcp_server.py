@@ -351,7 +351,7 @@ async def get_main_application_classes_names(offset: int = 0, count: int = 0) ->
             import json
             try:
                 parsed = json.loads(response)
-                class_info_list = parsed.get("allClassesInPackageName", [])
+                class_info_list = parsed.get("classes", [])
                 class_names = [cls_info.get("name") for cls_info in class_info_list if "name" in cls_info]
             except (json.JSONDecodeError, AttributeError):
                 class_names = []

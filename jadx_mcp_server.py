@@ -345,17 +345,17 @@ async def get_main_application_classes_names(offset: int = 0, count: int = 0) ->
 
     if class_names is None:
         response = await get_from_jadx("main-application-classes-names")
-        #if isinstance(response, dict):
-        #    class_names = response.get("classes", [])
-        #else:
-        import json
-        try:
-            parsed = json.loads(response)
-            class_info_list = parsed.get("allClassesInPackageName", [])
-            class_names = [cls_info.get("name") for cls_info in class_info_list if "name" in cls_info]
-        except (json.JSONDecodeError, AttributeError):
-            class_names = []
-        _set_cache(cache_key, class_names)
+        if isinstance(response, dict):
+            class_names = response.get("classes", [])
+        else:
+            import json
+            try:
+                parsed = json.loads(response)
+                class_info_list = parsed.get("allClassesInPackageName", [])
+                class_names = [cls_info.get("name") for cls_info in class_info_list if "name" in cls_info]
+            except (json.JSONDecodeError, AttributeError):
+                class_names = []
+            _set_cache(cache_key, class_names)
     
     if offset >= len(class_names):
         return []

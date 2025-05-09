@@ -408,4 +408,5 @@ async def get_main_activity_class(offset: int = 0, count: int = 0) -> List[dict]
     return await get_from_jadx("main-activity")
     
 if __name__ == "__main__":
+    logger.info("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
     mcp.run(transport="stdio")

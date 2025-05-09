@@ -315,7 +315,7 @@ async def get_all_resource_file_names() -> list[str]:
 
 @mcp.tool()
 async def get_resource_file(resource_name: str) -> list[str]:
-    """Retrieve all resource files names that exists in application
+    """Retrieve resource file content
 
     Args:
         resource_name: Name of the resource file

@@ -59,7 +59,7 @@ logger.addHandler(console_handler)
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 
 # To do : implement logic to handle the scenario where port is not available
-JADX_HTTP_BASE = "http://localhost:8650" # Base URL for the JADX-AI-MCP Plugin
+JADX_HTTP_BASE = "http://127.0.0.1:8650" # Base URL for the JADX-AI-MCP Plugin
 
 
 # Generic method to fetch data from jadx

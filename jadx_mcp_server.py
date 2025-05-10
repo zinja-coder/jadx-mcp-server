@@ -2,6 +2,11 @@
 # dependencies = [ "fastmcp", "httpx", "logging" ]
 # ///
 
+"""
+Copyright (c) 2025 jadx mcp server developer(s) (https://github.com/zinja-coder/jadx-ai-mcp)
+See the file 'LICENSE' for copying permission
+"""
+
 import httpx
 import logging
 import time  

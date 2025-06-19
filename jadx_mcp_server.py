@@ -166,7 +166,7 @@ async def get_all_classes(offset: int = 0, count: int = 0) -> List[str]:
         return all_classes[offset:offset + count]
     return all_classes[offset:]
 
-@mcp.tool(name="", description="")
+@mcp.tool(name="get_class_sources", description="Fetch the Java source of a specific class.")
 async def get_class_source(class_name: str) -> str:
     """Fetch the Java source of a specific class.
     

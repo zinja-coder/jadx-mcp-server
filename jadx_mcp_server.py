@@ -340,6 +340,46 @@ async def get_main_activity_class() -> dict:
     """
     return await get_from_jadx("main-activity")
 
+@mcp.tool(name="rename_class", description="rename specific class name to one better understanding name,input class name must contain package name")
+async def rename_class(class_name: str, new_name: str):
+    """Renames a specific class.
+
+    Args:
+        class_name (str): The full name of the class to be renamed, including package name.
+        new_name (str): The new name for the class.
+
+    Returns:
+        dict: The response from the JADX server.
+    """
+    return await get_from_jadx("rename-class", {"class": class_name, "newName": new_name})
+
+@mcp.tool(name="rename_method", description="rename specific method name to one better understanding name,input method name must contain package name and class name")
+async def rename_method(method_name: str, new_name: str):
+    """Renames a specific method.
+
+    Args:
+        method_name (str): The full name of the method to be renamed, including package and class name.
+        new_name (str): The new name for the method.
+
+    Returns:
+        dict: The response from the JADX server.
+    """
+    return await get_from_jadx("rename-method", {"method": method_name, "newName": new_name})
+
+@mcp.tool(name="rename_field", description="rename specific field name to one better understanding name,must input full class name and field name")
+async def rename_field(class_name: str,field_name: str, new_name: str):
+    """Renames a specific field.
+
+    Args:
+        class_name (str): The full class name of field
+        field_name (str): The field to be rename.
+        new_name (str): The new name for the field.
+
+    Returns:
+        dict: The response from the JADX server.
+    """
+    return await get_from_jadx("rename-field", {"class": class_name, "field":field_name,"newFieldName": new_name})
+    
 if __name__ == "__main__":
     logger.info("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
     mcp.run(transport="stdio")

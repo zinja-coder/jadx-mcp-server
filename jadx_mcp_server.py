@@ -247,7 +247,7 @@ async def get_strings() -> dict:
     return await get_from_jadx("strings")
 
 @mcp.tool(name="get_all_resource_file_names", description="Retrieve all resource files names that exists in application.")
-async def get_all_resource_file_names() -> list[str]:
+async def get_all_resource_file_names() -> dict:
     """Retrieve all resource files names that exists in application
 
     Args:
@@ -259,7 +259,7 @@ async def get_all_resource_file_names() -> list[str]:
     return await get_from_jadx("list-all-resource-files-names")
 
 @mcp.tool(name="get_resource_file", description="Retrieve resource file content.")
-async def get_resource_file(resource_name: str) -> list[str]:
+async def get_resource_file(resource_name: str) -> dict:
     """Retrieve resource file content
 
     Args:
@@ -329,7 +329,7 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
     return class_sources[offset:offset + count] if count > 0 else class_sources[offset:]
     
 @mcp.tool(name="get_main_activity_class", description="Fetch the main activity class as defined in the AndroidManifest.xml.")
-async def get_main_activity_class(offset: int = 0, count: int = 0) -> List[dict]:
+async def get_main_activity_class() -> dict:
     """Fetch the main activity class as defined in the AndroidManifest.xml.
     
     Args:

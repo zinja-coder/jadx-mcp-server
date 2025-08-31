@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = [ "fastmcp", "httpx", "logging" ]
+# dependencies = [ "fastmcp", "httpx", "logging", "argparse" ]
 # ///
 
 """
@@ -10,8 +10,9 @@ See the file 'LICENSE' for copying permission
 
 import httpx
 import logging
+import argparse
 
-from typing import List, Union, Dict, Optional
+from typing import List, Union
 from mcp.server.fastmcp import FastMCP
 
 # Set up logging configuration
@@ -30,6 +31,11 @@ mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 # To do : implement logic to handle the scenario where port is not available
 JADX_HTTP_BASE = "http://127.0.0.1:8650" # Base URL for the JADX-AI-MCP Plugin
 
+# Parse the arguments
+parser = argparse.ArgumentParser("MCP Server for Jadx")
+parser.add_argument("--http", help="Serve MCP Server over HTTP stream.", action="store_true", default=False)
+parser.add_argument("--port", help="Specify the port number for --http to serve on. (default:8651)", default=8651, type=int)
+args = parser.parse_args()
 
 # Generic method to fetch data from jadx
 async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
@@ -382,4 +388,10 @@ async def rename_field(class_name: str,field_name: str, new_name: str):
     
 if __name__ == "__main__":
     logger.info("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
-    mcp.run(transport="stdio")
+    if args.http:
+        if args.port:
+            mcp.run(transport="http",port=args.port)
+        else:
+            mcp.run(transport="http",port=8651)
+    else:
+        mcp.run(transport="stdio")

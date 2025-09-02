@@ -11,6 +11,7 @@ See the file 'LICENSE' for copying permission
 import httpx
 import logging
 import argparse
+import json
 
 from typing import List, Union
 from mcp.server.fastmcp import FastMCP
@@ -238,7 +239,10 @@ async def get_android_manifest() -> dict:
     Returns:
         Dictionary containing content of AndroidManifest.xml file.
     """
-    return await get_from_jadx("manifest")
+    manifest = await get_from_jadx("manifest")
+    if isinstance(manifest, str):
+        return json.loads(manifest)
+    return manifest
 
 @mcp.tool(name="get_strings", description="Retrieve contents of strings.xml files that exists in application.")
 async def get_strings() -> dict:

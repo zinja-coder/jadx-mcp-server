@@ -29,14 +29,14 @@ logger.addHandler(console_handler)
 # Initialize the MCP server
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 
-# To do : implement logic to handle the scenario where port is not available
-JADX_HTTP_BASE = "http://127.0.0.1:8650" # Base URL for the JADX-AI-MCP Plugin
-
 # Parse the arguments
 parser = argparse.ArgumentParser("MCP Server for Jadx")
 parser.add_argument("--http", help="Serve MCP Server over HTTP stream.", action="store_true", default=False)
 parser.add_argument("--port", help="Specify the port number for --http to serve on. (default:8651)", default=8651, type=int)
+parser.add_argument("--jadx-port", help="Specify the port on which JADX AI MCP Plugin is running on. (default:8650)", default=8650, type=int)
 args = parser.parse_args()
+
+JADX_HTTP_BASE = f"http://127.0.0.1:{args.jadx_port}" # Base URL for the JADX-AI-MCP Plugin
 
 # Generic method to fetch data from jadx
 async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:

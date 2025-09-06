@@ -37,6 +37,32 @@ parser.add_argument("--jadx-port", help="Specify the port on which JADX AI MCP P
 args = parser.parse_args()
 
 JADX_HTTP_BASE = f"http://127.0.0.1:{args.jadx_port}" # Base URL for the JADX-AI-MCP Plugin
+#print(JADX_HTTP_BASE)
+
+## jadx ai mcp plugin server health ping
+
+def health_ping() -> Union[str, dict]:
+    print(f"Attempting to connect to {JADX_HTTP_BASE}/health")
+    try:
+        with httpx.Client() as client:
+            print("Making HTTP request...")
+            resp = client.get(f"{JADX_HTTP_BASE}/health", timeout=60)
+            print(f"Response status: {resp.status_code}")
+            resp.raise_for_status()
+            print(f"Response text: {resp.text}")
+            return resp.text
+    except httpx.HTTPStatusError as e:
+        error_message = f"HTTP error {e.response.status_code}: {e.response.text}"
+        print(f"HTTP Status Error: {error_message}")
+        return {"error": f"{error_message}."}
+    except httpx.RequestError as e:
+        error_message = f"Request failed: {str(e)}"
+        print(f"Request Error: {error_message}")
+        return {"error": f"{error_message}."}
+    except Exception as e:
+        error_message = f"Unexpected error: {str(e)}"
+        print(f"Unexpected Error: {error_message}")
+        return {"error": f"{error_message}."}      
 
 # Generic method to fetch data from jadx
 async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
@@ -391,7 +417,11 @@ async def rename_field(class_name: str,field_name: str, new_name: str):
     return await get_from_jadx("rename-field", {"class": class_name, "field":field_name,"newFieldName": new_name})
     
 if __name__ == "__main__":
-    logger.info("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
+    print("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
+    print("[------------------------------ Stand By Checking JADX AI MCP Plugin Connectivity ------------------------------]")
+    print("Testing health check...")
+    result = health_ping()
+    print(f"Final result: {result}")
     if args.http:
         if args.port:
             mcp.run(transport="http",port=args.port)

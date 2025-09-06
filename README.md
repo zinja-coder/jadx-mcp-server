@@ -66,7 +66,7 @@ It is combination of two tools:
 
 ---
 
-# Zin MCP Suie
+# Zin MCP Suite
  - **[APKTool-MCP-Server](https://github.com/zinja-coder/apktool-mcp-server)**
  - **[JAD-AI-MCP-Plugin](https://github.com/zinja-coder/jadx-ai-mcp)**
  - **[ZIN-MCP-Client](https://github.com/zinja-coder/zin-mcp-client)**

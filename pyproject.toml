@@ -9,3 +9,9 @@ dependencies = [
     "mcp[cli]>=1.6.0",
     "requests>=2.32.3",
 ]
+
+[tool.setuptools]
+py-modules = ["jadx_mcp_server"]
+
+[project.scripts]
+jadx_mcp_server = "jadx_mcp_server:main"

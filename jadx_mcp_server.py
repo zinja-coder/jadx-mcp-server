@@ -14,7 +14,7 @@ import argparse
 import json
 
 from typing import List, Union
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Set up logging configuration
 logger = logging.getLogger()
@@ -87,31 +87,25 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
 
 # Specific MCP tools
 
-@mcp.tool(name="fetch_current_class", description="Fetch the currently selected class and its code from the JADX-GUI plugin.")
+@mcp.tool()
 async def fetch_current_class() -> dict:
-    """Fetch currently opened class in jadx.
+    """Fetch the currently selected class and its code from the JADX-GUI plugin.
     
-    Args:
-        None
-
     Returns:
         Dictionary containing currently opened class in jadx. 
     """
     return await get_from_jadx("current-class")
 
-@mcp.tool(name="get_selected_text", description="Returns the currently selected text in the decompiled code view.")
+@mcp.tool()
 async def get_selected_text() -> str:
     """Returns the currently selected text in the decompiled code view.
     
-    Args:
-        None
-
     Returns:
         String containing currently highlighted/selected text in jadx-gui.
     """
     return await get_from_jadx("selected-text")
 
-@mcp.tool(name="get_method_by_name", description="Fetch the source code of a method from a specific class.")
+@mcp.tool()
 async def get_method_by_name(class_name: str, method_name: str) -> dict:
     """Fetch the source code of a method from a specific class.
     
@@ -124,7 +118,7 @@ async def get_method_by_name(class_name: str, method_name: str) -> dict:
     """
     return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
 
-@mcp.tool(name="get_all_classes", description="Returns a list of all classes in the project.")
+@mcp.tool()
 async def get_all_classes(offset: int = 0, count: int = 0) -> List[str]:
     """Returns a list of all classes in the project.
     
@@ -156,7 +150,7 @@ async def get_all_classes(offset: int = 0, count: int = 0) -> List[str]:
         return all_classes[offset:offset + count]
     return all_classes[offset:]
 
-@mcp.tool(name="get_class_sources", description="Fetch the Java source of a specific class.")
+@mcp.tool()
 async def get_class_source(class_name: str) -> str:
     """Fetch the Java source of a specific class.
     
@@ -168,7 +162,7 @@ async def get_class_source(class_name: str) -> str:
     """
     return await get_from_jadx("class-source", {"class": class_name})
 
-@mcp.tool(name="search_method_by_name", description="Search for a method name across all classes.")
+@mcp.tool()
 async def search_method_by_name(method_name: str, offset: int = 0, count: int = 0) -> List[str]:
     """Search for a method name across all classes.
     
@@ -193,7 +187,7 @@ async def search_method_by_name(method_name: str, offset: int = 0, count: int = 
         return all_matches[offset:offset + count]
     return all_matches[offset:]
 
-@mcp.tool(name="get_methods_of_class", description="List all method names in a class.")
+@mcp.tool()
 async def get_methods_of_class(class_name: str, offset: int = 0, count: int = 0) -> List[str]:
     """List all method names in a class.
     
@@ -218,7 +212,7 @@ async def get_methods_of_class(class_name: str, offset: int = 0, count: int = 0)
         return all_methods[offset:offset + count]
     return all_methods[offset:]
 
-@mcp.tool(name="get_fields_of_class", description="List all field names in a class.")
+@mcp.tool()
 async def get_fields_of_class(class_name: str, offset: int = 0, count: int = 0) -> List[str]:
     """List all field names in a class.
     
@@ -243,7 +237,7 @@ async def get_fields_of_class(class_name: str, offset: int = 0, count: int = 0) 
         return all_fields[offset:offset + count]
     return all_fields[offset:]
 
-@mcp.tool(name="get_smali_of_class", description="Fetch the smali representation of a class.")
+@mcp.tool()
 async def get_smali_of_class(class_name: str) -> str:
     """Fetch the smali representation of a class.
     
@@ -255,13 +249,10 @@ async def get_smali_of_class(class_name: str) -> str:
     """
     return await get_from_jadx("smali-of-class", {"class": class_name})
 
-@mcp.tool(name="get_android_manifest", description="Retrieve and return the AndroidManifest.xml content.")
+@mcp.tool()
 async def get_android_manifest() -> dict:
     """Retrieve and return the AndroidManifest.xml content.
     
-    Args:
-        None
-
     Returns:
         Dictionary containing content of AndroidManifest.xml file.
     """
@@ -270,31 +261,25 @@ async def get_android_manifest() -> dict:
         return json.loads(manifest)
     return manifest
 
-@mcp.tool(name="get_strings", description="Retrieve contents of strings.xml files that exists in application.")
+@mcp.tool()
 async def get_strings() -> dict:
     """Retrieve contents of strings.xml files that exists in application
-
-    Args:
-        None
 
     Returns:
         Dictionary containing contents of strings.xml file.
     """
     return await get_from_jadx("strings")
 
-@mcp.tool(name="get_all_resource_file_names", description="Retrieve all resource files names that exists in application.")
+@mcp.tool()
 async def get_all_resource_file_names() -> dict:
     """Retrieve all resource files names that exists in application
-
-    Args:
-        None
 
     Returns:
         List of all resource files names.
     """
     return await get_from_jadx("list-all-resource-files-names")
 
-@mcp.tool(name="get_resource_file", description="Retrieve resource file content.")
+@mcp.tool()
 async def get_resource_file(resource_name: str) -> dict:
     """Retrieve resource file content
 
@@ -306,7 +291,7 @@ async def get_resource_file(resource_name: str) -> dict:
     """
     return await get_from_jadx("get-resource-file", {"name": resource_name})
     
-@mcp.tool(name="get_main_application_classes_names", description="Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.")
+@mcp.tool()
 async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[str]:
     """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
     
@@ -337,7 +322,7 @@ async def get_main_application_classes_names(offset: int = 0, count: int = 0) ->
     
     return class_names[offset:offset + count] if count > 0 else class_names[offset:]
 
-@mcp.tool(name="get_main_application_classes_code", description="Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.")
+@mcp.tool()
 async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> List[dict]:
     """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
     
@@ -364,57 +349,54 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
     
     return class_sources[offset:offset + count] if count > 0 else class_sources[offset:]
     
-@mcp.tool(name="get_main_activity_class", description="Fetch the main activity class as defined in the AndroidManifest.xml.")
+@mcp.tool()
 async def get_main_activity_class() -> dict:
     """Fetch the main activity class as defined in the AndroidManifest.xml.
     
-    Args:
-        None
-
     Returns:
         Dictionary containing content of main activity class defined in AndroidManifest.xml file.
     """
     return await get_from_jadx("main-activity")
 
-@mcp.tool(name="rename_class", description="rename specific class name to one better understanding name,input class name must contain package name")
+@mcp.tool()
 async def rename_class(class_name: str, new_name: str):
     """Renames a specific class.
 
     Args:
-        class_name (str): The full name of the class to be renamed, including package name.
-        new_name (str): The new name for the class.
+        class_name: The full name of the class to be renamed, including package name.
+        new_name: The new name for the class.
 
     Returns:
-        dict: The response from the JADX server.
+        The response from the JADX server.
     """
     return await get_from_jadx("rename-class", {"class": class_name, "newName": new_name})
 
-@mcp.tool(name="rename_method", description="rename specific method name to one better understanding name,input method name must contain package name and class name")
+@mcp.tool()
 async def rename_method(method_name: str, new_name: str):
     """Renames a specific method.
 
     Args:
-        method_name (str): The full name of the method to be renamed, including package and class name.
-        new_name (str): The new name for the method.
+        method_name: The full name of the method to be renamed, including package and class name.
+        new_name: The new name for the method.
 
     Returns:
-        dict: The response from the JADX server.
+        The response from the JADX server.
     """
     return await get_from_jadx("rename-method", {"method": method_name, "newName": new_name})
 
-@mcp.tool(name="rename_field", description="rename specific field name to one better understanding name,must input full class name and field name")
-async def rename_field(class_name: str,field_name: str, new_name: str):
+@mcp.tool()
+async def rename_field(class_name: str, field_name: str, new_name: str):
     """Renames a specific field.
 
     Args:
-        class_name (str): The full class name of field
-        field_name (str): The field to be rename.
-        new_name (str): The new name for the field.
+        class_name: The full class name of field
+        field_name: The field to be rename.
+        new_name: The new name for the field.
 
     Returns:
-        dict: The response from the JADX server.
+        The response from the JADX server.
     """
-    return await get_from_jadx("rename-field", {"class": class_name, "field":field_name,"newFieldName": new_name})
+    return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
     
 if __name__ == "__main__":
     print("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
@@ -422,10 +404,9 @@ if __name__ == "__main__":
     print("Testing health check...")
     result = health_ping()
     print(f"Final result: {result}")
+    
     if args.http:
-        if args.port:
-            mcp.run(transport="http",port=args.port)
-        else:
-            mcp.run(transport="http",port=8651)
+        port = args.port if args.port else 8651
+        mcp.run(transport="http", port=port)
     else:
-        mcp.run(transport="stdio")
+        mcp.run()

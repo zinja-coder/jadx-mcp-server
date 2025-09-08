@@ -14,7 +14,7 @@ import argparse
 import json
 
 from typing import List, Union
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Set up logging configuration
 logger = logging.getLogger()

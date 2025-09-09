@@ -489,6 +489,6 @@ if __name__ == "__main__":
     
     if args.http:
         port = args.port if args.port else 8651
-        mcp.run(transport="http", port=port)
+        mcp.run(transport="streamable-http", port=port)
     else:
         mcp.run()

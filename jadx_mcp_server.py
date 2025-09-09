@@ -39,8 +39,8 @@ parser.add_argument("--jadx-port", help="Specify the port on which JADX AI MCP P
 args = parser.parse_args()
 
 JADX_HTTP_BASE = f"http://127.0.0.1:{args.jadx_port}" # Base URL for the JADX-AI-MCP Plugin
-#print(JADX_HTTP_BASE)
 
+## to do separate this in it's own PaginationUtils.py file
 # pagination logic 
 class PaginationUtils:
     """Utility class for handling pagination across different MCP tools"""
@@ -168,7 +168,6 @@ class PaginationUtils:
             return await base_func(offset=offset, count=page_size, **kwargs)
         
         return page_wrapper
-
 
 ## jadx ai mcp plugin server health ping
 def health_ping() -> Union[str, dict]:

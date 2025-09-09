@@ -1,2 +1,4 @@
 httpx
 fastmcp
+logging
+argparse

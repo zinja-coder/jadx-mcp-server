@@ -8,12 +8,14 @@ Copyright (c) 2025 jadx mcp server developer(s) (https://github.com/zinja-coder/
 See the file 'LICENSE' for copying permission
 """
 
+## TO DO break down code into smaller files
+
 import httpx
 import logging
 import argparse
 import json
 
-from typing import List, Union
+from typing import Dict, List, Any, Optional, Union, Callable
 from fastmcp import FastMCP
 
 # Set up logging configuration
@@ -37,10 +39,137 @@ parser.add_argument("--jadx-port", help="Specify the port on which JADX AI MCP P
 args = parser.parse_args()
 
 JADX_HTTP_BASE = f"http://127.0.0.1:{args.jadx_port}" # Base URL for the JADX-AI-MCP Plugin
-#print(JADX_HTTP_BASE)
+
+## to do separate this in it's own PaginationUtils.py file
+# pagination logic 
+class PaginationUtils:
+    """Utility class for handling pagination across different MCP tools"""
+    
+    # Configuration constants
+    DEFAULT_PAGE_SIZE = 100
+    MAX_PAGE_SIZE = 10000
+    MAX_OFFSET = 1000000
+    
+    @staticmethod
+    def validate_pagination_params(offset: int, count: int) -> tuple[int, int]:
+        """Validate and normalize pagination parameters"""
+        offset = max(0, min(offset, PaginationUtils.MAX_OFFSET))
+        count = max(0, min(count, PaginationUtils.MAX_PAGE_SIZE))
+        return offset, count
+    
+    @staticmethod
+    async def get_paginated_data(
+        endpoint: str, 
+        offset: int = 0, 
+        count: int = 0,
+        additional_params: dict = None,
+        data_extractor: Callable[[Any], List[Any]] = None,
+        item_transformer: Callable[[Any], Any] = None
+    ) -> Union[Dict[str, Any], str]:
+        """
+        Generic pagination handler for JADX endpoints
+        
+        Args:
+            endpoint: The JADX endpoint to call
+            offset: Starting offset
+            count: Number of items to return
+            additional_params: Additional query parameters
+            data_extractor: Function to extract data list from response
+            item_transformer: Function to transform individual items
+        """
+        
+        # Validate parameters
+        offset, count = PaginationUtils.validate_pagination_params(offset, count)
+        
+        # Build query parameters
+        params = {"offset": offset}
+        if count > 0:
+            params["limit"] = count
+        
+        if additional_params:
+            params.update(additional_params)
+        
+        try:
+            response = await get_from_jadx(endpoint, params)
+            
+            if isinstance(response, dict):
+                # Handle error responses
+                if "error" in response:
+                    return response
+                return response
+            
+            # Parse JSON response
+            try:
+                parsed = json.loads(response)
+                
+                # Extract data using custom extractor or default behavior
+                if data_extractor:
+                    items = data_extractor(parsed)
+                else:
+                    # Default extractors for common patterns
+                    items = (parsed.get("classes") or 
+                            parsed.get("methods") or 
+                            parsed.get("fields") or 
+                            parsed.get("items", []))
+                
+                # Transform items if transformer provided
+                if item_transformer and items:
+                    items = [item_transformer(item) for item in items]
+                
+                # Build standardized response
+                return PaginationUtils._build_standardized_response(parsed, items)
+                
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON response from JADX: {e}")
+                return {"error": f"Invalid JSON response from JADX server: {str(e)}"}
+                
+        except Exception as e:
+            logger.error(f"Error in paginated request to {endpoint}: {e}")
+            return {"error": f"Failed to fetch data from {endpoint}: {str(e)}"}
+    
+    @staticmethod
+    def _build_standardized_response(parsed_response: dict, items: List[Any]) -> dict:
+        """Build standardized pagination response"""
+        
+        pagination_info = parsed_response.get("pagination", {})
+        
+        result = {
+            "type": parsed_response.get("type", "paginated-list"),
+            "items": items,
+            "pagination": {
+                "total": pagination_info.get("total", len(items)),
+                "offset": pagination_info.get("offset", 0),
+                "limit": pagination_info.get("limit", 0),
+                "count": pagination_info.get("count", len(items)),
+                "has_more": pagination_info.get("has_more", False)
+            }
+        }
+        
+        # Add navigation helpers if available
+        if "next_offset" in pagination_info:
+            result["pagination"]["next_offset"] = pagination_info["next_offset"]
+        if "prev_offset" in pagination_info:
+            result["pagination"]["prev_offset"] = pagination_info["prev_offset"]
+        if "current_page" in pagination_info:
+            result["pagination"]["current_page"] = pagination_info["current_page"]
+            result["pagination"]["total_pages"] = pagination_info.get("total_pages", 1)
+            result["pagination"]["page_size"] = pagination_info.get("page_size", 0)
+        
+        return result
+    
+    @staticmethod
+    def create_page_based_tool(base_func: Callable) -> Callable:
+        """Decorator to create page-based versions of offset-based functions"""
+        async def page_wrapper(page: int = 1, page_size: int = DEFAULT_PAGE_SIZE, **kwargs) -> dict:
+            page = max(1, page)
+            page_size = max(1, min(page_size, PaginationUtils.MAX_PAGE_SIZE))
+            offset = (page - 1) * page_size
+            
+            return await base_func(offset=offset, count=page_size, **kwargs)
+        
+        return page_wrapper
 
 ## jadx ai mcp plugin server health ping
-
 def health_ping() -> Union[str, dict]:
     print(f"Attempting to connect to {JADX_HTTP_BASE}/health")
     try:
@@ -119,36 +248,22 @@ async def get_method_by_name(class_name: str, method_name: str) -> dict:
     return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
 
 @mcp.tool()
-async def get_all_classes(offset: int = 0, count: int = 0) -> List[str]:
-    """Returns a list of all classes in the project.
+async def get_all_classes(offset: int = 0, count: int = 0) -> dict:
+    """Returns a list of all classes in the project with pagination support.
     
     Args:
         offset: Offset to start listing from (start at 0)
-        count: Number of strings to list (0 means remainder)
+        count: Number of classes to return (0 means use server default)
     
     Returns:
-        A list of all classes in the project.
+        A dictionary containing paginated class list and metadata.
     """
-    offset = max(0, offset)
-    count = max(0, count)
-    
-    response = await get_from_jadx(f"all-classes")
-    if isinstance(response, dict):
-        all_classes = response.get("classes", [])
-    else:
-        import json
-        try:
-            parsed = json.loads(response)
-            all_classes = parsed.get("classes", [])
-        except (json.JSONDecodeError, AttributeError):
-            all_classes = []
-    
-    if offset >= len(all_classes):
-        return []
-    
-    if count > 0:
-        return all_classes[offset:offset + count]
-    return all_classes[offset:]
+    return await PaginationUtils.get_paginated_data(
+        endpoint="all-classes",
+        offset=offset,
+        count=count,
+        data_extractor=lambda parsed: parsed.get("classes", [])
+    )
 
 @mcp.tool()
 async def get_class_source(class_name: str) -> str:
@@ -163,79 +278,52 @@ async def get_class_source(class_name: str) -> str:
     return await get_from_jadx("class-source", {"class": class_name})
 
 @mcp.tool()
-async def search_method_by_name(method_name: str, offset: int = 0, count: int = 0) -> List[str]:
+async def search_method_by_name(method_name: str) -> List[str]:
     """Search for a method name across all classes.
     
     Args:
         method_name: The name of the method to search for
-        offset: Offset to start listing from (start at 0)
-        count: Number of strings to list (0 means remainder)
     
     Returns:
         A list of all classes containing the method.
     """
-    offset = max(0, offset)
-    count = max(0, count)
     
     response = await get_from_jadx("search-method", {"method": method_name})
     all_matches = response.splitlines() if response else []
     
-    if offset >= len(all_matches):
-        return []
-    
-    if count > 0:
-        return all_matches[offset:offset + count]
-    return all_matches[offset:]
+    return all_matches
 
 @mcp.tool()
-async def get_methods_of_class(class_name: str, offset: int = 0, count: int = 0) -> List[str]:
+async def get_methods_of_class(class_name: str) -> List[str]:
     """List all method names in a class.
     
     Args:
         class_name: The name of the class to search for
-        offset: Offset to start listing from (start at 0)
-        count: Number of strings to list (0 means remainder)
-    
+
     Returns:
         A list of all methods in the class.
     """
-    offset = max(0, offset)
-    count = max(0, count)
-    
+
     response = await get_from_jadx("methods-of-class", {"class": class_name})
     all_methods = response.splitlines() if response else []
-    
-    if offset >= len(all_methods):
-        return []
-    
-    if count > 0:
-        return all_methods[offset:offset + count]
-    return all_methods[offset:]
+
+    return all_methods
 
 @mcp.tool()
-async def get_fields_of_class(class_name: str, offset: int = 0, count: int = 0) -> List[str]:
+async def get_fields_of_class(class_name: str) -> List[str]:
     """List all field names in a class.
     
     Args:
         class_name: The name of the class to search for
-        offset: Offset to start listing from (start at 0)
-        count: Number of strings to list (0 means remainder)
     
     Returns:
         A list of all fields in the class.
     """
-    offset = max(0, offset)
-    count = max(0, count)
-    
+
     response = await get_from_jadx("fields-of-class", {"class": class_name})
     all_fields = response.splitlines() if response else []
-    
-    if offset >= len(all_fields):
-        return []
-    
-    if count > 0:
-        return all_fields[offset:offset + count]
-    return all_fields[offset:]
+
+    return all_fields
 
 @mcp.tool()
 async def get_smali_of_class(class_name: str) -> str:
@@ -262,13 +350,22 @@ async def get_android_manifest() -> dict:
     return manifest
 
 @mcp.tool()
-async def get_strings() -> dict:
+async def get_strings(offset: int = 0, count: int = 0) -> dict:
     """Retrieve contents of strings.xml files that exists in application
+
+    Args:
+        offset: Offset to start listing from (start at 0)
+        count: Number of strings to return (0 means user server default)
 
     Returns:
         Dictionary containing contents of strings.xml file.
     """
-    return await get_from_jadx("strings")
+    return await PaginationUtils.get_paginated_data(
+        endpoint="strings",
+        offset=offset,
+        count=count,
+        data_extractor=lambda parsed: parsed.get("strings", [])
+    )
 
 @mcp.tool()
 async def get_all_resource_file_names() -> dict:
@@ -292,19 +389,16 @@ async def get_resource_file(resource_name: str) -> dict:
     return await get_from_jadx("get-resource-file", {"name": resource_name})
     
 @mcp.tool()
-async def get_main_application_classes_names(offset: int = 0, count: int = 0) -> List[str]:
+async def get_main_application_classes_names() -> List[str]:
     """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
     
     Args:
-        offset: Offset to start listing from (start at 0)
-        count: Number of strings to list (0 means remainder)
-
+        None
+        
     Returns:
         Dictionary containing all the main application's classes' names based on the package name defined in the AndroidManifest.xml file.
     """
-    offset = max(0, offset)
-    count = max(0, count)
-
+    
     response = await get_from_jadx("main-application-classes-names")
     if isinstance(response, dict):
         class_names = response.get("classes", [])
@@ -317,37 +411,25 @@ async def get_main_application_classes_names(offset: int = 0, count: int = 0) ->
         except (json.JSONDecodeError, AttributeError):
             class_names = []
     
-    if offset >= len(class_names):
-        return []
-    
-    return class_names[offset:offset + count] if count > 0 else class_names[offset:]
+    return class_names
 
 @mcp.tool()
-async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> List[dict]:
-    """Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
+async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:
+    """Fetch main application classes' code with pagination.
     
     Args:
         offset: Offset to start listing from (start at 0)
-        count: Number of strings to list (0 means remainder)
+        count: Number of classes to return (0 means use server default)
 
     Returns:
-        Dictionary containing all classes' source code which are under main package only based on package name defined in the AndroidManifest.xml file.
+        Dictionary containing paginated main application classes with code.
     """
-    offset = max(0, offset)
-    count = max(0, count)
-
-    response = await get_from_jadx("main-application-classes-code")
-    import json
-    try:
-        parsed = json.loads(response)
-        class_sources = parsed.get("allClassesInPackage", [])
-    except (json.JSONDecodeError, AttributeError):
-        class_sources = []
-    
-    if offset >= len(class_sources):
-        return []
-    
-    return class_sources[offset:offset + count] if count > 0 else class_sources[offset:]
+    return await PaginationUtils.get_paginated_data(
+        endpoint="main-application-classes-code",
+        offset=offset,
+        count=count,
+        data_extractor=lambda parsed: parsed.get("allClassesInPackage", [])
+    )
     
 @mcp.tool()
 async def get_main_activity_class() -> dict:
@@ -407,6 +489,6 @@ if __name__ == "__main__":
     
     if args.http:
         port = args.port if args.port else 8651
-        mcp.run(transport="http", port=port)
+        mcp.run(transport="streamable-http", port=port)
     else:
         mcp.run()

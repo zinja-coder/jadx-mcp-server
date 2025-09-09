@@ -350,13 +350,22 @@ async def get_android_manifest() -> dict:
     return manifest
 
 @mcp.tool()
-async def get_strings() -> dict:
+async def get_strings(offset: int = 0, count: int = 0) -> dict:
     """Retrieve contents of strings.xml files that exists in application
+
+    Args:
+        offset: Offset to start listing from (start at 0)
+        count: Number of strings to return (0 means user server default)
 
     Returns:
         Dictionary containing contents of strings.xml file.
     """
-    return await get_from_jadx("strings")
+    return await PaginationUtils.get_paginated_data(
+        endpoint="strings",
+        offset=offset,
+        count=count,
+        data_extractor=lambda parsed: parsed.get("strings", [])
+    )
 
 @mcp.tool()
 async def get_all_resource_file_names() -> dict:

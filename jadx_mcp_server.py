@@ -479,8 +479,8 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
         The response from the JADX server.
     """
     return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
-    
-if __name__ == "__main__":
+
+def main():
     print("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
     print("[------------------------------ Stand By Checking JADX AI MCP Plugin Connectivity ------------------------------]")
     print("Testing health check...")
@@ -492,3 +492,6 @@ if __name__ == "__main__":
         mcp.run(transport="streamable-http", port=port)
     else:
         mcp.run()
+
+if __name__ == "__main__":
+    main()

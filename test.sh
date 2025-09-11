@@ -4,7 +4,7 @@
 # This is the test script to test the working on Jadx MCP Server.
 # 1. Start the jadx
 # 2. Load DVAC apk into jadx -> https://github.com/zinja-coder/Damn-Vulnerable-Android-Components/
-# 3. Start the jadx on port 8652
+# 3. Start the jadx on port 8652 (or your choice or the leave it default 8650)
 # 4. Start the jadx mcp server in http stream mode on port 9000 
 # 5. Command for step 4. -> `uv run jadx_mcp_server.py --http --port 9000 --jadx--port 8652`
 ###

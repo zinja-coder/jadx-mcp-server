@@ -160,7 +160,7 @@ class PaginationUtils:
     @staticmethod
     def create_page_based_tool(base_func: Callable) -> Callable:
         """Decorator to create page-based versions of offset-based functions"""
-        async def page_wrapper(page: int = 1, page_size: int = DEFAULT_PAGE_SIZE, **kwargs) -> dict:
+        async def page_wrapper(page: int = 1, page_size: int = PaginationUtils.DEFAULT_PAGE_SIZE, **kwargs) -> dict:
             page = max(1, page)
             page_size = max(1, min(page_size, PaginationUtils.MAX_PAGE_SIZE))
             offset = (page - 1) * page_size

@@ -323,7 +323,7 @@ async def get_methods_of_class(class_name: str) -> dict:
         A list of all methods in the class.
     """
 
-    response = await get_from_jadx("methods-of-class", {"method": class_name})
+    response = await get_from_jadx("methods-of-class", {"class_name": class_name})
     if isinstance(response, str):
         return json.loads(response)
     return response
@@ -339,7 +339,7 @@ async def get_fields_of_class(class_name: str) -> dict:
         A list of all fields in the class.
     """
 
-    response = await get_from_jadx("fields-of-class", {"method": class_name})
+    response = await get_from_jadx("fields-of-class", {"class_name": class_name})
     if isinstance(response, str):
         return json.loads(response)
     return response

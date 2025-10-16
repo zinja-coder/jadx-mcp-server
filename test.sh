@@ -123,7 +123,7 @@ call_tool "get_methods_of_class" '{"class_name":"com.zin.dvac.AuthActivity"}' 18
 
 # 12) get_fields_of_class
 echo "--- get_fields_of_class ---"
-call_tool "get_fields_of_class" '{"class_name":"com.zin.dvac.AuthActivity"}' 19 | jq -r '.result[]? // .'
+call_tool "get_fields_of_class" '{"class_name":"com.zin.dvac.DatabaseHelper"}' 19 | jq -r '.result[]? // .'
 
 # 13) get_smali_of_class
 echo "--- get_smali_of_class ---"
@@ -152,11 +152,11 @@ echo "--- get_main_application_classes_code (offset=0,count=3) ---"
 call_tool "get_main_application_classes_code" '{"offset":0,"count":3}' 25 | jq -r '.result.items[]?.name, .result.items[]?.content'
 
 # 19) rename operations (use with care; examples commented)
-echo "--- rename_class ---"
-call_tool "rename_class"  '{"class_name":"com.zin.dvac.AuthActivity","new_name":"WebViewActivity"}' 26 | jq
-echo "--- rename_method ---"
-call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 27 | jq
-echo "--- rename_field ---"
-call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 28 | jq
+#echo "--- rename_class ---"
+#call_tool "rename_class"  '{"class_name":"com.zin.dvac.AuthActivity","new_name":"WebViewActivity"}' 26 | jq
+#echo "--- rename_method ---"
+#call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 27 | jq
+#echo "--- rename_field ---"
+#call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 28 | jq
 
 echo "== done =="

@@ -207,7 +207,10 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
             resp.raise_for_status()
             response = resp.text
             if isinstance(response, str):
-                return json.loads(response)
+                try:
+                    return json.loads(response)
+                except Exception as e: # fix the `Unexpected error: Expecting value: line 1 column 1 (char 0).` error
+                    response = {"response":resp.text}
             return response
     except httpx.HTTPStatusError as e:
         error_message = f"HTTP error {e.response.status_code}: {e.response.text}"
@@ -320,7 +323,7 @@ async def get_methods_of_class(class_name: str) -> dict:
         A list of all methods in the class.
     """
 
-    response = await get_from_jadx("methods-of-class", {"method": class_name})
+    response = await get_from_jadx("methods-of-class", {"class_name": class_name})
     if isinstance(response, str):
         return json.loads(response)
     return response
@@ -336,7 +339,7 @@ async def get_fields_of_class(class_name: str) -> dict:
         A list of all fields in the class.
     """
 
-    response = await get_from_jadx("fields-of-class", {"method": class_name})
+    response = await get_from_jadx("fields-of-class", {"class_name": class_name})
     if isinstance(response, str):
         return json.loads(response)
     return response

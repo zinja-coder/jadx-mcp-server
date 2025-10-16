@@ -17,6 +17,8 @@ import json
 
 from typing import Dict, List, Any, Optional, Union, Callable
 from fastmcp import FastMCP
+from fastmcp.server.middleware.logging import StructuredLoggingMiddleware
+
 
 # Set up logging configuration
 logger = logging.getLogger()
@@ -30,6 +32,9 @@ logger.addHandler(console_handler)
 
 # Initialize the MCP server
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
+
+# for development only
+mcp.add_middleware(StructuredLoggingMiddleware(include_payloads=True))
 
 # Parse the arguments
 parser = argparse.ArgumentParser("MCP Server for Jadx")
@@ -200,7 +205,10 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
         async with httpx.AsyncClient() as client:
             resp = await client.get(f"{JADX_HTTP_BASE}/{endpoint}", params=params, timeout=60)
             resp.raise_for_status()
-            return resp.text
+            response = resp.text
+            if isinstance(response, str):
+                return json.loads(response)
+            return response
     except httpx.HTTPStatusError as e:
         error_message = f"HTTP error {e.response.status_code}: {e.response.text}"
         logger.error(error_message)
@@ -226,16 +234,19 @@ async def fetch_current_class() -> dict:
     return await get_from_jadx("current-class")
 
 @mcp.tool()
-async def get_selected_text() -> str:
+async def get_selected_text() -> dict:
     """Returns the currently selected text in the decompiled code view.
     
     Returns:
         String containing currently highlighted/selected text in jadx-gui.
     """
-    return await get_from_jadx("selected-text")
+    response = await get_from_jadx("selected-text")
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
-async def get_method_by_name(class_name: str, method_name: str) -> str:
+async def get_method_by_name(class_name: str, method_name: str) -> dict:
     """Fetch the source code of a method from a specific class.
     
     Args:
@@ -245,7 +256,10 @@ async def get_method_by_name(class_name: str, method_name: str) -> str:
     Returns:
         Code of requested method as String.
     """
-    return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
+    response = await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
 async def get_all_classes(offset: int = 0, count: int = 0) -> dict:
@@ -266,7 +280,7 @@ async def get_all_classes(offset: int = 0, count: int = 0) -> dict:
     )
 
 @mcp.tool()
-async def get_class_source(class_name: str) -> str:
+async def get_class_source(class_name: str) -> dict:
     """Fetch the Java source of a specific class.
     
     Args:
@@ -275,10 +289,13 @@ async def get_class_source(class_name: str) -> str:
     Returns:
         Code of requested class as String.
     """
-    return await get_from_jadx("class-source", {"class": class_name})
+    response = await get_from_jadx("class-source", {"class": class_name})
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
-async def search_method_by_name(method_name: str) -> List[str]:
+async def search_method_by_name(method_name: str) -> dict:
     """Search for a method name across all classes.
     
     Args:
@@ -287,14 +304,13 @@ async def search_method_by_name(method_name: str) -> List[str]:
     Returns:
         A list of all classes containing the method.
     """
-    
     response = await get_from_jadx("search-method", {"method": method_name})
-    all_matches = response.splitlines() if response else []
-    
-    return all_matches
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
-async def get_methods_of_class(class_name: str) -> List[str]:
+async def get_methods_of_class(class_name: str) -> dict:
     """List all method names in a class.
     
     Args:
@@ -304,13 +320,13 @@ async def get_methods_of_class(class_name: str) -> List[str]:
         A list of all methods in the class.
     """
 
-    response = await get_from_jadx("methods-of-class", {"class": class_name})
-    all_methods = response.splitlines() if response else []
-
-    return all_methods
+    response = await get_from_jadx("methods-of-class", {"method": class_name})
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
-async def get_fields_of_class(class_name: str) -> List[str]:
+async def get_fields_of_class(class_name: str) -> dict:
     """List all field names in a class.
     
     Args:
@@ -320,13 +336,13 @@ async def get_fields_of_class(class_name: str) -> List[str]:
         A list of all fields in the class.
     """
 
-    response = await get_from_jadx("fields-of-class", {"class": class_name})
-    all_fields = response.splitlines() if response else []
-
-    return all_fields
+    response = await get_from_jadx("fields-of-class", {"method": class_name})
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
-async def get_smali_of_class(class_name: str) -> str:
+async def get_smali_of_class(class_name: str) -> dict:
     """Fetch the smali representation of a class.
     
     Args:
@@ -335,7 +351,10 @@ async def get_smali_of_class(class_name: str) -> str:
     Returns:
         Smali code of the requested class as String.
     """
-    return await get_from_jadx("smali-of-class", {"class": class_name})
+    response = await get_from_jadx("smali-of-class", {"class": class_name})
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
 async def get_android_manifest() -> dict:
@@ -389,7 +408,7 @@ async def get_resource_file(resource_name: str) -> dict:
     return await get_from_jadx("get-resource-file", {"name": resource_name})
     
 @mcp.tool()
-async def get_main_application_classes_names() -> List[str]:
+async def get_main_application_classes_names() -> dict:
     """Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
     
     Args:
@@ -400,18 +419,9 @@ async def get_main_application_classes_names() -> List[str]:
     """
     
     response = await get_from_jadx("main-application-classes-names")
-    if isinstance(response, dict):
-        class_names = response.get("classes", [])
-    else:
-        import json
-        try:
-            parsed = json.loads(response)
-            class_info_list = parsed.get("classes", [])
-            class_names = [cls_info.get("name") for cls_info in class_info_list if "name" in cls_info]
-        except (json.JSONDecodeError, AttributeError):
-            class_names = []
-    
-    return class_names
+    if isinstance(response, str):
+        return json.loads(response)
+    return response
 
 @mcp.tool()
 async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:

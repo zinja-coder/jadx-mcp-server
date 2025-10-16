@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-MCP_URL="${MCP_URL:-http://127.0.0.1:9000/mcp/}"
+MCP_URL="${MCP_URL:-http://127.0.0.1:9000/mcp}"
 ACCEPT_HDR="application/json, text/event-stream"
 CONTENT_HDR="application/json"
 

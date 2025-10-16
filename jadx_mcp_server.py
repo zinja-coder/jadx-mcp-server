@@ -243,10 +243,7 @@ async def get_selected_text() -> dict:
     Returns:
         String containing currently highlighted/selected text in jadx-gui.
     """
-    response = await get_from_jadx("selected-text")
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("selected-text")
 
 @mcp.tool()
 async def get_method_by_name(class_name: str, method_name: str) -> dict:
@@ -259,10 +256,7 @@ async def get_method_by_name(class_name: str, method_name: str) -> dict:
     Returns:
         Code of requested method as String.
     """
-    response = await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
 
 @mcp.tool()
 async def get_all_classes(offset: int = 0, count: int = 0) -> dict:
@@ -292,10 +286,7 @@ async def get_class_source(class_name: str) -> dict:
     Returns:
         Code of requested class as String.
     """
-    response = await get_from_jadx("class-source", {"class": class_name})
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("class-source", {"class": class_name})
 
 @mcp.tool()
 async def search_method_by_name(method_name: str) -> dict:
@@ -307,10 +298,7 @@ async def search_method_by_name(method_name: str) -> dict:
     Returns:
         A list of all classes containing the method.
     """
-    response = await get_from_jadx("search-method", {"method": method_name})
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("search-method", {"method": method_name})
 
 @mcp.tool()
 async def get_methods_of_class(class_name: str) -> dict:
@@ -323,10 +311,7 @@ async def get_methods_of_class(class_name: str) -> dict:
         A list of all methods in the class.
     """
 
-    response = await get_from_jadx("methods-of-class", {"class_name": class_name})
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("methods-of-class", {"class_name": class_name})
 
 @mcp.tool()
 async def get_fields_of_class(class_name: str) -> dict:
@@ -339,10 +324,7 @@ async def get_fields_of_class(class_name: str) -> dict:
         A list of all fields in the class.
     """
 
-    response = await get_from_jadx("fields-of-class", {"class_name": class_name})
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("fields-of-class", {"class_name": class_name})
 
 @mcp.tool()
 async def get_smali_of_class(class_name: str) -> dict:
@@ -354,10 +336,7 @@ async def get_smali_of_class(class_name: str) -> dict:
     Returns:
         Smali code of the requested class as String.
     """
-    response = await get_from_jadx("smali-of-class", {"class": class_name})
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("smali-of-class", {"class": class_name})
 
 @mcp.tool()
 async def get_android_manifest() -> dict:
@@ -366,10 +345,7 @@ async def get_android_manifest() -> dict:
     Returns:
         Dictionary containing content of AndroidManifest.xml file.
     """
-    manifest = await get_from_jadx("manifest")
-    if isinstance(manifest, str):
-        return json.loads(manifest)
-    return manifest
+    return await get_from_jadx("manifest")
 
 @mcp.tool()
 async def get_strings(offset: int = 0, count: int = 0) -> dict:
@@ -421,10 +397,7 @@ async def get_main_application_classes_names() -> dict:
         Dictionary containing all the main application's classes' names based on the package name defined in the AndroidManifest.xml file.
     """
     
-    response = await get_from_jadx("main-application-classes-names")
-    if isinstance(response, str):
-        return json.loads(response)
-    return response
+    return await get_from_jadx("main-application-classes-names")
 
 @mcp.tool()
 async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:

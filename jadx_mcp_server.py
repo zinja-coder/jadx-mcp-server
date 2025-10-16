@@ -34,7 +34,7 @@ logger.addHandler(console_handler)
 # Initialize the MCP server
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 
-# for development only
+# fastmcp logs
 mcp.add_middleware(StructuredLoggingMiddleware(include_payloads=True))
 
 # Parse the arguments
@@ -45,8 +45,6 @@ parser.add_argument("--jadx-port", help="Specify the port on which JADX AI MCP P
 args = parser.parse_args()
 
 JADX_HTTP_BASE = f"http://127.0.0.1:{args.jadx_port}" # Base URL for the JADX-AI-MCP Plugin
-
-## to do separate this in it's own PaginationUtils.py file
 
 ## jadx ai mcp plugin server health ping
 def health_ping() -> Union[str, dict]:

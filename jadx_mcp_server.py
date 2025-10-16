@@ -207,7 +207,10 @@ async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
             resp.raise_for_status()
             response = resp.text
             if isinstance(response, str):
-                return json.loads(response)
+                try:
+                    return json.loads(response)
+                except Exception as e: # fix the `Unexpected error: Expecting value: line 1 column 1 (char 0).` error
+                    response = {"response":resp.text}
             return response
     except httpx.HTTPStatusError as e:
         error_message = f"HTTP error {e.response.status_code}: {e.response.text}"

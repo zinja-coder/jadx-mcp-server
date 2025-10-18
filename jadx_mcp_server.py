@@ -70,6 +70,35 @@ def health_ping() -> Union[str, dict]:
         print(f"Unexpected Error: {error_message}")
         return {"error": f"{error_message}."}      
 
+
+# Generic method to post data to jadx
+async def post_to_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
+    """Generic helper to POST data to the JADX plugin with proper error reporting and logging."""
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(f"{JADX_HTTP_BASE}/{endpoint}", params=params, timeout=60)
+            resp.raise_for_status()
+            response = resp.text
+            if isinstance(response, str):
+                try:
+                    return json.loads(response)
+                except Exception as e:
+                    response = {"response":resp.text}
+            return response
+    except httpx.HTTPStatusError as e:
+        error_message = f"HTTP error {e.response.status_code}: {e.response.text}"
+        logger.error(error_message)
+        return {"error": f"{error_message}."}
+    except httpx.RequestError as e:
+        error_message = f"Request failed: {str(e)}"
+        logger.error(error_message)
+        return {"error": f"{error_message}."}
+    except Exception as e:
+        error_message = f"Unexpected error: {str(e)}"
+        logger.error(error_message)
+        return {"error": f"{error_message}."}
+
+
 # Generic method to fetch data from jadx
 async def get_from_jadx(endpoint: str, params: dict = {}) -> Union[str, dict]:
     """Generic helper to request data from the JADX plugin with proper error reporting and logging."""
@@ -340,6 +369,397 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
         The response from the JADX server.
     """
     return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
+
+@mcp.tool()
+async def debug_status() -> dict:
+    """Get current debugger status including attachment state and process info.
+    
+    Returns:
+        Status dict with:
+        - available: Whether debugger panel is initialized
+        - attached: Whether debugger is attached to a process
+        - suspended: Whether process execution is paused
+        - processName: Name of attached process (if attached)
+    """
+    try:
+        response = await get_from_jadx("debug/status")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_initialize() -> dict:
+    """Initialize JADX debugger panel (opens Tools -> Debugger).
+    
+    This MUST be called before any debug operations to ensure the
+    debugger panel is available in JADX GUI.
+    
+    Returns:
+        Success status of initialization with message
+    """
+    try:
+        response = await post_to_jadx("debug/initialize")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_attach(
+    process_name: str,
+    host: str = "localhost",
+    port: int = 8700,
+    android_version: int = 29,
+    pid: str = None
+) -> dict:
+    """Attach debugger to Android process via JDWP.
+    
+    Prerequisites:
+    1. ADB connected: adb devices
+    2. Find PID: adb shell ps | grep com.your.app
+    3. Forward JDWP: adb forward tcp:8700 jdwp:<PID>
+    4. App must be debuggable or device rooted
+    
+    Args:
+        process_name: Package name (e.g., 'com.example.app')
+        host: JDWP host (default: 'localhost')
+        port: JDWP port (default: 8700)
+        android_version: Android API level (default: 29)
+        pid: Process ID (optional)
+    
+    Returns:
+        Attachment status with connection details including:
+        - success: Whether attachment succeeded
+        - attached: Attachment state
+        - process: Process name
+        - host: JDWP host
+        - port: JDWP port
+        - message: Status message
+    """
+    try:
+        params = {
+            "process": process_name,
+            "host": host,
+            "port": str(port),
+            "androidVer": str(android_version)
+        }
+        if pid:
+            params["pid"] = pid
+            
+        response = await post_to_jadx("debug/attach", params)
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+async def get_smali_for_debugging(class_name: str) -> dict:
+    """Get Smali bytecode with line numbers for setting debug breakpoints.
+    
+    This returns the complete Smali code for a class with:
+    - Line numbers for each line
+    - Debuggable line markers (indicates if breakpoint can be set)
+    - Method boundaries (.method start/.end method)
+    - Raw Smali code
+    
+    Use this to identify exact line numbers where breakpoints should be set.
+    Breakpoints can only be set on executable instructions (debuggable=true),
+    not on comments, empty lines, or directive lines.
+    
+    Args:
+        class_name: Full class name (e.g., 'com.example.MainActivity')
+    
+    Returns:
+        Dict with:
+        - class: Class name
+        - type: "smali-debug"
+        - totalLines: Total number of lines
+        - lines: Array of line objects with:
+          - lineNumber: Line number (1-indexed)
+          - content: Actual line content
+          - debuggable: Boolean indicating if breakpoint can be set here
+          - methodStart: Boolean (if line starts a method)
+          - methodEnd: Boolean (if line ends a method)
+        - rawSmali: Complete raw Smali code as string
+    
+    Example Usage:
+        # Get Smali with line numbers
+        smali = await get_smali_for_debugging("com.example.MainActivity")
+        
+        # Find debuggable lines
+        for line in smali["lines"]:
+            if line["debuggable"]:
+                print(f"Can set breakpoint at line {line['lineNumber']}: {line['content']}")
+    """
+    try:
+        response = await get_from_jadx("smali-debug", {"class": class_name})
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def get_method_smali_for_debugging(class_name: str, method_name: str) -> dict:
+    """Get method-specific Smali bytecode with line numbers for precise breakpoint placement.
+    
+    Returns only the Smali code for a specific method with both absolute
+    and relative line numbers. This is useful for setting breakpoints
+    within a specific method.
+    
+    Args:
+        class_name: Full class name (e.g., 'com.example.MainActivity')
+        method_name: Method name (e.g., 'onCreate')
+    
+    Returns:
+        Dict with:
+        - class: Class name
+        - method: Method name
+        - type: "smali-method-debug"
+        - methodStartLine: Absolute line number where method starts in full class
+        - totalLines: Number of lines in this method
+        - lines: Array of line objects with:
+          - absoluteLine: Line number in complete class file
+          - relativeLine: Line number relative to method start (1-indexed)
+          - content: Actual line content
+          - debuggable: Boolean indicating if breakpoint can be set
+    
+    Example Usage:
+        # Get method-specific Smali
+        smali = await get_method_smali_for_debugging(
+            "com.example.MainActivity",
+            "onCreate"
+        )
+        
+        # Find first debuggable line in method
+        for line in smali["lines"]:
+            if line["debuggable"]:
+                print(f"Set breakpoint at line {line['absoluteLine']}")
+                await debug_navigate_breakpoint(
+                    smali["class"],
+                    line["absoluteLine"]
+                )
+                break
+    """
+    try:
+        response = await get_from_jadx("method-smali-debug", {
+            "class": class_name,
+            "method": method_name
+        })
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+async def debug_detach() -> dict:
+    """Detach debugger from current process.
+    
+    Stops debugging session and disconnects from the process.
+    
+    Returns:
+        Success status with message
+    """
+    try:
+        response = await post_to_jadx("debug/detach")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_step_over() -> dict:
+    """Execute current line and move to next (step over).
+    
+    Steps over method calls without entering them.
+    Process must be suspended to use this.
+    
+    Keyboard Shortcut: F8
+    
+    Returns:
+        Success status with action type
+    """
+    try:
+        response = await post_to_jadx("debug/step-over")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_step_into() -> dict:
+    """Step into method calls on current line.
+    
+    Enters method calls to debug inside them.
+    Process must be suspended to use this.
+    
+    Keyboard Shortcut: F7
+    
+    Returns:
+        Success status with action type
+    """
+    try:
+        response = await post_to_jadx("debug/step-into")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_step_out() -> dict:
+    """Step out of current method to caller.
+    
+    Continues execution until current method returns.
+    Process must be suspended to use this.
+    
+    Keyboard Shortcut: Shift+F8
+    
+    Returns:
+        Success status with action type
+    """
+    try:
+        response = await post_to_jadx("debug/step-out")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_resume() -> dict:
+    """Resume execution (continue running).
+    
+    Continues until next breakpoint or manual pause.
+    Process must be suspended to use this.
+    
+    Keyboard Shortcut: F9
+    
+    Returns:
+        Success status with action type
+    """
+    try:
+        response = await post_to_jadx("debug/resume")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_suspend() -> dict:
+    """Pause/suspend execution.
+    
+    Pauses running process at current instruction.
+    Process must be running to use this.
+    
+    Returns:
+        Success status with action type
+    """
+    try:
+        response = await post_to_jadx("debug/suspend")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_navigate_breakpoint(
+    class_name: str,
+    line_number: int
+) -> dict:
+    """Navigate to class/line for setting breakpoint.
+    
+    Note: JADX breakpoints MUST be set manually in UI.
+    This function navigates to the location in Smali view.
+    After navigation, press F2 to toggle breakpoint at the line.
+    
+    Requirements:
+    - Class must be viewable in Smali mode
+    - Use "Show dalvik bytecode" from right-click menu
+    - Breakpoints only work in Smali view, not Java view
+    
+    Args:
+        class_name: Full class name (e.g., 'com.example.MainActivity')
+        line_number: Smali line number for breakpoint
+    
+    Returns:
+        Navigation status with instructions on how to set breakpoint
+    """
+    try:
+        params = {
+            "class": class_name,
+            "line": str(line_number)
+        }
+        response = await post_to_jadx("debug/set-breakpoint", params)
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_get_variables() -> dict:
+    """Get current variables when process is suspended.
+    
+    Returns registers (local variables) and 'this' object fields.
+    Process must be suspended to use this.
+    
+    Returns:
+        Dict with 'registers' and 'thisObject' arrays containing:
+        - name: Variable/register name (e.g., 'v0', 'p1')
+        - value: Current value as string
+        - type: Type name (e.g., 'java.lang.String')
+        - typeId: Type ID for object references
+        - updated: Boolean indicating if value changed since last step
+        - children: Nested fields for complex objects (recursive)
+    """
+    try:
+        response = await get_from_jadx("debug/variables")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_get_stack_frames() -> dict:
+    """Get current stack frames (call stack).
+    
+    Shows the execution path from current location back to entry point.
+    Process must be suspended to use this.
+    
+    Returns:
+        Dict with:
+        - stackFrames: Array of stack frame strings showing method calls
+        - count: Total number of stack frames
+    """
+    try:
+        response = await get_from_jadx("debug/stack-frames")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_get_threads() -> dict:
+    """Get all threads in the debugged process.
+    
+    Returns list of threads and which one is currently selected.
+    
+    Returns:
+        Dict with:
+        - threads: Array of thread names
+        - selectedThread: Currently selected/active thread
+        - count: Total number of threads
+    """
+    try:
+        response = await get_from_jadx("debug/threads")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
+@mcp.tool()
+async def debug_list_breakpoints() -> dict:
+    """List all breakpoints currently set in open Smali files.
+    
+    Scans all open SmaliArea tabs to find active breakpoints.
+    Only returns breakpoints in currently open tabs.
+    
+    Returns:
+        Dict with:
+        - breakpoints: Array of objects with 'class' and 'line' fields
+        - count: Total number of breakpoints found
+    """
+    try:
+        response = await get_from_jadx("debug/list-breakpoints")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
 
 def main():
     print("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")

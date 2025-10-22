@@ -109,47 +109,51 @@ call_tool "get_all_classes" '{"offset":0,"count":50}' 14 | jq -r '.result.items[
 echo "--- get_class_source ---"
 call_tool "get_class_source" '{"class_name":"com.zin.dvac.AuthActivity"}' 15 | jq -r '.result // .error?.message // .'
 
+# 8.2) get_class_source -> innerclass
+echo "-- get_class_source ---"
+call_tool "get_class_source" '{"class_name":"kotlin.text.DelimitedRangesSequence$iterator$1"}' 16 | jq -r '.result // .error?.message // .'
+
 # 9) get_method_by_name
 echo "--- get_method_by_name ---"
-call_tool "get_method_by_name" '{"class_name":"com.zin.dvac.AuthActivity","method_name":"onCreate"}' 16 | jq -r '.result.code // .error?.message // .'
+call_tool "get_method_by_name" '{"class_name":"com.zin.dvac.AuthActivity","method_name":"onCreate"}' 17 | jq -r '.result.code // .error?.message // .'
 
 # 10) search_method_by_name
 echo "--- search_method_by_name ---"
-call_tool "search_method_by_name" '{"method_name":"onCreate"}' 17 | jq -r '.result[]? // .result.matches[]? // .'
+call_tool "search_method_by_name" '{"method_name":"onCreate"}' 18 | jq -r '.result[]? // .result.matches[]? // .'
 
 # 11) get_methods_of_class
 echo "--- get_methods_of_class ---"
-call_tool "get_methods_of_class" '{"class_name":"com.zin.dvac.AuthActivity"}' 18 | jq -r '.result[]? // .'
+call_tool "get_methods_of_class" '{"class_name":"com.zin.dvac.AuthActivity"}' 19 | jq -r '.result[]? // .'
 
 # 12) get_fields_of_class
 echo "--- get_fields_of_class ---"
-call_tool "get_fields_of_class" '{"class_name":"com.zin.dvac.DatabaseHelper"}' 19 | jq -r '.result[]? // .'
+call_tool "get_fields_of_class" '{"class_name":"com.zin.dvac.DatabaseHelper"}' 20 | jq -r '.result[]? // .'
 
 # 13) get_smali_of_class
 echo "--- get_smali_of_class ---"
-call_tool "get_smali_of_class" '{"class_name":"com.zin.dvac.AuthActivity"}' 20 | jq -r '.result // .'
+call_tool "get_smali_of_class" '{"class_name":"com.zin.dvac.AuthActivity"}' 21 | jq -r '.result // .'
 
 # 14) get_strings (pagination)
 echo "--- get_strings (offset=0,count=100) ---"
-call_tool "get_strings" '{"offset":0,"count":100}' 21 | jq -r '
+call_tool "get_strings" '{"offset":0,"count":100}' 22 | jq -r '
   .result.items? // .result.strings? // .result.file? // .result // .
 '
 
 # 15) get_all_resource_file_names
 echo "--- get_all_resource_file_names ---"
-call_tool "get_all_resource_file_names" '{}' 22 | jq -r '.result.files[]? // .'
+call_tool "get_all_resource_file_names" '{}' 23 | jq -r '.result.files[]? // .'
 
 # 16) get_resource_file
 echo "--- get_resource_file ---"
-call_tool "get_resource_file" '{"resource_name":"res/xml/network_security_config.xml"}' 23 | jq -r '.result.file.content // .'
+call_tool "get_resource_file" '{"resource_name":"res/xml/network_security_config.xml"}' 24 | jq -r '.result.file.content // .'
 
 # 17) get_main_application_classes_names
 echo "--- get_main_application_classes_names ---"
-call_tool "get_main_application_classes_names" '{}' 24 | jq -r '.result[]? // .result.classes[]?.name // .'
+call_tool "get_main_application_classes_names" '{}' 25 | jq -r '.result[]? // .result.classes[]?.name // .'
 
 # 18) get_main_application_classes_code (pagination)
 echo "--- get_main_application_classes_code (offset=0,count=3) ---"
-call_tool "get_main_application_classes_code" '{"offset":0,"count":3}' 25 | jq -r '.result.items[]?.name, .result.items[]?.content'
+call_tool "get_main_application_classes_code" '{"offset":0,"count":3}' 26 | jq -r '.result.items[]?.name, .result.items[]?.content'
 
 # 19) rename operations (use with care; examples commented)
 #echo "--- rename_class ---"

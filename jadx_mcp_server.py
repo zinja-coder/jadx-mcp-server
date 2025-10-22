@@ -20,6 +20,7 @@ from fastmcp import FastMCP
 from fastmcp.server.middleware.logging import StructuredLoggingMiddleware
 
 from src.PaginationUtils import PaginationUtils
+from src.banner import jadx_mcp_server_banner
 
 # Set up logging configuration
 logger = logging.getLogger()
@@ -342,7 +343,7 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
     return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
 
 def main():
-    print("JADX MCP SERVER\n - By ZinjaCoder (https://github.com/zinja-coder) \n - To Report Issues: https://github.com/zinja-coder/jadx-mcp-server/issues\n")
+    print(jadx_mcp_server_banner())
     print("[------------------------------ Stand By Checking JADX AI MCP Plugin Connectivity ------------------------------]")
     print("Testing health check...")
     result = health_ping()

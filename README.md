@@ -27,61 +27,61 @@ Thanks to these wonderful people for their contributions ⭐
        <td>
       <a href="https://github.com/tiann">
         <img src="https://avatars.githubusercontent.com/u/4233744?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>tainn</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/ljt270864457">
         <img src="https://avatars.githubusercontent.com/u/8609890?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>ljt270864457</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/ZERO-A-ONE">
         <img src="https://avatars.githubusercontent.com/u/18625356?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>ZERO-A-ONE</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/neoz">
         <img src="https://avatars.githubusercontent.com/u/360582?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>neoz</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/SamadiPour">
         <img src="https://avatars.githubusercontent.com/u/24422125?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>SamadiPour</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/wuseluosi">
         <img src="https://avatars.githubusercontent.com/u/192840340?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>wuseluosi</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/CainYzb">
         <img src="https://avatars.githubusercontent.com/u/50669073?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>CainYzb</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/tbodt">
         <img src="https://avatars.githubusercontent.com/u/5678977?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>tbodt</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/LilNick0101">
         <img src="https://avatars.githubusercontent.com/u/100995805?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>LikNick0101</b></sub>
       </a>
     </td>
     <td>
       <a href="https://github.com/lwsinclair">
         <img src="https://avatars.githubusercontent.com/u/2829939?v=4" width="30px;" alt=""/>
-        <br /><sub><b>badmonkey7</b></sub>
+        <br /><sub><b>lwsinclair</b></sub>
       </a>
     </td>
   </tr>

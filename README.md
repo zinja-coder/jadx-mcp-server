@@ -13,6 +13,84 @@
 ![Python 3.10+](https://img.shields.io/badge/python-3%2E10%2B-blue)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
+#### ⭐ Contributors
+
+Thanks to these wonderful people for their contributions ⭐
+<table>
+  <tr align="center">
+    <td>
+      <a href="https://github.com/badmonkey7">
+        <img src="https://avatars.githubusercontent.com/u/41368882?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+       <td>
+      <a href="https://github.com/tiann">
+        <img src="https://avatars.githubusercontent.com/u/4233744?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/ljt270864457">
+        <img src="https://avatars.githubusercontent.com/u/8609890?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/ZERO-A-ONE">
+        <img src="https://avatars.githubusercontent.com/u/18625356?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/neoz">
+        <img src="https://avatars.githubusercontent.com/u/360582?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/SamadiPour">
+        <img src="https://avatars.githubusercontent.com/u/24422125?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/wuseluosi">
+        <img src="https://avatars.githubusercontent.com/u/192840340?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/CainYzb">
+        <img src="https://avatars.githubusercontent.com/u/50669073?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/tbodt">
+        <img src="https://avatars.githubusercontent.com/u/5678977?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/LilNick0101">
+        <img src="https://avatars.githubusercontent.com/u/100995805?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/lwsinclair">
+        <img src="https://avatars.githubusercontent.com/u/2829939?v=4" width="30px;" alt=""/>
+        <br /><sub><b>badmonkey7</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+
+
+
+
 </div>
 <!-- Still in early stage of development — expect bugs, crashes, and logical errors.-->
 

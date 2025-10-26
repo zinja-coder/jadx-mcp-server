@@ -293,6 +293,19 @@ And all open source maintainers and contributors that makes libraries and depend
 
 Thank you Mseep.net for auditing and providing Assessment Badge.
 
+### Dependencies
+
+This project uses following awesome libraries.
+
+- Plugin - Java
+  - Javalin     - https://javalin.io/ - Apache 2.0 License
+  - SLF4J       - https://slf4j.org/  - MIT License
+  - org.w3c.dom - https://mvnrepository.com/artifact/org.w3c.dom - W3C Software and Document License
+
+- MCP Server - Python
+  - FastMCP - https://github.com/jlowin/fastmcp - Apache 2.0 License
+  - httpx   - https://www.python-httpx.org      - BSD-3-Clause (“BSD licensed”) 
+
 ## 📄 License
 
 This plugin inherits the Apache 2.0 License from the original JADX repository.

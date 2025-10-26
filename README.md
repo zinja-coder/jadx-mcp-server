@@ -122,8 +122,6 @@ Think: "Decompile → Context-Aware Code Review → AI Recommendations" — all 
 
 #### High Level Sequence Diagram 
 
-### High Level Sequence Diagram
-
 ```mermaid
 sequenceDiagram
 LLM CLIENT->>JADX MCP SERVER: INVOKE MCP TOOL

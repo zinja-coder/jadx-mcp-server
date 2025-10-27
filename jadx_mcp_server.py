@@ -17,7 +17,7 @@ import json
 
 from typing import Union
 from fastmcp import FastMCP
-from fastmcp.server.middleware.logging import StructuredLoggingMiddleware
+#from fastmcp.server.middleware.logging import StructuredLoggingMiddleware # Comment out as not required in release build
 
 from src.PaginationUtils import PaginationUtils
 from src.banner import jadx_mcp_server_banner
@@ -36,7 +36,7 @@ logger.addHandler(console_handler)
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
 
 # fastmcp logs
-mcp.add_middleware(StructuredLoggingMiddleware(include_payloads=True))
+#mcp.add_middleware(StructuredLoggingMiddleware(include_payloads=True)) # Commented out as not required in release build
 
 # Parse the arguments
 parser = argparse.ArgumentParser("MCP Server for Jadx")

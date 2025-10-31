@@ -343,7 +343,17 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
     return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
 
 def main():
-    print(jadx_mcp_server_banner())
+    try:
+        print(jadx_mcp_server_banner())
+    except UnicodeEncodeError:
+        print("""
+           [----------------------------------------------- JADX AI MCP -----------------------------------------------]
+            Author         -> Jafar Pathan (zinja-coder@github)
+            For Issues     -> https://github.com/zinja-coder/jadx-mcp-server
+            Server Version -> v3.3.5
+           """)
+
+
     print("[------------------------------ Stand By Checking JADX AI MCP Plugin Connectivity ------------------------------]")
     print("Testing health check...")
     result = health_ping()

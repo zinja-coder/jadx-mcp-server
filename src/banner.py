@@ -15,6 +15,6 @@ def jadx_mcp_server_banner() -> str:
             
             Author         -> Jafar Pathan (zinja-coder@github)
             For Issues     -> https://github.com/zinja-coder/jadx-mcp-server
-            Server Version -> v3.3.3
+            Server Version -> v3.3.5
             
           """

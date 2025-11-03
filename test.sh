@@ -111,7 +111,7 @@ call_tool "get_class_source" '{"class_name":"com.zin.dvac.AuthActivity"}' 15 | j
 
 # 8.2) get_class_source -> innerclass
 echo "-- get_class_source ---"
-call_tool "get_class_source" '{"class_name":"kotlin.text.DelimitedRangesSequence$iterator$1"}' 16 | jq -r '.result // .error?.message // .'
+call_tool "get_class_source" '{"class_name":"OnBackPressedDispatcher$addCancellableCallback$1"}' 16 | jq -r '.result // .error?.message // .'
 
 # 9) get_method_by_name
 echo "--- get_method_by_name ---"

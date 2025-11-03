@@ -111,7 +111,7 @@ call_tool "get_class_source" '{"class_name":"com.zin.dvac.AuthActivity"}' 15 | j
 
 # 8.2) get_class_source -> innerclass
 echo "-- get_class_source ---"
-call_tool "get_class_source" '{"class_name":"OnBackPressedDispatcher$addCancellableCallback$1"}' 16 | jq -r '.result // .error?.message // .'
+call_tool "get_class_source" '{"class_name":"androidx.activity.OnBackPressedDispatcher$addCancellableCallback$1"}' 16 | jq -r '.result // .error?.message // .'
 
 # 9) get_method_by_name
 echo "--- get_method_by_name ---"
@@ -152,8 +152,8 @@ echo "--- get_main_application_classes_names ---"
 call_tool "get_main_application_classes_names" '{}' 25 | jq -r '.result[]? // .result.classes[]?.name // .'
 
 # 18) get_main_application_classes_code (pagination)
-echo "--- get_main_application_classes_code (offset=0,count=3) ---"
-call_tool "get_main_application_classes_code" '{"offset":0,"count":3}' 26 | jq -r '.result.items[]?.name, .result.items[]?.content'
+echo "--- get_main_application_classes_code (offset=0,count=100) ---"
+call_tool "get_main_application_classes_code" '{"offset":0,"count":100}' 26 | jq -r '.result[]? // .result.classes[]?.name, .result.classes[]?.content'
 
 # 19) rename operations (use with care; examples commented)
 #echo "--- rename_class ---"

@@ -157,10 +157,13 @@ call_tool "get_main_application_classes_code" '{"offset":0,"count":100}' 26 | jq
 
 # 19) rename operations (use with care; examples commented)
 #echo "--- rename_class ---"
-#call_tool "rename_class"  '{"class_name":"com.zin.dvac.AuthActivity","new_name":"WebViewActivity"}' 26 | jq
+#call_tool "rename_class"  '{"class_name":"com.zin.dvac.AuthActivity","new_name":"WebViewActivity"}' 27 | jq
 #echo "--- rename_method ---"
-#call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 27 | jq
+#call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 28 | jq
 #echo "--- rename_field ---"
-#call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 28 | jq
+#call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 29 | jq
 
+# 20) get stack frames from debugger
+echo "--- debug_get_stack_frames ---"
+call_tool "debug_get_stack_frames" '{}' 30 | jq -r '.result[]? // .'
 echo "== done =="

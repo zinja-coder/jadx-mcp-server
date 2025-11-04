@@ -342,6 +342,24 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
     """
     return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
 
+@mcp.tool()
+async def debug_get_stack_frames() -> dict:
+    """Get current stack frames (call stack).
+    
+    Shows the execution path from current location back to entry point.
+    Process must be suspended to use this.
+    
+    Returns:
+        Dict with:
+        - stackFrames: Array of stack frame strings showing method calls
+        - count: Total number of stack frames
+    """
+    try:
+        response = await get_from_jadx("debug/stack-frames")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
 def main():
     try:
         print(jadx_mcp_server_banner())

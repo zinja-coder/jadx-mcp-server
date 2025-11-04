@@ -152,8 +152,8 @@ echo "--- get_main_application_classes_names ---"
 call_tool "get_main_application_classes_names" '{}' 25 | jq -r '.result[]? // .result.classes[]?.name // .'
 
 # 18) get_main_application_classes_code (pagination)
-echo "--- get_main_application_classes_code (offset=0,count=100) ---"
-call_tool "get_main_application_classes_code" '{"offset":0,"count":100}' 26 | jq -r '.result[]? // .result.classes[]?.name, .result.classes[]?.content'
+echo "--- get_main_application_classes_code (offset=0,count=3) ---"
+call_tool "get_main_application_classes_code" '{"offset":0,"count":3}' 26 | jq -r '.result[]? // .result.classes[]?.name, .result.classes[]?.content'
 
 # 19) rename operations (use with care; examples commented)
 #echo "--- rename_class ---"
@@ -166,4 +166,13 @@ call_tool "get_main_application_classes_code" '{"offset":0,"count":100}' 26 | jq
 # 20) get stack frames from debugger
 echo "--- debug_get_stack_frames ---"
 call_tool "debug_get_stack_frames" '{}' 30 | jq -r '.result[]? // .'
+
+# 22) get threads from debugger
+echo "--- debug_get_threads ---"
+call_tool "debug_get_threads" '{}' 31 | jq -r '.result[]? // .'
+
+# 23) get debugger variables from debugger
+echo "--- debug_get_variables ---"
+call_tool "debug_get_variables" '{}' 32 | jq -r '.result[]? // .'
+
 echo "== done =="

@@ -359,6 +359,47 @@ async def debug_get_stack_frames() -> dict:
         return response
     except Exception as e:
         return {"error": str(e)}
+    
+@mcp.tool()
+async def debug_get_threads() -> dict:
+    """Get all threads in the debugged process.
+    
+    Returns list of threads and which one is currently selected.
+    
+    Returns:
+        Dict with:
+        - threads: Array of thread names
+        - selectedThread: Currently selected/active thread
+        - count: Total number of threads
+    """
+    try:
+        response = await get_from_jadx("debug/threads")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+    
+@mcp.tool()
+async def debug_get_variables() -> dict:
+    """Get current variables when process is suspended.
+    
+    Returns registers (local variables) and 'this' object fields.
+    Process must be suspended to use this.
+    
+    Returns:
+        Dict with 'registers' and 'thisObject' arrays containing:
+        - name: Variable/register name (e.g., 'v0', 'p1')
+        - value: Current value as string
+        - type: Type name (e.g., 'java.lang.String')
+        - typeId: Type ID for object references
+        - updated: Boolean indicating if value changed since last step
+        - children: Nested fields for complex objects (recursive)
+    """
+    try:
+        response = await get_from_jadx("debug/variables")
+        return response
+    except Exception as e:
+        return {"error": str(e)}
+
 
 def main():
     try:

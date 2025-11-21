@@ -188,6 +188,28 @@ async def get_methods_of_class(class_name: str) -> dict:
     return await get_from_jadx("methods-of-class", {"class_name": class_name})
 
 @mcp.tool()
+async def search_classes_by_keyword(search_term:str, offset: int = 0, count: int = 20) -> dict:
+    """searching for classes whose source code contains a specific keyword, 
+    with pagination support for handling large result sets efficiently.
+    
+    Args:
+        search_term: query keyword
+        offset: Offset to start listing from (start at 0)
+        count: Number of classes to return (default 20)
+    
+    Returns:
+        A dictionary containing paginated class list and metadata.
+    """
+    return await PaginationUtils.get_paginated_data(
+        endpoint="search-classes-by-keyword",
+        offset=offset,
+        count=count,
+        additional_params={"search_term": search_term},
+        data_extractor=lambda parsed: parsed.get("classes", []),
+        fetch_function=get_from_jadx
+    )
+
+@mcp.tool()
 async def get_fields_of_class(class_name: str) -> dict:
     """List all field names in a class.
     

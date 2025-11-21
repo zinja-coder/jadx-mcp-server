@@ -175,4 +175,9 @@ call_tool "debug_get_threads" '{}' 31 | jq -r '.result[]? // .'
 echo "--- debug_get_variables ---"
 call_tool "debug_get_variables" '{}' 32 | jq -r '.result[]? // .'
 
+#24) get list of classes that contains specific keyword
+echo "--- search_classes_by_keyword ---"
+call_tool "search_classes_by_keyword" '{"search_term":"login","offset":0,"count":5}' 33 | jq -r '.result[]? // .'
+
+
 echo "== done =="

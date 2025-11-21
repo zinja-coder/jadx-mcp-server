@@ -173,6 +173,7 @@ The following MCP tools are available:
 - `get_class_source()` — Get full source of a given class
 - `get_method_by_name()` — Fetch a method’s source
 - `search_method_by_name()` — Search method across classes
+- `search_classes_by_keyword()` — Search for classes whose source code contains a specific keyword (supports pagination)
 - `get_methods_of_class()` — List methods in a class
 - `get_fields_of_class()` — List fields in a class
 - `get_smali_of_class()` — Fetch smali of class

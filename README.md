@@ -272,13 +272,15 @@ https://github.com/user-attachments/assets/4cd26715-b5e6-4b4b-95e4-054de6789f42
 
  - [ ] Add support for hermes code (ReactNative Application)
 
- - [ ] Add more useful MCP Tools
+ - [ ] Add docker support
 
- - [ ] Make LLM be able to modify code on JADX
+ - [x] Add more useful MCP Tools
 
- - [ ] Add prompts templates, give llm access to Android APK Files as Resources
+ - [x] Make LLM be able to modify code on JADX
 
- - [ ] Build MCP Client to support Local LLM
+ - [x] Add prompts templates, give llm access to Android APK Files as Resources
+
+ - [ ] ~~Build MCP Client to support Local LLM~~
 
  - [ ] **END-GOAL** : Make all android reverse engineering and APK modification tools Connect with single MCP server to make reverse engineering apk files as easy as possible purely from vibes.
 

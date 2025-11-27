@@ -365,6 +365,22 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
     return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
 
 @mcp.tool()
+async def rename_package(old_package_name: str, new_package_name: str):
+    """Renames a package and all its classes.
+
+    Args:
+        old_package_name: The current package path to be renamed (e.g., "com.abc.def")
+        new_package_name: The target package path (e.g., "com.example.newpkg")
+
+    Returns:
+        The response from the JADX server with rename results.
+    """
+    return await get_from_jadx("rename-package", {
+        "oldPackage": old_package_name, 
+        "newPackage": new_package_name
+    })
+
+@mcp.tool()
 async def debug_get_stack_frames() -> dict:
     """Get current stack frames (call stack).
     

@@ -187,7 +187,9 @@ The following MCP tools are available:
 - `debug_get_stack_frames()` : Get the stack frames from jadx debugger
 - `debug_get_threads()` : Get the insights of threads from jadx debugger
 - `debug_get_variables()` : Get the variables from jadx debugger
-
+- `xrefs_to_class()` : Find all references to a class (returns method-level and class-level references, supports pagination)
+- `xrefs_to_method()` : Find all references to a method (includes override-related methods, supports pagination)
+- `xrefs_to_field()` : Find all references to a field (returns methods that access the field, supports pagination)
 ---
 
 #### Note: Tested on Claude Desktop. Support for other LLMs might be tested in future.

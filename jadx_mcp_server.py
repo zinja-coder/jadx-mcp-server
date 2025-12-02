@@ -439,6 +439,105 @@ async def debug_get_variables() -> dict:
         return {"error": str(e)}
 
 
+@mcp.tool()
+async def get_xrefs_to_class(class_name: str, offset: int = 0, count: int = 20) -> dict:
+    """Find all references to a class (including constructor calls) with pagination.
+    
+    Args:
+        class_name: The full name of the class to find references for.
+        offset: Offset to start listing from (start at 0).
+        count: Number of references to return (default 20).
+        
+    Returns:
+        A dictionary containing a list of references.
+        Structure:
+        {
+            "references": [
+                {
+                    "class": "com.example.CallerClass",
+                    "method": "callerMethod"  # Empty string "" if reference is at class level
+                },
+                ...
+            ],
+            ... # Pagination metadata
+        }
+    """
+    return await PaginationUtils.get_paginated_data(
+        endpoint="xrefs-to-class",
+        offset=offset,
+        count=count,
+        additional_params={"class": class_name},
+        data_extractor=lambda parsed: parsed.get("references", []),
+        fetch_function=get_from_jadx
+    )
+
+@mcp.tool()
+async def get_xrefs_to_method(class_name: str, method_name: str, offset: int = 0, count: int = 20) -> dict:
+    """Find all references to a method (includes overrides) with pagination.
+    
+    Args:
+        class_name: The full name of the class containing the method.
+        method_name: The name of the method to find references for.
+        offset: Offset to start listing from (start at 0).
+        count: Number of references to return (default 20).
+        
+    Returns:
+        A dictionary containing a list of references.
+        Structure:
+        {
+            "references": [
+                {
+                    "class": "com.example.CallerClass",
+                    "method": "callerMethod"
+                },
+                ...
+            ],
+            ... # Pagination metadata
+        }
+    """
+    return await PaginationUtils.get_paginated_data(
+        endpoint="xrefs-to-method",
+        offset=offset,
+        count=count,
+        additional_params={"class": class_name, "method": method_name},
+        data_extractor=lambda parsed: parsed.get("references", []),
+        fetch_function=get_from_jadx
+    )
+
+@mcp.tool()
+async def get_xrefs_to_field(class_name: str, field_name: str, offset: int = 0, count: int = 20) -> dict:
+    """Find all references to a field with pagination.
+    
+    Args:
+        class_name: The full name of the class containing the field.
+        field_name: The name of the field to find references for.
+        offset: Offset to start listing from (start at 0).
+        count: Number of references to return (default 20).
+        
+    Returns:
+        A dictionary containing a list of references.
+        Structure:
+        {
+            "references": [
+                {
+                    "class": "com.example.CallerClass",
+                    "method": "callerMethod"
+                },
+                ...
+            ],
+            ... # Pagination metadata
+        }
+    """
+    return await PaginationUtils.get_paginated_data(
+        endpoint="xrefs-to-field",
+        offset=offset,
+        count=count,
+        additional_params={"class": class_name, "field": field_name},
+        data_extractor=lambda parsed: parsed.get("references", []),
+        fetch_function=get_from_jadx
+    )
+
+
 def main():
     try:
         print(jadx_mcp_server_banner())

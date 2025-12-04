@@ -263,13 +263,19 @@ async def get_strings(offset: int = 0, count: int = 0) -> dict:
     )
 
 @mcp.tool()
-async def get_all_resource_file_names() -> dict:
+async def get_all_resource_file_names(offset: int = 0, count: int = 0) -> dict:
     """Retrieve all resource files names that exists in application
 
     Returns:
         List of all resource files names.
     """
-    return await get_from_jadx("list-all-resource-files-names")
+    return await PaginationUtils.get_paginated_data(
+        endpoint="list-all-resource-files-names",
+        offset=offset,
+        count=count,
+        data_extractor=lambda parsed: parsed.get("files", []),
+        fetch_function=get_from_jadx
+    )
 
 @mcp.tool()
 async def get_resource_file(resource_name: str) -> dict:

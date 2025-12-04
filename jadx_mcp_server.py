@@ -311,7 +311,7 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
         endpoint="main-application-classes-code",
         offset=offset,
         count=count,
-        data_extractor=lambda parsed: parsed.get("allClassesInPackage", []),
+        data_extractor=lambda parsed: parsed.get("classes", []),
         fetch_function=get_from_jadx
     )
     

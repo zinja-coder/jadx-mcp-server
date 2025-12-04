@@ -102,8 +102,8 @@ echo "--- get_main_activity_class ---"
 call_tool "get_main_activity_class" '{}' 13 | jq -r '.result.name, .result.content'
 
 # 7) get_all_classes (supports offset/count)
-echo "--- get_all_classes (offset=0,count=50) ---"
-call_tool "get_all_classes" '{"offset":0,"count":50}' 14 | jq -r '.result.items[]? // .result.classes[]? // .'
+echo "--- get_all_classes (offset=0,count=1) ---"
+call_tool "get_all_classes" '{"offset":0,"count":1}' 14 | jq -r '.result.items[]? // .result.classes[]? // .'
 
 # 8) get_class_source
 echo "--- get_class_source ---"
@@ -152,8 +152,8 @@ echo "--- get_main_application_classes_names ---"
 call_tool "get_main_application_classes_names" '{}' 25 | jq -r '.result[]? // .result.classes[]?.name // .'
 
 # 18) get_main_application_classes_code (pagination)
-echo "--- get_main_application_classes_code (offset=0,count=3) ---"
-call_tool "get_main_application_classes_code" '{"offset":0,"count":3}' 26 | jq -r '.result[]? // .result.classes[]?.name, .result.classes[]?.content'
+echo "--- get_main_application_classes_code (offset=0,count=1) ---"
+call_tool "get_main_application_classes_code" '{"offset":0,"count":1}' 26 | jq -r '.result // .'
 
 # 19) rename operations (use with care; examples commented)
 #echo "--- rename_class ---"
@@ -176,12 +176,12 @@ call_tool "get_main_application_classes_code" '{"offset":0,"count":3}' 26 | jq -
 #call_tool "debug_get_variables" '{}' 32 | jq -r '.result[]? // .'
 
 #24) get list of classes that contains specific keyword
-echo "--- search_classes_by_keyword ---"
-call_tool "search_classes_by_keyword" '{"search_term":"login","offset":0,"count":5}' 33 | jq -r '.result[]? // .'
+#echo "--- search_classes_by_keyword ---"
+#call_tool "search_classes_by_keyword" '{"search_term":"login","offset":0,"count":5}' 33 | jq -r '.result[]? // .'
 
 #25) rename package 
-echo "--- rename_package ---"
-call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 34 | jq -r '.result[]? // .'
+#echo "--- rename_package ---"
+#call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 34 | jq -r '.result[]? // .'
 
 
 echo "== done =="

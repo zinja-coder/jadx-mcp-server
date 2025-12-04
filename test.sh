@@ -140,8 +140,8 @@ call_tool "get_strings" '{"offset":0,"count":100}' 22 | jq -r '
 '
 
 # 15) get_all_resource_file_names
-echo "--- get_all_resource_file_names ---"
-call_tool "get_all_resource_file_names" '{}' 23 | jq -r '.result.files[]? // .'
+echo "--- get_all_resource_file_names (offset=0,count=100) ---"
+call_tool "get_all_resource_file_names" '{"offset":0,"count":10}' 23 | jq -r '.result // .'
 
 # 16) get_resource_file
 echo "--- get_resource_file ---"

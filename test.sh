@@ -183,5 +183,16 @@ call_tool "get_main_application_classes_code" '{"offset":0,"count":1}' 26 | jq -
 #echo "--- rename_package ---"
 #call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 34 | jq -r '.result[]? // .'
 
+#26) get_xrefs_to_class (class_name="DatabaseHelper", offset=0, count=2) "
+echo "--- get_xrefs_to_class (class_name='com.zin.dvac.DatabaseHelper', offset=0, count=2) ---"
+call_tool "get_xrefs_to_class" '{"class_name":"com.zin.dvac.DatabaseHelper","offset":0,"count":2}' 35 | jq -r '.result // .'
+
+#27) get_xrefs_to_method 
+echo "--- get_xrefs_to_method (class_name='com.zin.dvac.DatabaseHelper', method_name='addPassword', offset=0, count=2) ---"
+call_tool "get_xrefs_to_method" '{"class_name":"com.zin.dvac.DatabaseHelper","method_name":"addPassword","offset":0,"count":2}' 36 | jq -r '.result // .'
+
+#28) get_xrefs_to_field
+echo "--- get_xrefs_to_field (class_name='com.zin.dvac.DatabaseHelper', field_name='DATBASE_NAME', offset=0, count=2) ---"
+call_tool "get_xrefs_to_field" '{"class_name":"com.zin.dvac.DatabaseHelper","field_name":"DATABASE_NAME","offset":0,"count":2}' 37 | jq -r '.result // .'
 
 echo "== done =="

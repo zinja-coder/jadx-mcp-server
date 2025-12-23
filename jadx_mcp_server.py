@@ -129,7 +129,7 @@ async def get_method_by_name(class_name: str, method_name: str) -> dict:
     Returns:
         Code of requested method as String.
     """
-    return await get_from_jadx("method-by-name", {"class": class_name, "method": method_name})
+    return await get_from_jadx("method-by-name", {"class_name": class_name, "method": method_name})
 
 @mcp.tool()
 async def get_all_classes(offset: int = 0, count: int = 0) -> dict:
@@ -160,7 +160,7 @@ async def get_class_source(class_name: str) -> dict:
     Returns:
         Code of requested class as String.
     """
-    return await get_from_jadx("class-source", {"class": class_name})
+    return await get_from_jadx("class-source", {"class_name": class_name})
 
 @mcp.tool()
 async def search_method_by_name(method_name: str) -> dict:
@@ -232,7 +232,7 @@ async def get_smali_of_class(class_name: str) -> dict:
     Returns:
         Smali code of the requested class as String.
     """
-    return await get_from_jadx("smali-of-class", {"class": class_name})
+    return await get_from_jadx("smali-of-class", {"class_name": class_name})
 
 @mcp.tool()
 async def get_android_manifest() -> dict:
@@ -341,7 +341,7 @@ async def rename_class(class_name: str, new_name: str):
     Returns:
         The response from the JADX server.
     """
-    return await get_from_jadx("rename-class", {"class": class_name, "newName": new_name})
+    return await get_from_jadx("rename-class", {"class_name": class_name, "newName": new_name})
 
 @mcp.tool()
 async def rename_method(method_name: str, new_name: str):
@@ -368,7 +368,7 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
     Returns:
         The response from the JADX server.
     """
-    return await get_from_jadx("rename-field", {"class": class_name, "field": field_name, "newFieldName": new_name})
+    return await get_from_jadx("rename-field", {"class_name": class_name, "field": field_name, "newFieldName": new_name})
 
 @mcp.tool()
 async def rename_package(old_package_name: str, new_package_name: str):
@@ -460,7 +460,7 @@ async def get_xrefs_to_class(class_name: str, offset: int = 0, count: int = 20) 
         {
             "references": [
                 {
-                    "class": "com.example.CallerClass",
+                    "class_name": "com.example.CallerClass",
                     "method": "callerMethod"  # Empty string "" if reference is at class level
                 },
                 ...
@@ -472,7 +472,7 @@ async def get_xrefs_to_class(class_name: str, offset: int = 0, count: int = 20) 
         endpoint="xrefs-to-class",
         offset=offset,
         count=count,
-        additional_params={"class": class_name},
+        additional_params={"class_name": class_name},
         data_extractor=lambda parsed: parsed.get("references", []),
         fetch_function=get_from_jadx
     )
@@ -493,7 +493,7 @@ async def get_xrefs_to_method(class_name: str, method_name: str, offset: int = 0
         {
             "references": [
                 {
-                    "class": "com.example.CallerClass",
+                    "class_name": "com.example.CallerClass",
                     "method": "callerMethod"
                 },
                 ...
@@ -505,7 +505,7 @@ async def get_xrefs_to_method(class_name: str, method_name: str, offset: int = 0
         endpoint="xrefs-to-method",
         offset=offset,
         count=count,
-        additional_params={"class": class_name, "method": method_name},
+        additional_params={"class_name": class_name, "method": method_name},
         data_extractor=lambda parsed: parsed.get("references", []),
         fetch_function=get_from_jadx
     )
@@ -526,7 +526,7 @@ async def get_xrefs_to_field(class_name: str, field_name: str, offset: int = 0, 
         {
             "references": [
                 {
-                    "class": "com.example.CallerClass",
+                    "class_name": "com.example.CallerClass",
                     "method": "callerMethod"
                 },
                 ...
@@ -538,7 +538,7 @@ async def get_xrefs_to_field(class_name: str, field_name: str, offset: int = 0, 
         endpoint="xrefs-to-field",
         offset=offset,
         count=count,
-        additional_params={"class": class_name, "field": field_name},
+        additional_params={"class_name": class_name, "field": field_name},
         data_extractor=lambda parsed: parsed.get("references", []),
         fetch_function=get_from_jadx
     )

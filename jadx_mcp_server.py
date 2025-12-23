@@ -341,7 +341,7 @@ async def rename_class(class_name: str, new_name: str):
     Returns:
         The response from the JADX server.
     """
-    return await get_from_jadx("rename-class", {"class_name": class_name, "newName": new_name})
+    return await get_from_jadx("rename-class", {"class_name": class_name, "new_name": new_name})
 
 @mcp.tool()
 async def rename_method(method_name: str, new_name: str):
@@ -354,7 +354,7 @@ async def rename_method(method_name: str, new_name: str):
     Returns:
         The response from the JADX server.
     """
-    return await get_from_jadx("rename-method", {"method": method_name, "newName": new_name})
+    return await get_from_jadx("rename-method", {"method": method_name, "new_name": new_name})
 
 @mcp.tool()
 async def rename_field(class_name: str, field_name: str, new_name: str):

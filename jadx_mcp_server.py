@@ -357,7 +357,7 @@ async def rename_method(method_name: str, new_name: str):
     return await get_from_jadx("rename-method", {"method_name": method_name, "new_name": new_name})
 
 @mcp.tool()
-async def rename_field(class_name: str, field_name: str, new_name: str):
+async def rename_field(class_name: str, field_name: str, new_field_name: str):
     """Renames a specific field.
 
     Args:
@@ -368,7 +368,7 @@ async def rename_field(class_name: str, field_name: str, new_name: str):
     Returns:
         The response from the JADX server.
     """
-    return await get_from_jadx("rename-field", {"class_name": class_name, "field": field_name, "newFieldName": new_name})
+    return await get_from_jadx("rename-field", {"class_name": class_name, "field_name": field_name, "new_field_name": new_field_name})
 
 @mcp.tool()
 async def rename_package(old_package_name: str, new_package_name: str):
@@ -382,8 +382,8 @@ async def rename_package(old_package_name: str, new_package_name: str):
         The response from the JADX server with rename results.
     """
     return await get_from_jadx("rename-package", {
-        "oldPackage": old_package_name, 
-        "newPackage": new_package_name
+        "old_package_name": old_package_name, 
+        "new_package_name": new_package_name
     })
 
 @mcp.tool()

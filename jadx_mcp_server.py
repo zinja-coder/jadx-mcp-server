@@ -287,7 +287,7 @@ async def get_resource_file(resource_name: str) -> dict:
     Returns:
         Gets the content of resource file specified in 'resource_name' parameter
     """
-    return await get_from_jadx("get-resource-file", {"name": resource_name})
+    return await get_from_jadx("get-resource-file", {"file_name": resource_name})
     
 @mcp.tool()
 async def get_main_application_classes_names() -> dict:

@@ -156,32 +156,32 @@ echo "--- get_main_application_classes_code (offset=0,count=1) ---"
 call_tool "get_main_application_classes_code" '{"offset":0,"count":1}' 26 | jq -r '.result // .'
 
 # 19) rename operations (use with care; examples commented)
-#echo "--- rename_class ---"
-#call_tool "rename_class"  '{"class_name":"com.zin.dvac.AuthActivity","new_name":"WebViewActivity"}' 27 | jq
-#echo "--- rename_method ---"
-#call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 28 | jq
-#echo "--- rename_field ---"
-#call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 29 | jq
+echo "--- rename_class ---"
+call_tool "rename_class"  '{"class_name":"com.zin.dvac.AuthActivity","new_name":"WebViewActivity"}' 27 | jq
+echo "--- rename_method ---"
+call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 28 | jq
+echo "--- rename_field ---"
+call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 29 | jq
 
 # 20) get stack frames from debugger
-#echo "--- debug_get_stack_frames ---"
-#call_tool "debug_get_stack_frames" '{}' 30 | jq -r '.result[]? // .'
+echo "--- debug_get_stack_frames ---"
+call_tool "debug_get_stack_frames" '{}' 30 | jq -r '.result[]? // .'
 
 # 22) get threads from debugger
-#echo "--- debug_get_threads ---"
-#call_tool "debug_get_threads" '{}' 31 | jq -r '.result[]? // .'
+echo "--- debug_get_threads ---"
+call_tool "debug_get_threads" '{}' 31 | jq -r '.result[]? // .'
 
 # 23) get debugger variables from debugger
-#echo "--- debug_get_variables ---"
-#call_tool "debug_get_variables" '{}' 32 | jq -r '.result[]? // .'
+echo "--- debug_get_variables ---"
+call_tool "debug_get_variables" '{}' 32 | jq -r '.result[]? // .'
 
 #24) get list of classes that contains specific keyword
-#echo "--- search_classes_by_keyword ---"
-#call_tool "search_classes_by_keyword" '{"search_term":"login","offset":0,"count":5}' 33 | jq -r '.result[]? // .'
+echo "--- search_classes_by_keyword ---"
+call_tool "search_classes_by_keyword" '{"search_term":"login","offset":0,"count":5}' 33 | jq -r '.result[]? // .'
 
 #25) rename package 
-#echo "--- rename_package ---"
-#call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 34 | jq -r '.result[]? // .'
+echo "--- rename_package ---"
+call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 34 | jq -r '.result[]? // .'
 
 #26) get_xrefs_to_class (class_name="DatabaseHelper", offset=0, count=2) "
 echo "--- get_xrefs_to_class (class_name='com.zin.dvac.DatabaseHelper', offset=0, count=2) ---"

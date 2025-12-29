@@ -92,14 +92,9 @@ Thanks to these wonderful people for their contributions ⭐
 
 <!-- MCP (Model Context Protocol) server that connects to a custom plugin of [JADX](https://github.com/skylot/jadx) called [JADX-AI-MCP](https://github.com/zinja-coder/jadx-ai-mcp) and provides reverse engineering capabilities directly to local LLMs like Claude Desktop.-->
 
-
 <div align="center">
-    <!--<img alt="banner" height="480px" widht="620px" src="docs/assets/img.png">-->
- <img width="480px" height="620px" alt="Under Refactoring" src="https://github.com/user-attachments/assets/f196dfd0-3b00-417e-8308-33b754914783" />
-
+    <img alt="banner" height="480px" widht="620px" src="docs/assets/img.png">
 </div>
-
-![jadx-mcp-banner](static/image.png)
 
 #### ReadTheDocs:
  - We are now live at Read The Docs: 

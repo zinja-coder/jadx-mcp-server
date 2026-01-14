@@ -162,6 +162,8 @@ echo "--- rename_method ---"
 call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 28 | jq
 echo "--- rename_field ---"
 call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 29 | jq
+echo "--- rename_variable ---"
+call_tool "rename_variable" '{"class_name":"com.zin.dvac.ChangePasswordActivity","method_name":"onCreate","variable_name":"ipAddress","new_name":"foobar"}' 30 | jq
 
 # 20) get stack frames from debugger
 echo "--- debug_get_stack_frames ---"

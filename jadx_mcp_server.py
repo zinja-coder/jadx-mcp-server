@@ -32,7 +32,7 @@ from src.server.tools.resource_tools import (
     get_resource_file
 )
 from src.server.tools.refactor_tools import (
-    rename_class, rename_method, rename_field, rename_package
+    rename_class, rename_method, rename_field, rename_package, rename_variable
 )
 from src.server.tools.debug_tools import (
     debug_get_stack_frames, debug_get_threads, debug_get_variables
@@ -214,6 +214,12 @@ async def rename_field(class_name: str, field_name: str, new_name: str) -> dict:
 async def rename_package(old_package_name: str, new_package_name: str) -> dict:
     """Renames a package and all its classes."""
     return await tools.refactor_tools.rename_package(old_package_name, new_package_name)
+
+
+@mcp.tool()
+async def rename_variable(class_name: str, method_name: str, variable_name: str, new_name: str, reg: str = None, ssa: str = None) -> dict:
+    """Renames a specific variable in a method."""
+    return await tools.refactor_tools.rename_variable(class_name, method_name, variable_name, new_name, reg, ssa)
 
 
 @mcp.tool()

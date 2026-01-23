@@ -32,7 +32,7 @@ from src.server.tools.resource_tools import (
     get_resource_file
 )
 from src.server.tools.refactor_tools import (
-    rename_class, rename_method, rename_field, rename_package, rename_variable
+    rename_class, rename_method, rename_field, rename_package, rename_variable, add_comment
 )
 from src.server.tools.debug_tools import (
     debug_get_stack_frames, debug_get_threads, debug_get_variables
@@ -220,6 +220,12 @@ async def rename_package(old_package_name: str, new_package_name: str) -> dict:
 async def rename_variable(class_name: str, method_name: str, variable_name: str, new_name: str, reg: str = None, ssa: str = None) -> dict:
     """Renames a specific variable in a method."""
     return await tools.refactor_tools.rename_variable(class_name, method_name, variable_name, new_name, reg, ssa)
+
+
+@mcp.tool()
+async def add_comment(target_type: str, class_name: str, comment: str, method_name: str = None, field_name: str = None, style: str = "LINE") -> dict:
+    """Adds a comment to a class, method, or field in the decompiled code with customizable comment style."""
+    return await tools.refactor_tools.add_comment(target_type, class_name, comment, method_name, field_name, style)
 
 
 @mcp.tool()

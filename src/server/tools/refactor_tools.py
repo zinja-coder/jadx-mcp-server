@@ -118,3 +118,57 @@ async def rename_variable(class_name: str, method_name: str, variable_name: str,
         params["ssa"] = ssa
 
     return await get_from_jadx("rename-variable", params)
+
+
+async def add_comment(target_type: str, class_name: str, comment: str, method_name: str = None, field_name: str = None, style: str = "LINE") -> dict:
+    """
+    Adds a comment to a class, method, or field in the decompiled code.
+
+    Args:
+        target_type: Type of target ("class", "method", or "field")
+        class_name: Fully qualified class name
+        comment: The comment text to add
+        method_name (optional): Method name (required for method comments, can include full signature for overloaded methods)
+        field_name (optional): Field name (required for field comments)
+        style (optional): Comment style (default: "LINE")
+            - "LINE": Single-line comment (// comment)
+            - "BLOCK": Multi-line block comment (/* comment */)
+            - "BLOCK_CONDENSED": Condensed block comment (/* comment */)
+            - "JAVADOC": Javadoc style (/** comment */)
+            - "JAVADOC_CONDENSED": Condensed Javadoc (/** comment */)
+
+    Returns:
+        dict: Confirmation of comment addition with style information
+
+    MCP Tool: add_comment
+    Description: Adds explanatory comments to decompiled code elements (classes, methods, or fields) with customizable comment styles
+    
+    Examples:
+        # Add single-line comment to a class (default style)
+        add_comment("class", "com.example.MyClass", "This class handles user authentication")
+        
+        # Add block comment to a method
+        add_comment("method", "com.example.MyClass", "Validates user credentials\\nChecks password hash\\nReturns auth token", 
+                   method_name="validateUser", style="BLOCK")
+        
+        # Add Javadoc to overloaded method
+        add_comment("method", "com.example.MyClass", "Validates user with email\\n@param email User email\\n@return true if valid", 
+                   method_name="com.example.MyClass.validateUser(java.lang.String):boolean",
+                   style="JAVADOC")
+        
+        # Add comment to a field
+        add_comment("field", "com.example.MyClass", "User session token", field_name="sessionToken", style="LINE")
+    """
+    params = {
+        "target_type": target_type,
+        "class_name": class_name,
+        "comment": comment,
+        "style": style
+    }
+    
+    if method_name:
+        params["method_name"] = method_name
+    if field_name:
+        params["field_name"] = field_name
+
+    return await get_from_jadx("add-comment", params)

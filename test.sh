@@ -162,37 +162,39 @@ echo "--- rename_method ---"
 call_tool "rename_method" '{"method_name":"com.zin.dvac.AuthActivity.onCreate","new_name":"initializeWebView"}' 28 | jq
 echo "--- rename_field ---"
 call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_name":"editTextLoginPassword","new_name":"passwordInputField"}' 29 | jq
+echo "--- rename_variable ---"
+call_tool "rename_variable" '{"class_name":"com.zin.dvac.ChangePasswordActivity","method_name":"onCreate","variable_name":"ipAddress","new_name":"foobar"}' 30 | jq
 
 # 20) get stack frames from debugger
 echo "--- debug_get_stack_frames ---"
-call_tool "debug_get_stack_frames" '{}' 30 | jq -r '.result[]? // .'
+call_tool "debug_get_stack_frames" '{}' 31 | jq -r '.result[]? // .'
 
 # 22) get threads from debugger
 echo "--- debug_get_threads ---"
-call_tool "debug_get_threads" '{}' 31 | jq -r '.result[]? // .'
+call_tool "debug_get_threads" '{}' 32 | jq -r '.result[]? // .'
 
 # 23) get debugger variables from debugger
 echo "--- debug_get_variables ---"
-call_tool "debug_get_variables" '{}' 32 | jq -r '.result[]? // .'
+call_tool "debug_get_variables" '{}' 33 | jq -r '.result[]? // .'
 
 #24) get list of classes that contains specific keyword
 echo "--- search_classes_by_keyword ---"
-call_tool "search_classes_by_keyword" '{"search_term":"login","offset":0,"count":5}' 33 | jq -r '.result[]? // .'
+call_tool "search_classes_by_keyword" '{"search_term":"login","offset":0,"count":5}' 34 | jq -r '.result[]? // .'
 
 #25) rename package 
 echo "--- rename_package ---"
-call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 34 | jq -r '.result[]? // .'
+call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 35 | jq -r '.result[]? // .'
 
 #26) get_xrefs_to_class (class_name="DatabaseHelper", offset=0, count=2) "
 echo "--- get_xrefs_to_class (class_name='com.zin.dvac.DatabaseHelper', offset=0, count=2) ---"
-call_tool "get_xrefs_to_class" '{"class_name":"com.zin.dvac.DatabaseHelper","offset":0,"count":2}' 35 | jq -r '.result // .'
+call_tool "get_xrefs_to_class" '{"class_name":"com.zin.dvac.DatabaseHelper","offset":0,"count":2}' 36 | jq -r '.result // .'
 
 #27) get_xrefs_to_method 
 echo "--- get_xrefs_to_method (class_name='com.zin.dvac.DatabaseHelper', method_name='addPassword', offset=0, count=2) ---"
-call_tool "get_xrefs_to_method" '{"class_name":"com.zin.dvac.DatabaseHelper","method_name":"addPassword","offset":0,"count":2}' 36 | jq -r '.result // .'
+call_tool "get_xrefs_to_method" '{"class_name":"com.zin.dvac.DatabaseHelper","method_name":"addPassword","offset":0,"count":2}' 37 | jq -r '.result // .'
 
 #28) get_xrefs_to_field
 echo "--- get_xrefs_to_field (class_name='com.zin.dvac.DatabaseHelper', field_name='DATBASE_NAME', offset=0, count=2) ---"
-call_tool "get_xrefs_to_field" '{"class_name":"com.zin.dvac.DatabaseHelper","field_name":"DATABASE_NAME","offset":0,"count":2}' 37 | jq -r '.result // .'
+call_tool "get_xrefs_to_field" '{"class_name":"com.zin.dvac.DatabaseHelper","field_name":"DATABASE_NAME","offset":0,"count":2}' 38 | jq -r '.result // .'
 
 echo "== done =="

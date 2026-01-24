@@ -190,6 +190,7 @@ The following MCP tools are available:
 - `get_strings()` : Fetches the strings.xml file
 - `get_all_resource_file_names()` : Retrieve all resource files names that exists in application
 - `get_resource_file()` : Retrieve resource file content
+- `rename_variable()` : Renames the variable within a method
 - `debug_get_stack_frames()` : Get the stack frames from jadx debugger
 - `debug_get_threads()` : Get the insights of threads from jadx debugger
 - `debug_get_variables()` : Get the variables from jadx debugger

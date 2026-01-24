@@ -86,3 +86,35 @@ async def rename_package(old_package_name: str, new_package_name: str) -> dict:
         "old_package_name": old_package_name,
         "new_package_name": new_package_name
     })
+
+
+async def rename_variable(class_name: str, method_name: str, variable_name: str, new_name: str, reg: str = None, ssa: str = None) -> dict:
+    """
+    Renames a specific variable in a method.
+
+    Args:
+        class_name: Fully qualified class name
+        method_name: Name of the method containing the variable
+        variable_name: Current variable name
+        new_name: New name for the variable
+        reg (optional): Register number to target matching variable (e.g. "3")
+        ssa (optional): SSA version to target matching variable (e.g. "1")
+
+    Returns:
+        dict: Confirmation of rename operation
+
+    MCP Tool: rename_variable
+    Description: Refactors variable name within a method
+    """
+    params = {
+        "class_name": class_name,
+        "method_name": method_name,
+        "variable_name": variable_name,
+        "new_name": new_name
+    }
+    if reg:
+        params["reg"] = reg
+    if ssa:
+        params["ssa"] = ssa
+
+    return await get_from_jadx("rename-variable", params)

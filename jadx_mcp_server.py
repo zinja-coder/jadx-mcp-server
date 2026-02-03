@@ -151,10 +151,10 @@ async def get_smali_of_class(class_name: str) -> dict:
 
 
 @mcp.tool()
-async def get_manifest_component(component_type: str) -> dict:
-    """Retrieve specified component data from AndroidManifest.xml.
+async def get_manifest_component(component_type: str, only_exported: bool = False) -> dict:
+    """Retrieve specified component data from AndroidManifest.xml, support filter exported components.
     Support standard Android components: activity, provider, service, receiver."""
-    return await tools.resource_tools.get_manifest_component(component_type)
+    return await tools.resource_tools.get_manifest_component(component_type, only_exported)
 
 
 @mcp.tool()

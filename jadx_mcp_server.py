@@ -28,7 +28,7 @@ from src.server.tools.search_tools import (
     get_method_by_name, search_method_by_name, search_classes_by_keyword
 )
 from src.server.tools.resource_tools import (
-    get_android_manifest, get_strings, get_all_resource_file_names,
+    get_manifest_component, get_android_manifest, get_strings, get_all_resource_file_names,
     get_resource_file
 )
 from src.server.tools.refactor_tools import (
@@ -148,6 +148,13 @@ async def get_fields_of_class(class_name: str) -> dict:
 async def get_smali_of_class(class_name: str) -> dict:
     """Fetch the smali representation of a class."""
     return await tools.class_tools.get_smali_of_class(class_name)
+
+
+@mcp.tool()
+async def get_manifest_component(component_type: str, only_exported: bool = False) -> dict:
+    """Retrieve specified component data from AndroidManifest.xml, support filter exported components.
+    Support standard Android components: activity, provider, service, receiver."""
+    return await tools.resource_tools.get_manifest_component(component_type, only_exported)
 
 
 @mcp.tool()

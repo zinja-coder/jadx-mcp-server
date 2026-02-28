@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.10"
-# dependencies = [ "fastmcp", "httpx" ]
+# dependencies = [ "fastmcp>=3.0.2", "httpx" ]
 # ///
 
 """

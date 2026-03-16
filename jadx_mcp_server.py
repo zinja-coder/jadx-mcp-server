@@ -292,7 +292,7 @@ def main():
     )
     parser.add_argument(
         "--jadx-host",
-        help="JADX AI MCP Plugin host (default:127.0.0.1)",
+        help="JADX AI MCP Plugin host (default:127.0.0.1). Security: non-localhost may expose plugin to network; use trusted network/firewall.",
         default="127.0.0.1",
         type=str,
     )

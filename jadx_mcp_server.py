@@ -290,9 +290,16 @@ def main():
         default=8650,
         type=int,
     )
+    parser.add_argument(
+        "--jadx-host",
+        help="JADX AI MCP Plugin host (default:127.0.0.1)",
+        default="127.0.0.1",
+        type=str,
+    )
     args = parser.parse_args()
 
     # Configure
+    config.set_jadx_host(args.jadx_host)
     config.set_jadx_port(args.jadx_port)
 
     # Banner & Health Check
@@ -302,6 +309,8 @@ def main():
         print(
             "[JADX AI MCP Server] v3.3.5 | MCP Port:",
             args.port,
+            "| JADX Host:",
+            args.jadx_host,
             "| JADX Port:",
             args.jadx_port,
         )

@@ -10,6 +10,7 @@ See the file 'LICENSE' for copying permission
 """
 
 import argparse
+import logging
 import sys
 from fastmcp import FastMCP
 from src.banner import jadx_mcp_server_banner
@@ -17,6 +18,14 @@ from src.server import config, tools
 
 # Initialize MCP Server
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
+
+logger = logging.getLogger("jadx-mcp-server.bootstrap")
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+logger.propagate = False
 
 # Import and register ALL tools using correct FastMCP pattern
 from src.server.tools.class_tools import (
@@ -295,26 +304,24 @@ def main():
     # Configure
     config.set_jadx_port(args.jadx_port)
 
-    # Banner & Health Check
-    try:
-        print(jadx_mcp_server_banner())
-    except:
-        print(
-            "[JADX AI MCP Server] v3.3.5 | MCP Port:",
-            args.port,
-            "| JADX Port:",
-            args.jadx_port,
-        )
-
-    print("Testing JADX AI MCP Plugin connectivity...")
-    result = config.health_ping()
-    print(f"Health check result: {result}")
-
     # Run Server
     if args.http:
-        mcp.run(transport="streamable-http", port=args.port)
+        try:
+            logger.info(jadx_mcp_server_banner())
+        except Exception:
+            logger.info(
+                "[JADX AI MCP Server] starting in HTTP mode on port %s (JADX port %s)",
+                args.port,
+                args.jadx_port,
+            )
+
+        logger.info("Testing JADX AI MCP Plugin connectivity...")
+        result = config.health_ping()
+        logger.info("Health check result: %s", result)
+        mcp.run(transport="streamable-http", port=args.port, show_banner=False)
     else:
-        mcp.run()
+        # StdIO transport must keep stdout reserved for MCP frames.
+        mcp.run(show_banner=False)
 
 
 if __name__ == "__main__":

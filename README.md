@@ -2,6 +2,8 @@
 
 # JADX-MCP-SERVER (Part of Zin's Reverse Engineering MCP Suite)
 
+[![SafeSkill 91/100](https://img.shields.io/badge/SafeSkill-91%2F100_Verified%20Safe-brightgreen)](https://safeskill.dev/scan/zinja-coder-jadx-mcp-server)
+
 ⚡ Fully automated MCP server built to communicate with JADX-AI-MCP Plugin to analyze Android APKs using LLMs like Claude — uncover vulnerabilities, parse manifests, and reverse engineer effortlessly.
 
 ![GitHub contributors JADX-AI-MCP](https://img.shields.io/github/contributors/zinja-coder/jadx-ai-mcp)

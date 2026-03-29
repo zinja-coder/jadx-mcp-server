@@ -16,8 +16,9 @@ import sys
 from typing import Union, Dict, Any
 
 # Default Configuration
+JADX_HOST = "127.0.0.1"
 JADX_PORT = 8650
-JADX_HTTP_BASE = f"http://127.0.0.1:{JADX_PORT}"
+JADX_HTTP_BASE = f"http://{JADX_HOST}:{JADX_PORT}"
 
 # Logging Setup
 logger = logging.getLogger("jadx-mcp-server")
@@ -27,6 +28,27 @@ if not logger.handlers:
     logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
 logger.propagate = False
+
+
+def _rebuild_jadx_http_base():
+    """Rebuild the base URL used for all requests to the JADX plugin."""
+    global JADX_HTTP_BASE
+    JADX_HTTP_BASE = f"http://{JADX_HOST}:{JADX_PORT}"
+
+
+def set_jadx_host(host: str):
+    """
+    Updates the JADX plugin host.
+
+    Args:
+        host: Hostname or IP where JADX AI MCP plugin is reachable
+
+    Side Effects:
+        Updates global JADX_HOST and JADX_HTTP_BASE configuration
+    """
+    global JADX_HOST
+    JADX_HOST = host
+    _rebuild_jadx_http_base()
 
 
 def set_jadx_port(port: int):
@@ -39,9 +61,9 @@ def set_jadx_port(port: int):
     Side Effects:
         Updates global JADX_PORT and JADX_HTTP_BASE configuration
     """
-    global JADX_PORT, JADX_HTTP_BASE
+    global JADX_PORT
     JADX_PORT = port
-    JADX_HTTP_BASE = f"http://127.0.0.1:{JADX_PORT}"
+    _rebuild_jadx_http_base()
 
 
 def health_ping() -> Union[str, Dict[str, Any]]:

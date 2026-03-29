@@ -36,6 +36,24 @@ Thanks to these wonderful people for their contributions ⭐
         <br /><sub><b>p0px</b></sub>
       </a>
     </td>
+    <td>
+      <a href="https://github.com/bx33661">
+        <img src="https://avatars.githubusercontent.com/u/138348615?v=4" width="30px;" alt=""/>
+        <br /><sub><b>bx33661</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/Haicaji">
+        <img src="https://avatars.githubusercontent.com/u/132796021?v=4" width="30px;" alt=""/>
+        <br /><sub><b>Haicaji</b></sub>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/ChineseAStar">
+        <img src="https://avatars.githubusercontent.com/u/24355243?v=4" width="30px;" alt=""/>
+        <br /><sub><b>ChineseAStar</b></sub>
+      </a>
+    </td>
        <td>
       <a href="https://github.com/tiann">
         <img src="https://avatars.githubusercontent.com/u/4233744?v=4" width="30px;" alt=""/>
@@ -187,6 +205,7 @@ The following MCP tools are available:
 - `get_main_application_classes_code()` — Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
 - `get_main_application_classes_names()` — Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
 - `get_android_manifest()` — Retrieve and return the AndroidManifest.xml content.
+- `get_manifest_component` - Retrieve specific manifest component instead of whole manifest file
 - `get_strings()` : Fetches the strings.xml file
 - `get_all_resource_file_names()` : Retrieve all resource files names that exists in application
 - `get_resource_file()` : Retrieve resource file content

@@ -21,10 +21,12 @@ JADX_HTTP_BASE = f"http://127.0.0.1:{JADX_PORT}"
 
 # Logging Setup
 logger = logging.getLogger("jadx-mcp-server")
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
-handler = logging.StreamHandler(sys.stderr)
-handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-logger.addHandler(handler)
+logger.propagate = False
 
 
 def set_jadx_port(port: int):
@@ -52,9 +54,8 @@ def health_ping() -> Union[str, Dict[str, Any]]:
     Note:
         Performs synchronous HTTP health check with 60-second timeout
     """
-    print(f"Attempting to connect to {JADX_HTTP_BASE}/health")
     try:
-        with httpx.Client() as client:
+        with httpx.Client(trust_env=False) as client:
             resp = client.get(f"{JADX_HTTP_BASE}/health", timeout=60)
             resp.raise_for_status()
             return resp.text
@@ -82,7 +83,7 @@ async def get_from_jadx(endpoint: str, params: Dict[str, Any] = {}) -> Union[str
     """
     url = f"{JADX_HTTP_BASE}/{endpoint.lstrip('/')}"
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(trust_env=False) as client:
             resp = await client.get(url, params=params, timeout=60)
             resp.raise_for_status()
 

@@ -113,6 +113,10 @@ class PaginationUtils:
                 raise ValueError("fetch_function must be provided")
 
             response = await fetch_function(endpoint, params)
+            if not isinstance(response, dict):
+                return {"error": f"Unexpected response type from {endpoint}: {type(response).__name__}"}
+            if response.get("error"):
+                return response
 
             # Propagate upstream errors instead of silently building empty results
             if not isinstance(response, dict):

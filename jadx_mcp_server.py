@@ -291,6 +291,12 @@ def main():
         default=False,
     )
     parser.add_argument(
+        "--host", 
+        help="Host address to bind for --http (default: 127.0.0.1, use 0.0.0.0 for remote access)", 
+        default="127.0.0.1", 
+        type=str
+    )
+    parser.add_argument(
         "--port", help="Port for --http (default:8651)", default=8651, type=int
     )
     parser.add_argument(

@@ -10,6 +10,7 @@ See the file 'LICENSE' for copying permission
 """
 
 import argparse
+import logging
 import sys
 from fastmcp import FastMCP
 from src.banner import jadx_mcp_server_banner
@@ -17,6 +18,15 @@ from src.server import config, tools
 
 # Initialize MCP Server
 mcp = FastMCP("JADX-AI-MCP Plugin Reverse Engineering Server")
+
+# Bootstrap logger — always writes to stderr to keep stdout clean for stdio transport
+logger = logging.getLogger("jadx-mcp-server.bootstrap")
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+logger.propagate = False
 
 # Import and register ALL tools using correct FastMCP pattern
 from src.server.tools.class_tools import (
@@ -282,9 +292,10 @@ def main():
         default=False,
     )
     parser.add_argument(
-        "--host", 
-        help="Host address to bind for --http (default: 127.0.0.1, use 0.0.0.0 for remote access)", 
-        default="127.0.0.1", 
+        "--host",
+        help="Host address to bind for --http (default: 127.0.0.1, use 0.0.0.0 for remote access). "
+             "WARNING: non-localhost binds expose the server over plain HTTP with no authentication.",
+        default="127.0.0.1",
         type=str
     )
     parser.add_argument(
@@ -296,30 +307,49 @@ def main():
         default=8650,
         type=int,
     )
+    parser.add_argument(
+        "--jadx-host",
+        help="JADX AI MCP Plugin host (default:127.0.0.1). "
+             "Security: non-localhost may expose plugin to network; use trusted network/firewall.",
+        default="127.0.0.1",
+        type=str,
+    )
     args = parser.parse_args()
 
     # Configure
+    config.set_jadx_host(args.jadx_host)
     config.set_jadx_port(args.jadx_port)
 
-    # Banner & Health Check
+    # Security warning for non-localhost bind address
+    if args.host not in ("127.0.0.1", "localhost", "::1"):
+        logger.warning(
+            "\n⚠️  SECURITY WARNING: Binding to non-localhost address '%s'.\n"
+            "   The MCP server uses plain HTTP with NO authentication.\n"
+            "   Anyone on the network can connect and use all MCP tools.\n"
+            "   Only use this on trusted networks or behind a firewall.",
+            args.host
+        )
+
+    # Banner & Health Check — always logs to stderr to keep stdout clean for stdio transport
     try:
-        print(jadx_mcp_server_banner())
-    except:
-        print(
-            "[JADX AI MCP Server] v3.3.5 | MCP Port:",
+        logger.info(jadx_mcp_server_banner())
+    except Exception:
+        logger.info(
+            "[JADX AI MCP Server] v3.3.5 | MCP Port: %s | JADX Host: %s | JADX Port: %s",
             args.port,
-            "| JADX Port:",
+            args.jadx_host,
             args.jadx_port,
         )
 
-    print("Testing JADX AI MCP Plugin connectivity...")
+    logger.info("Testing JADX AI MCP Plugin connectivity...")
     result = config.health_ping()
-    print(f"Health check result: {result}")
+    logger.info("Health check result: %s", result)
 
     # Run Server
     if args.http:
         mcp.run(transport="streamable-http", host=args.host, port=args.port)
     else:
+        # StdIO transport must keep stdout reserved for MCP frames.
         mcp.run()
 
 

@@ -14,14 +14,14 @@ import logging
 from typing import Dict, List, Any, Union, Callable
 
 # Set up logging configuration
-logger = logging.getLogger()
+logger = logging.getLogger("jadx-mcp-server.pagination")
+if not logger.handlers:
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.ERROR)
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(console_handler)
 logger.setLevel(logging.ERROR)
-
-# Console handler for logging to the console
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.ERROR)
-console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-logger.addHandler(console_handler)
+logger.propagate = False
 
 
 class PaginationUtils:
@@ -113,6 +113,12 @@ class PaginationUtils:
                 raise ValueError("fetch_function must be provided")
 
             response = await fetch_function(endpoint, params)
+
+            # Propagate upstream errors instead of silently building empty results
+            if not isinstance(response, dict):
+                return {"error": f"Unexpected response type from {endpoint}: {type(response).__name__}"}
+            if response.get("error"):
+                return response
 
             # Parse JSON response
             try:

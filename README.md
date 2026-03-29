@@ -275,6 +275,43 @@ Demo: **Perform Code Review to Find Vulnerabilities locally**
 
 https://github.com/user-attachments/assets/4cd26715-b5e6-4b4b-95e4-054de6789f42
 
+### Advanced CLI Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--http` | off | Serve over HTTP instead of stdio |
+| `--host` | `127.0.0.1` | Bind address for `--http` mode |
+| `--port` | `8651` | Port for `--http` mode |
+| `--jadx-host` | `127.0.0.1` | Hostname/IP of the JADX AI MCP Plugin |
+| `--jadx-port` | `8650` | Port of the JADX AI MCP Plugin |
+
+**Docker / Remote VM example:**
+```bash
+uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 8651
+```
+
+**JADX running on a different machine:**
+```bash
+uv run jadx_mcp_server.py --http --jadx-host 192.168.1.100 --jadx-port 8650
+```
+
+> [!CAUTION]
+> ### ⚠️ Security Warning — Remote Binding
+>
+> When using `--host 0.0.0.0` (or any non-localhost address), the MCP server binds to **all network interfaces** over **plain HTTP with no authentication**. This means:
+>
+> - **Anyone on the network** can connect and invoke all MCP tools
+> - There is **no TLS encryption** — traffic can be intercepted
+> - An attacker can use the server to **read decompiled code**, **rename classes/methods**, and **access debug info**
+>
+> **Mitigations:**
+> - Only bind to `0.0.0.0` on **trusted, isolated networks** (e.g., Docker bridge, local VM)
+> - Use a **firewall** to restrict access to the MCP port
+> - Consider an **SSH tunnel** instead: `ssh -L 8651:127.0.0.1:8651 remote-host`
+>
+> Similarly, `--jadx-host` with a non-localhost address means the MCP server will make **unauthenticated HTTP requests** to that host. Ensure the target is trusted.
+
+
 ## 🛣️ Future Roadmap
 
 - [x] Add Support for apktool

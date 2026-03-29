@@ -54,6 +54,12 @@ Thanks to these wonderful people for their contributions ⭐
         <br /><sub><b>ChineseAStar</b></sub>
       </a>
     </td>
+    <td>
+      <a href="https://github.com/cyal1r">
+        <img src="https://avatars.githubusercontent.com/u/33282478?v=4" width="30px;" alt=""/>
+        <br /><sub><b>cyal1</b></sub>
+      </a>
+    </td>
        <td>
       <a href="https://github.com/tiann">
         <img src="https://avatars.githubusercontent.com/u/4233744?v=4" width="30px;" alt=""/>

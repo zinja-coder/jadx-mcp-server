@@ -86,7 +86,7 @@ def health_ping() -> Union[str, Dict[str, Any]]:
         return {"error": str(e)}
 
 
-async def get_from_jadx(endpoint: str, params: Dict[str, Any] = {}) -> Union[str, Dict[str, Any]]:
+async def get_from_jadx(endpoint: str, params: Dict[str, Any] = None) -> Union[str, Dict[str, Any]]:
     """
     Generic async helper to request data from the JADX plugin.
 
@@ -103,10 +103,11 @@ async def get_from_jadx(endpoint: str, params: Dict[str, Any] = {}) -> Union[str
     Note:
         Automatically handles JSON parsing with fallback to text response
     """
+    params = params or {}
     url = f"{JADX_HTTP_BASE}/{endpoint.lstrip('/')}"
     try:
         async with httpx.AsyncClient(trust_env=False) as client:
-            resp = await client.get(url, params=params, timeout=60)
+            resp = await client.get(url, params=params, timeout=600)
             resp.raise_for_status()
 
             # Try to parse JSON, fallback to text if not valid JSON
@@ -120,7 +121,43 @@ async def get_from_jadx(endpoint: str, params: Dict[str, Any] = {}) -> Union[str
         logger.error(error_msg)
         return {"error": error_msg}
 
-    except Exception as e:
-        error_msg = f"Unexpected error: {str(e)}"
+    except httpx.TimeoutException:
+        error_msg = (
+            f"Request to JADX plugin timed out after 600s for endpoint '{endpoint}'. "
+            "The operation may still be running in JADX-GUI. "
+            "For large APKs, code-level searches can take several minutes."
+        )
         logger.error(error_msg)
         return {"error": error_msg}
+
+    except httpx.ConnectError:
+        error_msg = (
+            f"Cannot connect to JADX plugin at {JADX_HTTP_BASE}. "
+            "Ensure JADX-GUI is running and the AI MCP plugin is active."
+        )
+        logger.error(error_msg)
+        return {"error": error_msg}
+
+    except Exception as e:
+        error_msg = f"Unexpected error communicating with JADX plugin: {type(e).__name__}: {str(e)}"
+        logger.error(error_msg)
+        return {"error": error_msg}
+
+
+async def get_search_progress() -> Dict[str, Any]:
+    """
+    Poll the JADX plugin for current search progress.
+
+    Returns:
+        Dict with keys: state, scanned, total, matches, search_id, operation_type,
+        elapsed_ms.  When state is "failed", also includes "error".
+        Returns {"state": "unknown"} on connection failure.
+    """
+    url = f"{JADX_HTTP_BASE}/search-progress"
+    try:
+        async with httpx.AsyncClient(trust_env=False) as client:
+            resp = await client.get(url, timeout=5)
+            resp.raise_for_status()
+            return resp.json()
+    except Exception:
+        return {"state": "unknown"}

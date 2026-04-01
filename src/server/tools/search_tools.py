@@ -4,12 +4,106 @@ JADX MCP Server - Code Search Tools
 This module provides MCP tools for searching through decompiled Android code,
 enabling discovery of classes, methods, and keywords across the entire APK.
 
+Includes progress-aware search that polls the JADX plugin's /search-progress
+endpoint and reports progress to the MCP client via ctx.report_progress().
+
 Author: Jafar Pathan (zinja-coder@github)
 License: See LICENSE file
 """
 
-from src.server.config import get_from_jadx
+import asyncio
+import logging
+from typing import Optional
+
+from src.server.config import get_from_jadx, get_search_progress
 from src.PaginationUtils import PaginationUtils
+
+logger = logging.getLogger("jadx-mcp-server.search")
+
+
+async def _poll_progress(report_progress, poll_interval: float = 2.0, max_poll_seconds: float = 630.0):
+    """
+    Continuously poll /search-progress and report via MCP progress notifications.
+    Runs as a concurrent task alongside the actual search request.
+
+    Args:
+        report_progress: Callable(progress, total) from FastMCP Context,
+                         or None if no progress reporting is available.
+        poll_interval: Seconds between progress polls.
+        max_poll_seconds: Safety cap — stop polling after this many seconds even
+                          if the search still appears to be running.  Guards against
+                          a crashed search thread leaving the tracker stuck in
+                          "running" state.  Set slightly above the HTTP timeout (600s).
+    """
+    if report_progress is None:
+        return
+
+    last_scanned = -1
+    seen_running = False
+    consecutive_failures = 0
+    # After we've confirmed the search is active (seen_running), a dead server
+    # is a real problem.  Before that, be more tolerant — the plugin may still
+    # be initialising or the search hasn't started yet.
+    MAX_FAILURES_BEFORE_RUNNING = 10   # ~20 seconds of tolerance during startup
+    MAX_FAILURES_AFTER_RUNNING = 3     # ~6 seconds — server died mid-search
+    loop = asyncio.get_running_loop()
+    poll_start = loop.time()
+    try:
+        while True:
+            await asyncio.sleep(poll_interval)
+
+            # Safety: abort polling if we've exceeded the time cap
+            if (loop.time() - poll_start) > max_poll_seconds:
+                logger.warning("Progress poller: max poll time (%.0fs) exceeded, stopping", max_poll_seconds)
+                break
+
+            progress = await get_search_progress()
+            # Java sends state in lowercase: "idle", "running", "completed", "failed"
+            state = progress.get("state", "unknown")
+
+            if state == "unknown":
+                # Poll failed — server may be unreachable
+                consecutive_failures += 1
+                threshold = MAX_FAILURES_AFTER_RUNNING if seen_running else MAX_FAILURES_BEFORE_RUNNING
+                if consecutive_failures >= threshold:
+                    logger.error(
+                        "Progress poller: JADX plugin unreachable after %d consecutive poll failures "
+                        "(seen_running=%s). Stopping progress updates. "
+                        "The main search request will report its own error when it times out.",
+                        consecutive_failures, seen_running,
+                    )
+                    break
+                continue
+
+            # Successful poll — reset failure counter
+            consecutive_failures = 0
+
+            if state == "running":
+                seen_running = True
+                scanned = progress.get("scanned", 0)
+                total = progress.get("total", 0)
+                if total > 0 and scanned != last_scanned:
+                    last_scanned = scanned
+                    try:
+                        await report_progress(scanned, total)
+                    except Exception:
+                        pass  # Client may not support progress
+
+            elif seen_running and state in ("completed", "failed"):
+                # Current search finished — send final progress and stop
+                scanned = progress.get("scanned", 0)
+                total = progress.get("total", 0)
+                if total > 0:
+                    try:
+                        await report_progress(scanned, total)
+                    except Exception:
+                        pass
+                break
+            # If not seen_running yet: state might be "idle", "completed", or
+            # "failed" from a PREVIOUS search — keep polling until the current
+            # search sets state to "running".
+    except asyncio.CancelledError:
+        pass
 
 
 async def get_method_by_name(class_name: str, method_name: str) -> dict:
@@ -31,20 +125,30 @@ async def get_method_by_name(class_name: str, method_name: str) -> dict:
     )
 
 
-async def search_method_by_name(method_name: str) -> dict:
+async def search_method_by_name(method_name: str, report_progress=None) -> dict:
     """
     Search for a method name across all classes.
+    Now uses metadata-based search (no decompilation) on the Java side,
+    and reports progress if a report_progress callback is provided.
 
     Args:
         method_name: Method name to search for (partial matching supported)
+        report_progress: Optional async callable(progress, total) from FastMCP Context
 
     Returns:
         dict: List of all classes containing methods with matching names
-
-    MCP Tool: search_method_by_name
-    Description: Finds all occurrences of a method name across the APK
     """
-    return await get_from_jadx("search-method", {"method_name": method_name})
+    # Fire search request and progress poller concurrently
+    progress_task = asyncio.create_task(_poll_progress(report_progress))
+    try:
+        result = await get_from_jadx("search-method", {"method_name": method_name})
+    finally:
+        progress_task.cancel()
+        try:
+            await progress_task
+        except asyncio.CancelledError:
+            pass
+    return result
 
 
 async def search_classes_by_keyword(
@@ -53,6 +157,7 @@ async def search_classes_by_keyword(
     search_in: str = "code",
     offset: int = 0,
     count: int = 20,
+    report_progress=None,
 ) -> dict:
     """
     Search for classes containing a specific keyword with flexible filtering options.
@@ -87,25 +192,30 @@ async def search_classes_by_keyword(
 
         offset (optional): Starting index for pagination. Default: 0
         count (optional): Maximum number of results to return. Default: 20
+        report_progress: Optional async callable(progress, total) from FastMCP Context
 
     Returns:
         dict: Paginated list of classes containing the search term, with metadata about matches
-
-    MCP Tool: search_classes_by_keyword
-    Description: Advanced search tool that finds classes matching a keyword with package filtering
-                 and scope targeting capabilities. Use this when you need to find specific code
-                 patterns, class names, method names, or other identifiers across the decompiled APK.
-
     """
-    return await PaginationUtils.get_paginated_data(
-        endpoint="search-classes-by-keyword",
-        offset=offset,
-        count=count,
-        additional_params={
-            "search_term": search_term,
-            "package": package,
-            "search_in": search_in,
-        },
-        data_extractor=lambda parsed: parsed.get("classes", []),
-        fetch_function=get_from_jadx,
-    )
+    # Fire search request and progress poller concurrently
+    progress_task = asyncio.create_task(_poll_progress(report_progress))
+    try:
+        result = await PaginationUtils.get_paginated_data(
+            endpoint="search-classes-by-keyword",
+            offset=offset,
+            count=count,
+            additional_params={
+                "search_term": search_term,
+                "package": package,
+                "search_in": search_in,
+            },
+            data_extractor=lambda parsed: parsed.get("classes", []),
+            fetch_function=get_from_jadx,
+        )
+    finally:
+        progress_task.cancel()
+        try:
+            await progress_task
+        except asyncio.CancelledError:
+            pass
+    return result

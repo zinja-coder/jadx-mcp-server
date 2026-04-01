@@ -12,7 +12,7 @@ See the file 'LICENSE' for copying permission
 import argparse
 import logging
 import sys
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 from src.banner import jadx_mcp_server_banner
 from src.server import config, tools
 
@@ -84,9 +84,10 @@ async def get_class_source(class_name: str) -> dict:
 
 
 @mcp.tool()
-async def search_method_by_name(method_name: str) -> dict:
+async def search_method_by_name(method_name: str, ctx: Context = None) -> dict:
     """Search for a method name across all classes."""
-    return await tools.search_tools.search_method_by_name(method_name)
+    report_progress = ctx.report_progress if ctx else None
+    return await tools.search_tools.search_method_by_name(method_name, report_progress=report_progress)
 
 
 @mcp.tool()
@@ -102,6 +103,7 @@ async def search_classes_by_keyword(
     search_in: str = "code",
     offset: int = 0,
     count: int = 20,
+    ctx: Context = None,
 ) -> dict:
     """Search for classes containing a specific keyword with flexible filtering options.
 
@@ -143,8 +145,9 @@ async def search_classes_by_keyword(
     Description: Advanced search tool that finds classes matching a keyword with package filtering
                  and scope targeting capabilities. Use this when you need to find specific code
                  patterns, class names, method names, or other identifiers across the decompiled APK."""
+    report_progress = ctx.report_progress if ctx else None
     return await tools.search_tools.search_classes_by_keyword(
-        search_term, package, search_in, offset, count
+        search_term, package, search_in, offset, count, report_progress=report_progress
     )
 
 

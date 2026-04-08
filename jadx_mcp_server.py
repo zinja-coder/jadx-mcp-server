@@ -32,7 +32,8 @@ logger.propagate = False
 from src.server.tools.class_tools import (
     fetch_current_class, get_selected_text, get_class_source,
     get_all_classes, get_methods_of_class, get_fields_of_class, get_smali_of_class,
-    get_main_application_classes_names, get_main_application_classes_code, get_main_activity_class
+    get_main_application_classes_names, get_main_application_classes_code, get_main_activity_class,
+    get_package_tree, get_cache_stats, clear_cache
 )
 from src.server.tools.search_tools import (
     get_method_by_name, search_method_by_name, search_classes_by_keyword
@@ -210,6 +211,24 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
 async def get_main_activity_class() -> dict:
     """Fetch the main activity class from AndroidManifest.xml."""
     return await tools.class_tools.get_main_activity_class()
+
+
+@mcp.tool()
+async def get_package_tree() -> dict:
+    """Get all packages in the APK sorted by class count. Shows total_classes, total_packages, and per-package name, class_count, is_likely_library. Use this first to understand the APK structure before searching."""
+    return await tools.class_tools.get_package_tree()
+
+
+@mcp.tool()
+async def get_cache_stats() -> dict:
+    """Get decompilation cache statistics: hits, misses, hit_rate, cached_classes, compressed_mb, compression_ratio."""
+    return await tools.class_tools.get_cache_stats()
+
+
+@mcp.tool()
+async def clear_cache() -> dict:
+    """Clear the decompilation source cache and reset counters. Use when switching APKs or to free memory."""
+    return await tools.class_tools.clear_cache()
 
 
 @mcp.tool()

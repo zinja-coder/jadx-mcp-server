@@ -107,7 +107,7 @@ async def get_from_jadx(endpoint: str, params: Dict[str, Any] = None) -> Union[s
     url = f"{JADX_HTTP_BASE}/{endpoint.lstrip('/')}"
     try:
         async with httpx.AsyncClient(trust_env=False) as client:
-            resp = await client.get(url, params=params, timeout=600)
+            resp = await client.get(url, params=params, timeout=3600)
             resp.raise_for_status()
 
             # Try to parse JSON, fallback to text if not valid JSON
@@ -123,7 +123,7 @@ async def get_from_jadx(endpoint: str, params: Dict[str, Any] = None) -> Union[s
 
     except httpx.TimeoutException:
         error_msg = (
-            f"Request to JADX plugin timed out after 600s for endpoint '{endpoint}'. "
+            f"Request to JADX plugin timed out after 3600s for endpoint '{endpoint}'. "
             "The operation may still be running in JADX-GUI. "
             "For large APKs, code-level searches can take several minutes."
         )
@@ -142,6 +142,26 @@ async def get_from_jadx(endpoint: str, params: Dict[str, Any] = None) -> Union[s
         error_msg = f"Unexpected error communicating with JADX plugin: {type(e).__name__}: {str(e)}"
         logger.error(error_msg)
         return {"error": error_msg}
+
+
+async def post_to_jadx(endpoint: str, params: Dict[str, Any] = None) -> Union[str, Dict[str, Any]]:
+    """
+    Generic async helper to POST to the JADX plugin (for mutating operations like cache-clear).
+    """
+    params = params or {}
+    url = f"{JADX_HTTP_BASE}/{endpoint.lstrip('/')}"
+    try:
+        async with httpx.AsyncClient(trust_env=False) as client:
+            resp = await client.post(url, params=params, timeout=30)
+            resp.raise_for_status()
+            try:
+                return resp.json()
+            except json.JSONDecodeError:
+                return {"response": resp.text}
+    except httpx.ConnectError:
+        return {"error": f"Cannot connect to JADX plugin at {JADX_HTTP_BASE}. Ensure JADX-GUI is running."}
+    except Exception as e:
+        return {"error": f"POST to {endpoint} failed: {type(e).__name__}: {str(e)}"}
 
 
 async def get_search_progress() -> Dict[str, Any]:

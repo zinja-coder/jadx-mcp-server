@@ -21,19 +21,38 @@ from src.PaginationUtils import PaginationUtils
 logger = logging.getLogger("jadx-mcp-server.search")
 
 
-async def _poll_progress(report_progress, poll_interval: float = 2.0, max_poll_seconds: float = 630.0):
+async def _poll_progress(
+    report_progress,
+    poll_interval: float = 2.0,
+    budget_seconds: float = 600.0,
+    absolute_max_seconds: float = 3600.0,
+    extension_threshold: float = 0.90,
+    cancel_search_event: Optional[asyncio.Event] = None,
+):
     """
     Continuously poll /search-progress and report via MCP progress notifications.
     Runs as a concurrent task alongside the actual search request.
+
+    Implements a **dynamic timeout**: starts with an initial budget (default 600s).
+    When the elapsed time reaches extension_threshold (90%) of the current budget
+    AND the search is still running, the poller asks the plugin for its state.
+    If the plugin confirms it is still searching, the budget is extended by the
+    original amount (e.g. +600s).  Extensions repeat until the search finishes
+    or the absolute_max_seconds ceiling is reached.
+
+    If cancel_search_event is provided and gets set, the poller will signal that
+    the main HTTP request should be abandoned (the caller should cancel the task).
 
     Args:
         report_progress: Callable(progress, total) from FastMCP Context,
                          or None if no progress reporting is available.
         poll_interval: Seconds between progress polls.
-        max_poll_seconds: Safety cap — stop polling after this many seconds even
-                          if the search still appears to be running.  Guards against
-                          a crashed search thread leaving the tracker stuck in
-                          "running" state.  Set slightly above the HTTP timeout (600s).
+        budget_seconds: Initial time budget for the search.  When ~90% consumed,
+                        the poller checks status and may extend.
+        absolute_max_seconds: Hard ceiling — never extend beyond this total.
+        extension_threshold: Fraction (0-1) of budget at which to evaluate extension.
+        cancel_search_event: If set, the poller will set() this event to signal
+                             the caller to cancel the HTTP request.
     """
     if report_progress is None:
         return
@@ -41,6 +60,9 @@ async def _poll_progress(report_progress, poll_interval: float = 2.0, max_poll_s
     last_scanned = -1
     seen_running = False
     consecutive_failures = 0
+    original_budget = budget_seconds
+    current_deadline = budget_seconds
+    extensions_granted = 0
     # After we've confirmed the search is active (seen_running), a dead server
     # is a real problem.  Before that, be more tolerant — the plugin may still
     # be initialising or the search hasn't started yet.
@@ -52,9 +74,63 @@ async def _poll_progress(report_progress, poll_interval: float = 2.0, max_poll_s
         while True:
             await asyncio.sleep(poll_interval)
 
-            # Safety: abort polling if we've exceeded the time cap
-            if (loop.time() - poll_start) > max_poll_seconds:
-                logger.warning("Progress poller: max poll time (%.0fs) exceeded, stopping", max_poll_seconds)
+            elapsed = loop.time() - poll_start
+
+            # hard ceiling, no more extensions possible
+            if elapsed > absolute_max_seconds:
+                logger.warning(
+                    "Progress poller: absolute max time (%.0fs) reached after %d extensions. Stopping.",
+                    absolute_max_seconds, extensions_granted,
+                )
+                if cancel_search_event:
+                    cancel_search_event.set()
+                break
+
+            # dynamic timeout check: approaching the current deadline?
+            if elapsed >= current_deadline * extension_threshold and seen_running:
+                # Ask the plugin: "Are you still searching?"
+                check = await get_search_progress()
+                check_state = check.get("state", "unknown")
+                if check_state == "running":
+                    # plugin confirms it's still working => grant extension
+                    new_deadline = current_deadline + original_budget
+                    if new_deadline > absolute_max_seconds:
+                        new_deadline = absolute_max_seconds
+                    extensions_granted += 1
+                    logger.info(
+                        "Progress poller: search still running at %.0fs (%.0f%% of budget). "
+                        "Extending deadline by %.0fs → new deadline %.0fs (extension #%d).",
+                        elapsed, (elapsed / current_deadline) * 100,
+                        original_budget, new_deadline, extensions_granted,
+                    )
+                    try:
+                        # inform the MCP client about the extension
+                        scanned = check.get("scanned", 0)
+                        total = check.get("total", 0)
+                        if total > 0:
+                            await report_progress(scanned, total)
+                    except Exception:
+                        pass
+                    current_deadline = new_deadline
+                elif check_state in ("completed", "failed"):
+                    # Search ended while we were checking ,will be caught below
+                    pass
+                else:
+                    # plugin unreachable near deadline , not safe to extend
+                    logger.warning(
+                        "Progress poller: budget nearly exhausted at %.0fs and plugin state "
+                        "is '%s'. Not extending.",
+                        elapsed, check_state,
+                    )
+
+            # Past the current deadline (after extension opportunities), give up
+            if elapsed > current_deadline:
+                logger.warning(
+                    "Progress poller: deadline (%.0fs) exceeded with %d extensions granted. Stopping.",
+                    current_deadline, extensions_granted,
+                )
+                if cancel_search_event:
+                    cancel_search_event.set()
                 break
 
             progress = await get_search_progress()

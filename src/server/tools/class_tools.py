@@ -9,7 +9,7 @@ Author: Jafar Pathan (zinja-coder@github)
 License: See LICENSE file
 """
 
-from src.server.config import get_from_jadx
+from src.server.config import get_from_jadx, post_to_jadx
 from src.PaginationUtils import PaginationUtils
 
 
@@ -173,3 +173,44 @@ async def get_main_activity_class() -> dict:
     Description: Identifies and retrieves the app's entry point activity
     """
     return await get_from_jadx("main-activity")
+
+
+async def get_package_tree() -> dict:
+    """
+    Get a tree of all packages in the APK sorted by class count.
+
+    Returns:
+        dict: Contains total_classes, total_packages, and packages list.
+              Each package has name, class_count, and is_likely_library flag.
+
+    MCP Tool: get_package_tree
+    Description: Lists all packages sorted by size to help focus analysis
+    """
+    return await get_from_jadx("package-tree")
+
+
+async def get_cache_stats() -> dict:
+    """
+    Get decompilation cache statistics.
+
+    Returns:
+        dict: Cache observability data including hits, misses, hit_rate,
+              cached_classes, compressed_mb, original_mb, compression_ratio.
+
+    MCP Tool: get_cache_stats
+    Description: Shows cache performance metrics for decompiled source code
+    """
+    return await get_from_jadx("cache-stats")
+
+
+async def clear_cache() -> dict:
+    """
+    Clear the decompilation cache and reset all counters.
+
+    Returns:
+        dict: Confirmation with post-clear stats.
+
+    MCP Tool: clear_cache
+    Description: Resets the source code cache (use when switching APKs)
+    """
+    return await post_to_jadx("cache-clear")

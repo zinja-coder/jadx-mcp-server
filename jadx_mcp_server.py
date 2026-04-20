@@ -12,7 +12,7 @@ See the file 'LICENSE' for copying permission
 import argparse
 import logging
 import sys
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 from src.banner import jadx_mcp_server_banner
 from src.server import config, tools
 
@@ -32,7 +32,8 @@ logger.propagate = False
 from src.server.tools.class_tools import (
     fetch_current_class, get_selected_text, get_class_source,
     get_all_classes, get_methods_of_class, get_fields_of_class, get_smali_of_class,
-    get_main_application_classes_names, get_main_application_classes_code, get_main_activity_class
+    get_main_application_classes_names, get_main_application_classes_code, get_main_activity_class,
+    get_package_tree, get_cache_stats, clear_cache
 )
 from src.server.tools.search_tools import (
     get_method_by_name, search_method_by_name, search_classes_by_keyword
@@ -84,9 +85,10 @@ async def get_class_source(class_name: str) -> dict:
 
 
 @mcp.tool()
-async def search_method_by_name(method_name: str) -> dict:
+async def search_method_by_name(method_name: str, ctx: Context = None) -> dict:
     """Search for a method name across all classes."""
-    return await tools.search_tools.search_method_by_name(method_name)
+    report_progress = ctx.report_progress if ctx else None
+    return await tools.search_tools.search_method_by_name(method_name, report_progress=report_progress)
 
 
 @mcp.tool()
@@ -102,6 +104,7 @@ async def search_classes_by_keyword(
     search_in: str = "code",
     offset: int = 0,
     count: int = 20,
+    ctx: Context = None,
 ) -> dict:
     """Search for classes containing a specific keyword with flexible filtering options.
 
@@ -143,8 +146,9 @@ async def search_classes_by_keyword(
     Description: Advanced search tool that finds classes matching a keyword with package filtering
                  and scope targeting capabilities. Use this when you need to find specific code
                  patterns, class names, method names, or other identifiers across the decompiled APK."""
+    report_progress = ctx.report_progress if ctx else None
     return await tools.search_tools.search_classes_by_keyword(
-        search_term, package, search_in, offset, count
+        search_term, package, search_in, offset, count, report_progress=report_progress
     )
 
 
@@ -207,6 +211,24 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
 async def get_main_activity_class() -> dict:
     """Fetch the main activity class from AndroidManifest.xml."""
     return await tools.class_tools.get_main_activity_class()
+
+
+@mcp.tool()
+async def get_package_tree() -> dict:
+    """Get all packages in the APK sorted by class count. Shows total_classes, total_packages, and per-package name, class_count, is_likely_library. Use this first to understand the APK structure before searching."""
+    return await tools.class_tools.get_package_tree()
+
+
+@mcp.tool()
+async def get_cache_stats() -> dict:
+    """Get decompilation cache statistics: hits, misses, hit_rate, cached_classes, compressed_mb, compression_ratio."""
+    return await tools.class_tools.get_cache_stats()
+
+
+@mcp.tool()
+async def clear_cache() -> dict:
+    """Clear the decompilation source cache and reset counters. Use when switching APKs or to free memory."""
+    return await tools.class_tools.clear_cache()
 
 
 @mcp.tool()

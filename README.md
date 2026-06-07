@@ -312,7 +312,7 @@ There are **two separate connections** and each has its own host/port:
 
 ```
 ┌─────────────┐    --host / --port     ┌──────────────────┐   --jadx-host / --jadx-port   ┌──────────────────┐
-│  LLM Client │ ◄──────────────────►   │  jadx-mcp-server │ ──────────────────────────►   │  JADX-GUI Plugin │
+│  LLM Client │ ◄──────────────────►   │  jadx-mcp-server │ ──────────────────────────►   │  JADX Server     │
 │  (Claude,   │   Where the MCP server │                  │   Where the MCP server looks  │  (jadx-ai-mcp)   │
 │   Codex..)  │   LISTENS for clients  │                  │   for the JADX plugin         │                  │
 └─────────────┘                        └──────────────────┘                               └──────────────────┘
@@ -323,10 +323,11 @@ There are **two separate connections** and each has its own host/port:
 | `--http` | off | Use HTTP transport instead of stdio |
 | `--host` | `127.0.0.1` | **Where the MCP server listens** (bind address for LLM clients) |
 | `--port` | `8651` | **Which port the MCP server listens on** |
-| `--jadx-host` | `127.0.0.1` | **Where to find the JADX plugin** (the target JADX-GUI machine) |
+| `--jadx-host` | `127.0.0.1` | **Where to find the JADX server** (GUI plugin or headless server) |
 | `--jadx-port` | `8650` | **Which port the JADX plugin is on** |
 | `--http-token` | generated | Bearer token required from MCP HTTP clients. Defaults to `JADX_MCP_SERVER_TOKEN` or a generated token |
 | `--jadx-token` | generated | Bearer token sent to the JADX plugin. Defaults to `JADX_AI_MCP_TOKEN` or a secure random per-run token |
+| `--jadx-mode` | `gui` | Set to `headless` when connecting to the headless Java server. Can also set `JADX_MCP_JADX_MODE=headless` |
 | `--allow-remote-http` | off | Required before `--host` may bind outside loopback |
 | `--allow-remote-jadx` | off | Required before `--jadx-host` may target a non-loopback host |
 | `--enable-refactor` | off | Enable project-mutating refactor tools. Can also set `JADX_MCP_ENABLE_REFACTOR=true` |
@@ -377,7 +378,22 @@ ssh -L 8650:127.0.0.1:8650 remote-host
 uv run jadx_mcp_server.py --http --jadx-host 127.0.0.1 --jadx-port 8650
 ```
 
-**Scenario 4 — Full remote setup (everything on different machines):**
+**Scenario 4 — Headless JADX server (no jadx-gui):**
+```bash
+# In the jadx-ai-mcp repo, start the Java headless server first:
+mvn -q package dependency:build-classpath -Dmdep.outputFile=target/runtime-classpath.txt
+export JADX_AI_MCP_TOKEN="change-me-plugin-token"
+java -cp "target/classes:$(cat target/runtime-classpath.txt)" \
+  com.zin.jadxaimcp.server.HeadlessJadxMcpServer \
+  --input /path/to/app.apk \
+  --port 8650
+
+# In the jadx-mcp-server repo, connect the MCP bridge to that headless server:
+export JADX_AI_MCP_TOKEN="change-me-plugin-token"
+uv run python jadx_mcp_server.py --jadx-mode headless --jadx-port 8650
+```
+
+**Scenario 5 — Full remote setup (everything on different machines):**
 ```bash
 # Use explicit HTTP auth and a tunnel for the Java plugin port.
 export JADX_MCP_SERVER_TOKEN="change-me-client-token"
@@ -393,6 +409,8 @@ uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 9999 --allow-remote-http 
 > HTTP mode requires bearer authentication by default. Non-loopback binds require `--allow-remote-http`, and direct non-loopback JADX plugin targets require `--allow-remote-jadx`.
 >
 > The bridge always sends a bearer token to the JADX plugin. It uses `--jadx-token`, then `JADX_AI_MCP_TOKEN`, then a secure random per-run token. If the Java plugin enforces bearer auth, both processes must use the same stable token.
+>
+> Headless mode disables GUI-only current-selection tools locally and keeps refactor/debug tools disabled because the Java headless server has no JADX-GUI event bus or debugger panel.
 >
 > Refactor and debug tools are disabled by default. Enable them only when the current MCP client and project are trusted:
 >

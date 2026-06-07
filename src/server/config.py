@@ -24,6 +24,7 @@ JADX_BEARER_TOKEN = None
 JADX_BEARER_TOKEN_SOURCE = None
 REFACTOR_TOOLS_ENABLED = False
 DEBUG_TOOLS_ENABLED = False
+JADX_MODE = "gui"
 
 # HTTP read timeouts (seconds) for plugin communication
 JADX_DEFAULT_TIMEOUT = 60.0
@@ -96,6 +97,11 @@ def set_refactor_tools_enabled(enabled: bool):
 def set_debug_tools_enabled(enabled: bool):
     global DEBUG_TOOLS_ENABLED
     DEBUG_TOOLS_ENABLED = enabled
+
+
+def set_jadx_mode(mode: str):
+    global JADX_MODE
+    JADX_MODE = mode
 
 
 def health_ping() -> Union[str, Dict[str, Any]]:

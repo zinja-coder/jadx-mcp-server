@@ -45,6 +45,7 @@ from src.server.security import (
     ENABLE_DEBUG_ENV,
     ENABLE_REFACTOR_ENV,
     HTTP_TOKEN_ENV,
+    JADX_MODE_ENV,
     JADX_TOKEN_ENV,
     env_flag,
     is_loopback_host,
@@ -405,6 +406,13 @@ def main():
         type=str,
     )
     parser.add_argument(
+        "--jadx-mode",
+        help=f"JADX server mode: gui or headless. Defaults to {JADX_MODE_ENV} or gui.",
+        choices=("gui", "headless"),
+        default=os.environ.get(JADX_MODE_ENV, "gui").strip().lower(),
+        type=str,
+    )
+    parser.add_argument(
         "--enable-refactor",
         help=f"Enable MCP refactor tools. Defaults to {ENABLE_REFACTOR_ENV}.",
         action="store_true",
@@ -418,6 +426,8 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.jadx_mode not in ("gui", "headless"):
+        parser.error(f"{JADX_MODE_ENV} must be 'gui' or 'headless'")
     if args.http and not is_loopback_host(args.host) and not args.allow_remote_http:
         parser.error("Refusing non-loopback --host without --allow-remote-http")
     if not is_loopback_host(args.jadx_host) and not args.allow_remote_jadx:
@@ -426,13 +436,22 @@ def main():
     # Configure
     config.set_jadx_host(args.jadx_host)
     config.set_jadx_port(args.jadx_port)
+    config.set_jadx_mode(args.jadx_mode)
     jadx_token = resolve_jadx_token(args.jadx_token)
     config.set_jadx_token(jadx_token.value, jadx_token.source)
     logger.info("JADX plugin bearer token configured; token source: %s", jadx_token.source)
     if jadx_token.source == "generated":
         logger.info("Generated per-run JADX plugin bearer token")
-    config.set_refactor_tools_enabled(args.enable_refactor or env_flag(ENABLE_REFACTOR_ENV))
-    config.set_debug_tools_enabled(args.enable_debug or env_flag(ENABLE_DEBUG_ENV))
+    if args.jadx_mode == "headless":
+        config.set_refactor_tools_enabled(False)
+        config.set_debug_tools_enabled(False)
+        if args.enable_refactor or env_flag(ENABLE_REFACTOR_ENV):
+            logger.warning("Ignoring refactor enablement in headless mode")
+        if args.enable_debug or env_flag(ENABLE_DEBUG_ENV):
+            logger.warning("Ignoring debug enablement in headless mode")
+    else:
+        config.set_refactor_tools_enabled(args.enable_refactor or env_flag(ENABLE_REFACTOR_ENV))
+        config.set_debug_tools_enabled(args.enable_debug or env_flag(ENABLE_DEBUG_ENV))
 
     if args.http:
         http_token = resolve_http_token(args.http_token)
@@ -450,7 +469,8 @@ def main():
             logger.info("Generated MCP HTTP bearer token: %s", http_token.value)
 
     logger.info(
-        "Security policy: refactor_tools_enabled=%s debug_tools_enabled=%s jadx_token_source=%s",
+        "Security policy: jadx_mode=%s refactor_tools_enabled=%s debug_tools_enabled=%s jadx_token_source=%s",
+        config.JADX_MODE,
         config.REFACTOR_TOOLS_ENABLED,
         config.DEBUG_TOOLS_ENABLED,
         config.JADX_BEARER_TOKEN_SOURCE,

@@ -9,7 +9,9 @@ Author: Jafar Pathan (zinja-coder@github)
 License: See LICENSE file
 """
 
+from src.server import config
 from src.server.config import get_from_jadx, post_to_jadx
+from src.server.security import require_gui_mode
 from src.PaginationUtils import PaginationUtils
 
 
@@ -23,6 +25,9 @@ async def fetch_current_class() -> dict:
     MCP Tool: fetch_current_class
     Description: Retrieves the class currently open in JADX-GUI editor
     """
+    policy_error = require_gui_mode(config.JADX_MODE, "fetch_current_class", "get_class_source(class_name)")
+    if policy_error:
+        return policy_error
     return await get_from_jadx("current-class")
 
 
@@ -36,6 +41,9 @@ async def get_selected_text() -> dict:
     MCP Tool: get_selected_text
     Description: Gets text selection from JADX-GUI for focused analysis
     """
+    policy_error = require_gui_mode(config.JADX_MODE, "get_selected_text", "explicit class or method tools")
+    if policy_error:
+        return policy_error
     return await get_from_jadx("selected-text")
 
 

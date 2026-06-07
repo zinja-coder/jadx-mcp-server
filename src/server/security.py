@@ -23,6 +23,7 @@ UNTRUSTED_ARTIFACT_WARNING = (
 
 HTTP_TOKEN_ENV = "JADX_MCP_SERVER_TOKEN"
 JADX_TOKEN_ENV = "JADX_AI_MCP_TOKEN"
+JADX_MODE_ENV = "JADX_MCP_JADX_MODE"
 ENABLE_REFACTOR_ENV = "JADX_MCP_ENABLE_REFACTOR"
 ENABLE_DEBUG_ENV = "JADX_MCP_ENABLE_DEBUG"
 
@@ -146,6 +147,18 @@ def require_debug_enabled(enabled: bool) -> dict[str, str] | None:
             "Debug tools are disabled by server policy. Restart with "
             "--enable-debug or set JADX_MCP_ENABLE_DEBUG=true to expose runtime "
             "debug state."
+        )
+    }
+
+
+def require_gui_mode(mode: str, tool_name: str, replacement: str | None = None) -> dict[str, str] | None:
+    if mode != "headless":
+        return None
+    suffix = f"; use {replacement} instead" if replacement else ""
+    return {
+        "error": (
+            f"{tool_name} requires JADX-GUI state and is unavailable in headless mode"
+            f"{suffix}."
         )
     }
 

@@ -336,10 +336,30 @@ There are **two separate connections** and each has its own host/port:
 
 **Scenario 1 — Everything on the same machine (most common):**
 ```bash
-# HTTP mode requires a bearer token. If omitted, a temporary token is printed to stderr.
-export JADX_MCP_SERVER_TOKEN="change-me-client-token"
+# Default MCP transport is stdio. Do not pass --http for local MCP clients.
 export JADX_AI_MCP_TOKEN="change-me-plugin-token"
-uv run jadx_mcp_server.py --http --jadx-token "$JADX_AI_MCP_TOKEN"
+uv run jadx_mcp_server.py --jadx-token "$JADX_AI_MCP_TOKEN"
+```
+
+Example MCP client configuration for stdio:
+```json
+{
+  "mcpServers": {
+    "jadx": {
+      "command": "uv",
+      "args": [
+        "run",
+        "python",
+        "/path/to/jadx-mcp-server/jadx_mcp_server.py",
+        "--jadx-port",
+        "8650"
+      ],
+      "env": {
+        "JADX_AI_MCP_TOKEN": "change-me-plugin-token"
+      }
+    }
+  }
+}
 ```
 
 **Scenario 2 — Docker container or WSL (MCP server accessible from host network):**
@@ -366,6 +386,8 @@ uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 9999 --allow-remote-http 
 
 > [!CAUTION]
 > ### Security Model
+>
+> Prefer stdio transport for local MCP clients. Stdio uses stdin/stdout and does not open a listening network socket.
 >
 > HTTP mode requires bearer authentication by default. Non-loopback binds require `--allow-remote-http`, and direct non-loopback JADX plugin targets require `--allow-remote-jadx`.
 >

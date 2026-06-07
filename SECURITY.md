@@ -5,6 +5,7 @@
 The MCP bridge is local-first by default:
 
 - Stdio mode is preferred for local MCP clients.
+- Omit `--http` to run the MCP server over stdio. This keeps MCP traffic on the parent process stdin/stdout pipes and avoids opening a listening socket.
 - HTTP mode requires bearer authentication. Use `JADX_MCP_SERVER_TOKEN` or `--http-token`; otherwise a temporary token is generated and printed to stderr.
 - `--host` may not bind outside loopback unless `--allow-remote-http` is set.
 - `--jadx-host` may not target a non-loopback host unless `--allow-remote-jadx` is set. Prefer SSH tunnels to reach a remote JADX plugin.

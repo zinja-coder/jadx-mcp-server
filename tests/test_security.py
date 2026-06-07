@@ -50,6 +50,18 @@ class SecurityHelpersTest(unittest.TestCase):
             self.assertEqual("generated", generated.source)
             self.assertGreaterEqual(len(generated.value), 32)
 
+    def test_jadx_token_prefers_cli_then_env_then_generated(self):
+        with patch.dict(os.environ, {security.JADX_TOKEN_ENV: "env-token"}, clear=False):
+            self.assertEqual("cli-token", security.resolve_jadx_token("cli-token").value)
+            env_token = security.resolve_jadx_token(None)
+            self.assertEqual("env-token", env_token.value)
+            self.assertEqual("environment", env_token.source)
+
+        with patch.dict(os.environ, {}, clear=True):
+            generated = security.resolve_jadx_token(None)
+            self.assertEqual("generated", generated.source)
+            self.assertGreaterEqual(len(generated.value), 32)
+
 
 if __name__ == "__main__":
     unittest.main()

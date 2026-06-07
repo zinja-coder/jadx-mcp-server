@@ -400,7 +400,7 @@ def main():
     )
     parser.add_argument(
         "--jadx-token",
-        help=f"Bearer token for the JADX Java plugin. Defaults to {JADX_TOKEN_ENV}.",
+        help=f"Bearer token for the JADX Java plugin. Defaults to {JADX_TOKEN_ENV} or a generated token.",
         default=None,
         type=str,
     )
@@ -427,8 +427,10 @@ def main():
     config.set_jadx_host(args.jadx_host)
     config.set_jadx_port(args.jadx_port)
     jadx_token = resolve_jadx_token(args.jadx_token)
-    if jadx_token is not None:
-        config.set_jadx_token(jadx_token.value, jadx_token.source)
+    config.set_jadx_token(jadx_token.value, jadx_token.source)
+    logger.info("JADX plugin bearer token configured; token source: %s", jadx_token.source)
+    if jadx_token.source == "generated":
+        logger.info("Generated per-run JADX plugin bearer token")
     config.set_refactor_tools_enabled(args.enable_refactor or env_flag(ENABLE_REFACTOR_ENV))
     config.set_debug_tools_enabled(args.enable_debug or env_flag(ENABLE_DEBUG_ENV))
 
@@ -451,7 +453,7 @@ def main():
         "Security policy: refactor_tools_enabled=%s debug_tools_enabled=%s jadx_token_source=%s",
         config.REFACTOR_TOOLS_ENABLED,
         config.DEBUG_TOOLS_ENABLED,
-        config.JADX_BEARER_TOKEN_SOURCE or "not-configured",
+        config.JADX_BEARER_TOKEN_SOURCE,
     )
 
     # Banner & Health Check — always logs to stderr to keep stdout clean for stdio transport

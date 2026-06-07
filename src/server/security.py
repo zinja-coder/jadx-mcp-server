@@ -81,7 +81,7 @@ def resolve_http_token(cli_token: str | None = None) -> TokenValue:
     return TokenValue(secrets.token_urlsafe(32), "generated")
 
 
-def resolve_jadx_token(cli_token: str | None = None) -> TokenValue | None:
+def resolve_jadx_token(cli_token: str | None = None) -> TokenValue:
     token = _trim_to_none(cli_token)
     if token is not None:
         return TokenValue(token, "cli")
@@ -90,7 +90,7 @@ def resolve_jadx_token(cli_token: str | None = None) -> TokenValue | None:
     if token is not None:
         return TokenValue(token, "environment")
 
-    return None
+    return TokenValue(secrets.token_urlsafe(32), "generated")
 
 
 def mark_untrusted_artifact(value: Any) -> Any:

@@ -326,7 +326,7 @@ There are **two separate connections** and each has its own host/port:
 | `--jadx-host` | `127.0.0.1` | **Where to find the JADX plugin** (the target JADX-GUI machine) |
 | `--jadx-port` | `8650` | **Which port the JADX plugin is on** |
 | `--http-token` | generated | Bearer token required from MCP HTTP clients. Defaults to `JADX_MCP_SERVER_TOKEN` or a generated token |
-| `--jadx-token` | unset | Bearer token sent to the JADX plugin. Defaults to `JADX_AI_MCP_TOKEN` |
+| `--jadx-token` | generated | Bearer token sent to the JADX plugin. Defaults to `JADX_AI_MCP_TOKEN` or a secure random per-run token |
 | `--allow-remote-http` | off | Required before `--host` may bind outside loopback |
 | `--allow-remote-jadx` | off | Required before `--jadx-host` may target a non-loopback host |
 | `--enable-refactor` | off | Enable project-mutating refactor tools. Can also set `JADX_MCP_ENABLE_REFACTOR=true` |
@@ -337,6 +337,7 @@ There are **two separate connections** and each has its own host/port:
 **Scenario 1 — Everything on the same machine (most common):**
 ```bash
 # Default MCP transport is stdio. Do not pass --http for local MCP clients.
+# If the Java plugin enforces bearer auth, configure it with this same token.
 export JADX_AI_MCP_TOKEN="change-me-plugin-token"
 uv run jadx_mcp_server.py --jadx-token "$JADX_AI_MCP_TOKEN"
 ```
@@ -390,6 +391,8 @@ uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 9999 --allow-remote-http 
 > Prefer stdio transport for local MCP clients. Stdio uses stdin/stdout and does not open a listening network socket.
 >
 > HTTP mode requires bearer authentication by default. Non-loopback binds require `--allow-remote-http`, and direct non-loopback JADX plugin targets require `--allow-remote-jadx`.
+>
+> The bridge always sends a bearer token to the JADX plugin. It uses `--jadx-token`, then `JADX_AI_MCP_TOKEN`, then a secure random per-run token. If the Java plugin enforces bearer auth, both processes must use the same stable token.
 >
 > Refactor and debug tools are disabled by default. Enable them only when the current MCP client and project are trusted:
 >

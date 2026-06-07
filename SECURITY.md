@@ -9,7 +9,8 @@ The MCP bridge is local-first by default:
 - HTTP mode requires bearer authentication. Use `JADX_MCP_SERVER_TOKEN` or `--http-token`; otherwise a temporary token is generated and printed to stderr.
 - `--host` may not bind outside loopback unless `--allow-remote-http` is set.
 - `--jadx-host` may not target a non-loopback host unless `--allow-remote-jadx` is set. Prefer SSH tunnels to reach a remote JADX plugin.
-- The bridge forwards `Authorization: Bearer <token>` to the Java plugin when `JADX_AI_MCP_TOKEN` or `--jadx-token` is configured.
+- The bridge always forwards `Authorization: Bearer <token>` to the Java plugin. It uses `--jadx-token`, then `JADX_AI_MCP_TOKEN`, then a secure random per-run token.
+- If the Java plugin enforces bearer auth, configure both the bridge and plugin with the same stable token.
 - Refactor tools are disabled unless `JADX_MCP_ENABLE_REFACTOR=true` or `--enable-refactor` is set.
 - Debug tools are disabled unless `JADX_MCP_ENABLE_DEBUG=true` or `--enable-debug` is set.
 - Tool output derived from APK code, resources, or debugger state is labeled as untrusted artifact data for prompt-injection resistance.

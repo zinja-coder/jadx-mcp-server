@@ -9,6 +9,7 @@ License: See LICENSE file
 """
 
 from src.server.config import get_from_jadx
+from src.server.security import mark_untrusted_artifact
 from src.PaginationUtils import PaginationUtils
 import xml.etree.ElementTree as ET
 from typing import Dict, List
@@ -71,12 +72,12 @@ async def get_manifest_component(component_type: str, only_exported: bool = Fals
                 is_exported = exported_attr != "false" and len(component_elem.findall(".//intent-filter")) > 0
                 if is_exported:
                     component_xml_list.append(component_xml)
-        return {
+        return mark_untrusted_artifact({
             "component_type": component_type,
             "only_exported": only_exported,
             "count": len(component_xml_list),
             "components": component_xml_list
-        }
+        })
 
     except ET.ParseError as e:
         return {"error": f"AndroidManifest.xml parse failed: {str(e)}"}

@@ -325,50 +325,56 @@ There are **two separate connections** and each has its own host/port:
 | `--port` | `8651` | **Which port the MCP server listens on** |
 | `--jadx-host` | `127.0.0.1` | **Where to find the JADX plugin** (the target JADX-GUI machine) |
 | `--jadx-port` | `8650` | **Which port the JADX plugin is on** |
+| `--http-token` | generated | Bearer token required from MCP HTTP clients. Defaults to `JADX_MCP_SERVER_TOKEN` or a generated token |
+| `--jadx-token` | unset | Bearer token sent to the JADX plugin. Defaults to `JADX_AI_MCP_TOKEN` |
+| `--allow-remote-http` | off | Required before `--host` may bind outside loopback |
+| `--allow-remote-jadx` | off | Required before `--jadx-host` may target a non-loopback host |
+| `--enable-refactor` | off | Enable project-mutating refactor tools. Can also set `JADX_MCP_ENABLE_REFACTOR=true` |
+| `--enable-debug` | off | Enable debugger-state tools. Can also set `JADX_MCP_ENABLE_DEBUG=true` |
 
 ### Usage Examples
 
 **Scenario 1 — Everything on the same machine (most common):**
 ```bash
-# Default: MCP server on localhost:8651, connects to JADX plugin on localhost:8650
-uv run jadx_mcp_server.py --http
+# HTTP mode requires a bearer token. If omitted, a temporary token is printed to stderr.
+export JADX_MCP_SERVER_TOKEN="change-me-client-token"
+export JADX_AI_MCP_TOKEN="change-me-plugin-token"
+uv run jadx_mcp_server.py --http --jadx-token "$JADX_AI_MCP_TOKEN"
 ```
 
 **Scenario 2 — Docker container or WSL (MCP server accessible from host network):**
 ```bash
-# MCP server listens on ALL interfaces so the host can reach it
-# JADX plugin is still on the same machine
-uv run jadx_mcp_server.py --http --host 0.0.0.0
+# Non-loopback HTTP bind is fail-closed unless explicitly allowed.
+export JADX_MCP_SERVER_TOKEN="change-me-client-token"
+uv run jadx_mcp_server.py --http --host 0.0.0.0 --allow-remote-http --http-token "$JADX_MCP_SERVER_TOKEN"
 ```
 
 **Scenario 3 — JADX-GUI running on a different machine (e.g., remote VM):**
 ```bash
-# MCP server runs locally, but connects to JADX plugin on a remote machine
-uv run jadx_mcp_server.py --http --jadx-host 192.168.1.100
+# The hardened Java plugin binds to 127.0.0.1. Prefer an SSH tunnel:
+ssh -L 8650:127.0.0.1:8650 remote-host
+uv run jadx_mcp_server.py --http --jadx-host 127.0.0.1 --jadx-port 8650
 ```
 
 **Scenario 4 — Full remote setup (everything on different machines):**
 ```bash
-# MCP server listens on all interfaces on port 9999
-# JADX plugin is on a different machine at 192.168.1.100:8652
-uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 9999 --jadx-host 192.168.1.100 --jadx-port 8652
+# Use explicit HTTP auth and a tunnel for the Java plugin port.
+export JADX_MCP_SERVER_TOKEN="change-me-client-token"
+ssh -L 8652:127.0.0.1:8652 remote-host
+uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 9999 --allow-remote-http --http-token "$JADX_MCP_SERVER_TOKEN" --jadx-host 127.0.0.1 --jadx-port 8652
 ```
 
 > [!CAUTION]
-> ### ⚠️ Security Warning — Remote Binding
+> ### Security Model
 >
-> When using `--host 0.0.0.0` (or any non-localhost address), the MCP server binds to **all network interfaces** over **plain HTTP with no authentication**. This means:
+> HTTP mode requires bearer authentication by default. Non-loopback binds require `--allow-remote-http`, and direct non-loopback JADX plugin targets require `--allow-remote-jadx`.
 >
-> - **Anyone on the network** can connect and invoke all MCP tools
-> - There is **no TLS encryption** — traffic can be intercepted
-> - An attacker can use the server to **read decompiled code**, **rename classes/methods**, and **access debug info**
+> Refactor and debug tools are disabled by default. Enable them only when the current MCP client and project are trusted:
 >
-> **Mitigations:**
-> - Only bind to `0.0.0.0` on **trusted, isolated networks** (e.g., Docker bridge, local VM)
-> - Use a **firewall** to restrict access to the MCP port
-> - Consider an **SSH tunnel** instead: `ssh -L 8651:127.0.0.1:8651 remote-host`
+> - `--enable-refactor` or `JADX_MCP_ENABLE_REFACTOR=true` allows project-mutating rename tools.
+> - `--enable-debug` or `JADX_MCP_ENABLE_DEBUG=true` allows debugger stack/thread/variable inspection.
 >
-> Similarly, `--jadx-host` with a non-localhost address means the MCP server will make **unauthenticated HTTP requests** to that host. Ensure the target is trusted.
+> Tool output derived from APK code, resources, or debugger state is labeled as untrusted artifact data. MCP clients and LLM prompts should treat it as evidence, not instructions.
 
 
 ## 🛣️ Future Roadmap

@@ -6,14 +6,23 @@
 # 2. Load DVAC apk into jadx -> https://github.com/zinja-coder/Damn-Vulnerable-Android-Components/
 # 3. Start the jadx on port 8652 (or your choice or the leave it default 8650)
 # 4. Start the jadx mcp server in http stream mode on port 9000 
-# 5. Command for step 4. -> `uv run jadx_mcp_server.py --http --port 9000 --jadx--port 8652`
+# 5. Command for step 4. -> `JADX_MCP_SERVER_TOKEN=change-me uv run jadx_mcp_server.py --http --port 9000 --jadx-port 8652`
 ###
 
 set -euo pipefail
 
 MCP_URL="${MCP_URL:-http://127.0.0.1:9000/mcp}"
+MCP_TOKEN="${JADX_MCP_SERVER_TOKEN:-${MCP_TOKEN:-}}"
 ACCEPT_HDR="application/json, text/event-stream"
 CONTENT_HDR="application/json"
+
+auth_args=()
+if [[ -n "$MCP_TOKEN" ]]; then
+  auth_args=(-H "Authorization: Bearer $MCP_TOKEN")
+else
+  echo "Set JADX_MCP_SERVER_TOKEN or MCP_TOKEN for hardened HTTP mode." >&2
+  exit 1
+fi
 
 # Helper: extract data: JSON items from SSE and drop [DONE]
 sse_to_json() {
@@ -26,6 +35,7 @@ INIT_RESP_HEADERS=$(mktemp)
 curl -i -s -X POST "$MCP_URL" \
   -H "Content-Type: $CONTENT_HDR" \
   -H "Accept: $ACCEPT_HDR" \
+  "${auth_args[@]}" \
   -d '{
     "jsonrpc":"2.0",
     "method":"initialize",
@@ -49,6 +59,7 @@ curl -s -X POST "$MCP_URL" \
   -H "Content-Type: $CONTENT_HDR" \
   -H "Accept: $ACCEPT_HDR" \
   -H "Mcp-Session-Id: $SESSION_ID" \
+  "${auth_args[@]}" \
   -d '{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}' >/dev/null
 
 # Optional: discover tools dynamically
@@ -57,6 +68,7 @@ TOOLS_JSON=$(curl -s -X POST "$MCP_URL" \
   -H "Content-Type: $CONTENT_HDR" \
   -H "Accept: $ACCEPT_HDR" \
   -H "Mcp-Session-Id: $SESSION_ID" \
+  "${auth_args[@]}" \
   -d '{"jsonrpc":"2.0","method":"tools/list","params":{},"id":2}' \
   | sse_to_json | tail -n 1)
 echo "$TOOLS_JSON" | jq -r '.result.tools[].name'
@@ -71,6 +83,7 @@ call_tool() {
     -H "Content-Type: $CONTENT_HDR" \
     -H "Accept: $ACCEPT_HDR" \
     -H "Mcp-Session-Id: $SESSION_ID" \
+    "${auth_args[@]}" \
     -d "{
       \"jsonrpc\":\"2.0\",
       \"method\":\"tools/call\",

@@ -11,14 +11,19 @@ License: See LICENSE file
 
 import logging
 import httpx
-import json
 import sys
 from typing import Union, Dict, Any
+
+from src.server.security import mark_untrusted_artifact
 
 # Default Configuration
 JADX_HOST = "127.0.0.1"
 JADX_PORT = 8650
 JADX_HTTP_BASE = f"http://{JADX_HOST}:{JADX_PORT}"
+JADX_BEARER_TOKEN = None
+JADX_BEARER_TOKEN_SOURCE = None
+REFACTOR_TOOLS_ENABLED = False
+DEBUG_TOOLS_ENABLED = False
 
 # HTTP read timeouts (seconds) for plugin communication
 JADX_DEFAULT_TIMEOUT = 60.0
@@ -38,6 +43,12 @@ def _rebuild_jadx_http_base():
     """Rebuild the base URL used for all requests to the JADX plugin."""
     global JADX_HTTP_BASE
     JADX_HTTP_BASE = f"http://{JADX_HOST}:{JADX_PORT}"
+
+
+def _jadx_headers() -> Dict[str, str]:
+    if JADX_BEARER_TOKEN:
+        return {"Authorization": f"Bearer {JADX_BEARER_TOKEN}"}
+    return {}
 
 
 def set_jadx_host(host: str):
@@ -70,6 +81,23 @@ def set_jadx_port(port: int):
     _rebuild_jadx_http_base()
 
 
+def set_jadx_token(token: str | None, source: str | None = None):
+    """Configure the bearer token used when calling the Java JADX plugin."""
+    global JADX_BEARER_TOKEN, JADX_BEARER_TOKEN_SOURCE
+    JADX_BEARER_TOKEN = token
+    JADX_BEARER_TOKEN_SOURCE = source
+
+
+def set_refactor_tools_enabled(enabled: bool):
+    global REFACTOR_TOOLS_ENABLED
+    REFACTOR_TOOLS_ENABLED = enabled
+
+
+def set_debug_tools_enabled(enabled: bool):
+    global DEBUG_TOOLS_ENABLED
+    DEBUG_TOOLS_ENABLED = enabled
+
+
 def health_ping() -> Union[str, Dict[str, Any]]:
     """
     Checks if the JADX Java plugin is reachable.
@@ -82,7 +110,7 @@ def health_ping() -> Union[str, Dict[str, Any]]:
     """
     try:
         with httpx.Client(trust_env=False) as client:
-            resp = client.get(f"{JADX_HTTP_BASE}/health", timeout=60)
+            resp = client.get(f"{JADX_HTTP_BASE}/health", headers=_jadx_headers(), timeout=60)
             resp.raise_for_status()
             return resp.text
     except Exception as e:
@@ -115,14 +143,14 @@ async def get_from_jadx(
     url = f"{JADX_HTTP_BASE}/{endpoint.lstrip('/')}"
     try:
         async with httpx.AsyncClient(trust_env=False) as client:
-            resp = await client.get(url, params=params, timeout=timeout)
+            resp = await client.get(url, params=params, headers=_jadx_headers(), timeout=timeout)
             resp.raise_for_status()
 
             # Try to parse JSON, fallback to text if not valid JSON
             try:
-                return resp.json()
-            except json.JSONDecodeError:
-                return {"response": resp.text}
+                return mark_untrusted_artifact(resp.json())
+            except ValueError:
+                return mark_untrusted_artifact(resp.text)
 
     except httpx.HTTPStatusError as e:
         error_msg = f"HTTP error {e.response.status_code}: {e.response.text}"
@@ -160,12 +188,12 @@ async def post_to_jadx(endpoint: str, params: Dict[str, Any] = None) -> Union[st
     url = f"{JADX_HTTP_BASE}/{endpoint.lstrip('/')}"
     try:
         async with httpx.AsyncClient(trust_env=False) as client:
-            resp = await client.post(url, params=params, timeout=30)
+            resp = await client.post(url, params=params, headers=_jadx_headers(), timeout=30)
             resp.raise_for_status()
             try:
-                return resp.json()
-            except json.JSONDecodeError:
-                return {"response": resp.text}
+                return mark_untrusted_artifact(resp.json())
+            except ValueError:
+                return mark_untrusted_artifact(resp.text)
     except httpx.TimeoutException:
         return {
             "error": (
@@ -191,7 +219,7 @@ async def get_search_progress() -> Dict[str, Any]:
     url = f"{JADX_HTTP_BASE}/search-progress"
     try:
         async with httpx.AsyncClient(trust_env=False) as client:
-            resp = await client.get(url, timeout=5)
+            resp = await client.get(url, headers=_jadx_headers(), timeout=5)
             resp.raise_for_status()
             return resp.json()
     except Exception:

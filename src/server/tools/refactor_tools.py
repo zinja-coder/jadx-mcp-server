@@ -9,7 +9,16 @@ Author: Jafar Pathan (zinja-coder@github)
 License: See LICENSE file
 """
 
-from src.server.config import get_from_jadx
+from src.server import config
+from src.server.config import post_to_jadx
+from src.server.security import (
+    first_error,
+    require_refactor_enabled,
+    validate_identifier,
+    validate_non_negative_int,
+    validate_opaque,
+    validate_qualified_name,
+)
 
 
 async def rename_class(class_name: str, new_name: str) -> dict:
@@ -26,7 +35,16 @@ async def rename_class(class_name: str, new_name: str) -> dict:
     MCP Tool: rename_class
     Description: Refactors class name across the entire decompiled codebase
     """
-    return await get_from_jadx("rename-class", {"class_name": class_name, "new_name": new_name})
+    policy_error = require_refactor_enabled(config.REFACTOR_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
+    validation_error = first_error(
+        validate_opaque(class_name, "class_name"),
+        validate_identifier(new_name, "new_name"),
+    )
+    if validation_error:
+        return validation_error
+    return await post_to_jadx("rename-class", {"class_name": class_name, "new_name": new_name})
 
 
 async def rename_method(method_name: str, new_name: str, method_signature: str = None) -> dict:
@@ -44,10 +62,20 @@ async def rename_method(method_name: str, new_name: str, method_signature: str =
     MCP Tool: rename_method
     Description: Refactors method name and updates all call sites
     """
+    policy_error = require_refactor_enabled(config.REFACTOR_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
+    validation_error = first_error(
+        validate_opaque(method_name, "method_name"),
+        validate_identifier(new_name, "new_name"),
+        validate_opaque(method_signature, "method_signature", required=False),
+    )
+    if validation_error:
+        return validation_error
     params = {"method_name": method_name, "new_name": new_name}
     if method_signature:
         params["method_signature"] = method_signature
-    return await get_from_jadx("rename-method", params)
+    return await post_to_jadx("rename-method", params)
 
 
 async def rename_field(class_name: str, field_name: str, new_name: str) -> dict:
@@ -65,7 +93,17 @@ async def rename_field(class_name: str, field_name: str, new_name: str) -> dict:
     MCP Tool: rename_field
     Description: Refactors field name and updates all references
     """
-    return await get_from_jadx("rename-field", {
+    policy_error = require_refactor_enabled(config.REFACTOR_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
+    validation_error = first_error(
+        validate_opaque(class_name, "class_name"),
+        validate_opaque(field_name, "field_name"),
+        validate_identifier(new_name, "new_name"),
+    )
+    if validation_error:
+        return validation_error
+    return await post_to_jadx("rename-field", {
         "class_name": class_name,
         "field_name": field_name,
         "new_field_name": new_name
@@ -86,7 +124,16 @@ async def rename_package(old_package_name: str, new_package_name: str) -> dict:
     MCP Tool: rename_package
     Description: Refactors entire package structure and class namespaces
     """
-    return await get_from_jadx("rename-package", {
+    policy_error = require_refactor_enabled(config.REFACTOR_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
+    validation_error = first_error(
+        validate_qualified_name(old_package_name, "old_package_name"),
+        validate_qualified_name(new_package_name, "new_package_name"),
+    )
+    if validation_error:
+        return validation_error
+    return await post_to_jadx("rename-package", {
         "old_package_name": old_package_name,
         "new_package_name": new_package_name
     })
@@ -110,6 +157,19 @@ async def rename_variable(class_name: str, method_name: str, variable_name: str,
     MCP Tool: rename_variable
     Description: Refactors variable name within a method
     """
+    policy_error = require_refactor_enabled(config.REFACTOR_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
+    validation_error = first_error(
+        validate_opaque(class_name, "class_name"),
+        validate_opaque(method_name, "method_name"),
+        validate_opaque(variable_name, "variable_name"),
+        validate_identifier(new_name, "new_name"),
+        validate_non_negative_int(reg, "reg"),
+        validate_non_negative_int(ssa, "ssa"),
+    )
+    if validation_error:
+        return validation_error
     params = {
         "class_name": class_name,
         "method_name": method_name,
@@ -121,4 +181,4 @@ async def rename_variable(class_name: str, method_name: str, variable_name: str,
     if ssa:
         params["ssa"] = ssa
 
-    return await get_from_jadx("rename-variable", params)
+    return await post_to_jadx("rename-variable", params)

@@ -13,6 +13,8 @@ import json
 import logging
 from typing import Dict, List, Any, Union, Callable
 
+from src.server.security import mark_untrusted_artifact
+
 # Set up logging configuration
 logger = logging.getLogger("jadx-mcp-server.pagination")
 if not logger.handlers:
@@ -141,7 +143,7 @@ class PaginationUtils:
                     items = [item_transformer(item) for item in items]
 
                 # Build standardized response
-                return PaginationUtils._build_standardized_response(response, items)
+                return mark_untrusted_artifact(PaginationUtils._build_standardized_response(response, items))
 
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse JSON response from JADX: {e}")

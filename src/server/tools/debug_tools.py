@@ -8,7 +8,9 @@ Author: Jafar Pathan (zinja-coder@github)
 License: See LICENSE file
 """
 
+from src.server import config
 from src.server.config import get_from_jadx
+from src.server.security import require_debug_enabled
 
 
 async def debug_get_stack_frames() -> dict:
@@ -21,6 +23,9 @@ async def debug_get_stack_frames() -> dict:
     MCP Tool: debug_get_stack_frames
     Description: Inspects call stack during debugging sessions
     """
+    policy_error = require_debug_enabled(config.DEBUG_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
     return await get_from_jadx("debug/stack-frames")
 
 
@@ -34,6 +39,9 @@ async def debug_get_threads() -> dict:
     MCP Tool: debug_get_threads
     Description: Enumerates all threads in the running application
     """
+    policy_error = require_debug_enabled(config.DEBUG_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
     return await get_from_jadx("debug/threads")
 
 
@@ -47,4 +55,7 @@ async def debug_get_variables() -> dict:
     MCP Tool: debug_get_variables
     Description: Inspects variable values during debugging pause
     """
+    policy_error = require_debug_enabled(config.DEBUG_TOOLS_ENABLED)
+    if policy_error:
+        return policy_error
     return await get_from_jadx("debug/variables")

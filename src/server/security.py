@@ -119,6 +119,8 @@ def mark_untrusted_artifact(value: Any) -> Any:
 
 def label_untrusted_text(value: str | None) -> str:
     content = value or ""
+    if content.startswith("[UNTRUSTED APK ARTIFACT DATA]\n"):
+        return content
     return (
         "[UNTRUSTED APK ARTIFACT DATA]\n"
         f"{UNTRUSTED_ARTIFACT_WARNING}\n"

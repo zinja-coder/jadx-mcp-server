@@ -389,7 +389,7 @@ def main():
         logger.info(jadx_mcp_server_banner())
     except Exception:
         logger.info(
-            "[JADX AI MCP Server] v3.3.5 | MCP Port: %s | JADX Host: %s | JADX Port: %s",
+            "[JADX AI MCP Server] v6.4.1 | MCP Port: %s | JADX Host: %s | JADX Port: %s",
             args.port,
             args.jadx_host,
             args.jadx_port,

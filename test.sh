@@ -193,6 +193,22 @@ call_tool "rename_field"  '{"class_name":"com.zin.dvac.LoginActivity","field_nam
 echo "--- rename_variable ---"
 call_tool "rename_variable" '{"class_name":"com.zin.dvac.ChangePasswordActivity","method_name":"onCreate","variable_name":"ipAddress","new_name":"foobar"}' 30 | jq
 
+#29) comment operations
+echo "--- add_comment (method) ---"
+call_tool "add_comment" '{"class_name":"com.zin.dvac.DatabaseHelper","method_name":"addPassword","comment":"Stores the password in SQLite"}' 39 | jq
+echo "--- add_comment (class, javadoc style) ---"
+call_tool "add_comment" '{"class_name":"com.zin.dvac.DatabaseHelper","comment":"SQLite helper holding the credentials table","style":"JAVADOC"}' 40 | jq
+echo "--- add_comment (field) ---"
+call_tool "add_comment" '{"class_name":"com.zin.dvac.DatabaseHelper","field_name":"DATABASE_NAME","comment":"Database file name"}' 41 | jq
+echo "--- list_comments ---"
+call_tool "list_comments" '{"class_name":"com.zin.dvac.DatabaseHelper"}' 42 | jq
+echo "--- add_comment (empty comment removes it) ---"
+call_tool "add_comment" '{"class_name":"com.zin.dvac.DatabaseHelper","field_name":"DATABASE_NAME","comment":""}' 43 | jq
+echo "--- get_class_source with line numbers (pick a line for the next call) ---"
+call_tool "get_class_source" '{"class_name":"com.zin.dvac.DatabaseHelper","with_line_numbers":true}' 44 | jq -r '.result // .' | head -30
+echo "--- add_comment (line comment; adjust the line to a statement line of the class above) ---"
+call_tool "add_comment" '{"class_name":"com.zin.dvac.DatabaseHelper","line":20,"comment":"line level annotation"}' 45 | jq
+
 #28) rename package 
 echo "--- rename_package ---"
 call_tool "rename_package" '{"old_package_name":"com.zin.dvac","new_package_name":"com.example.secureapp"}' 35 | jq -r '.result[]? // .'

@@ -244,7 +244,7 @@ The following MCP tools are available:
 - `fetch_current_class()` — Get the class name and full source of selected class
 - `get_selected_text()` — Get currently selected text
 - `get_all_classes()` — List all classes in the project
-- `get_class_source()` — Get full source of a given class
+- `get_class_source()` — Get full source of a given class (`with_line_numbers=True` to number the lines for `add_comment(line=...)`)
 - `get_method_by_name()` — Fetch a method’s source
 - `search_method_by_name()` — Search method across classes
 - `search_classes_by_keyword()` — Search for classes whose source code contains a specific keyword (supports pagination)
@@ -260,6 +260,8 @@ The following MCP tools are available:
 - `get_all_resource_file_names()` : Retrieve all resource files names that exists in application
 - `get_resource_file()` : Retrieve resource file content
 - `rename_variable()` : Renames the variable within a method
+- `add_comment()` : Adds a comment to a class, method, field or a single code line (`line=`), shown in JADX-GUI and saved with the project (re-commenting the same target updates it, an empty comment removes it)
+- `list_comments()` : Lists the comments stored in the project, optionally filtered to one class
 - `debug_get_stack_frames()` : Get the stack frames from jadx debugger
 - `debug_get_threads()` : Get the insights of threads from jadx debugger
 - `debug_get_variables()` : Get the variables from jadx debugger

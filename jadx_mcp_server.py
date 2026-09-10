@@ -465,7 +465,10 @@ def main():
         # StdIO transport must keep stdout reserved for MCP frames.
         # FastMCP's startup banner can pollute stdio MCP handshakes in some clients.
         # Keep banner disabled for deterministic stdio initialization (issue #60).
-        mcp.run(show_banner=False)
+        try:
+            mcp.run(show_banner=False)
+        except KeyboardInterrupt:
+            logger.info("JADX MCP server interrupted; exiting cleanly")
 
 
 if __name__ == "__main__":

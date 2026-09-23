@@ -39,12 +39,15 @@ async def get_selected_text() -> dict:
     return await get_from_jadx("selected-text")
 
 
-async def get_class_source(class_name: str) -> dict:
+async def get_class_source(class_name: str, with_line_numbers: bool = False) -> dict:
     """
     Fetch the Java source of a specific class.
 
     Args:
         class_name: Fully qualified class name (e.g., com.example.MainActivity)
+        with_line_numbers: Prefix every line with its 1-based line number (default: False).
+                           Those numbers are the ones add_comment expects in its 'line'
+                           argument, so a line comment can be placed without counting lines
 
     Returns:
         dict: Contains complete decompiled Java source code for the class
@@ -52,7 +55,33 @@ async def get_class_source(class_name: str) -> dict:
     MCP Tool: get_class_source
     Description: Retrieves decompiled Java source for any class in the APK
     """
-    return await get_from_jadx("class-source", {"class_name": class_name})
+    result = await get_from_jadx("class-source", {"class_name": class_name})
+    if not with_line_numbers:
+        return result
+    return _number_source_lines(result)
+
+
+def _number_source_lines(result):
+    """
+    Prefix each source line with its 1-based line number.
+
+    The numbering has to match the plugin, which splits the very same decompiled
+    string on newlines, so a number shown here addresses the same line there.
+    Error responses and unexpected shapes are passed through untouched.
+    """
+    if isinstance(result, str):
+        code, wrap = result, None
+    elif isinstance(result, dict) and isinstance(result.get("response"), str):
+        code, wrap = result["response"], "response"
+    else:
+        return result
+
+    lines = code.split("\n")
+    width = len(str(len(lines)))
+    numbered = "\n".join(f"{i:>{width}}| {line}" for i, line in enumerate(lines, start=1))
+    if wrap is None:
+        return numbered
+    return {**result, wrap: numbered}
 
 
 async def get_all_classes(offset: int = 0, count: int = 0) -> dict:

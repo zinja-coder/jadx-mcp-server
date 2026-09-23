@@ -70,6 +70,9 @@ from src.server.tools.resource_tools import (
 from src.server.tools.refactor_tools import (
     rename_class, rename_method, rename_field, rename_package, rename_variable
 )
+from src.server.tools.comment_tools import (
+    add_comment, list_comments
+)
 from src.server.tools.debug_tools import (
     debug_get_stack_frames, debug_get_threads, debug_get_variables
 )
@@ -104,9 +107,13 @@ async def get_all_classes(offset: int = 0, count: int = 0) -> dict:
 
 
 @mcp.tool()
-async def get_class_source(class_name: str) -> dict:
-    """Fetch the Java source of a specific class."""
-    return await tools.class_tools.get_class_source(class_name)
+async def get_class_source(class_name: str, with_line_numbers: bool = False) -> dict:
+    """Fetch the Java source of a specific class.
+
+    Set with_line_numbers=True to get every line prefixed with its 1-based line number.
+    Those are the numbers add_comment takes as its 'line' argument, so use this before
+    placing a line comment instead of counting lines yourself."""
+    return await tools.class_tools.get_class_source(class_name, with_line_numbers)
 
 
 @mcp.tool()
@@ -291,6 +298,58 @@ async def rename_package(old_package_name: str, new_package_name: str) -> dict:
 async def rename_variable(class_name: str, method_name: str, variable_name: str, new_name: str, reg: str = None, ssa: str = None) -> dict:
     """Renames a specific variable in a method."""
     return await tools.refactor_tools.rename_variable(class_name, method_name, variable_name, new_name, reg, ssa)
+
+
+@mcp.tool()
+async def add_comment(
+    class_name: str,
+    comment: str,
+    method_name: str = None,
+    method_signature: str = None,
+    field_name: str = None,
+    line: int = None,
+    style: str = "LINE",
+) -> dict:
+    """Add a comment to decompiled code, shown in JADX-GUI and saved with the project.
+
+    Comment a class by passing only class_name, a method by also passing method_name
+    (use method_signature such as '(I)V' to pick between overloads), or a field by
+    passing field_name.
+
+    To comment a code line, pass line=N, the 1-based line number in the decompiled source
+    of that class; get it from get_class_source(with_line_numbers=True) rather than
+    counting lines. The comment is appended to the end of that line, and on a class,
+    method or field declaration line it comments that declaration instead, matching what
+    the comment shortcut does in JADX-GUI. Braces and blank lines have nothing to comment
+    and are rejected, listing the nearest lines that work. Line numbers shift once a
+    comment is added above, so re-read the source before addressing another line.
+
+    Every write is verified against the freshly decompiled code and the response echoes
+    the rendered line, so there is no need to read the class back to check. A comment
+    that does not render is rolled back and returns an error rather than being silently
+    stored, which JADX itself does not detect.
+
+    A new comment on the same target replaces the previous one, so annotations can be
+    refined without creating duplicates, and passing an empty comment removes it.
+    style is one of LINE, BLOCK, BLOCK_CONDENSED, JAVADOC or JAVADOC_CONDENSED
+    (default: LINE).
+
+    Use this to record what a class or method actually does while reverse engineering:
+    the comments persist in the JADX project and are searchable later with
+    search_classes_by_keyword(search_in="comment")."""
+    return await tools.comment_tools.add_comment(
+        class_name, comment, method_name, method_signature, field_name, line, style
+    )
+
+
+@mcp.tool()
+async def list_comments(class_name: str = "") -> dict:
+    """List the comments already stored in the project, optionally filtered to one class.
+
+    Each entry reports class_name, node_type (CLASS/METHOD/FIELD), node_id, comment and
+    style. Use this before add_comment to see what is already annotated instead of
+    re-deriving it."""
+    return await tools.comment_tools.list_comments(class_name)
 
 
 @mcp.tool()

@@ -95,7 +95,7 @@ async def get_selected_text() -> dict:
 
 
 @mcp.tool()
-async def get_method_by_name(class_name: str, method_name: str, method_signature: str = None) -> dict:
+async def get_method_by_name(class_name: str, method_name: str, method_signature: str | None = None) -> dict:
     """Fetch the source code of a method from a specific class."""
     return await tools.search_tools.get_method_by_name(class_name, method_name, method_signature)
 
@@ -273,8 +273,8 @@ async def rename_class(class_name: str, new_name: str) -> dict:
 async def rename_method(
     method_name: str,
     new_name: str,
-    class_name: str = None,
-    method_signature: str = None,
+    class_name: str | None = None,
+    method_signature: str | None = None,
 ) -> dict:
     """Renames a specific method, optionally scoped to class_name."""
     return await tools.refactor_tools.rename_method(
@@ -295,7 +295,7 @@ async def rename_package(old_package_name: str, new_package_name: str) -> dict:
 
 
 @mcp.tool()
-async def rename_variable(class_name: str, method_name: str, variable_name: str, new_name: str, reg: str = None, ssa: str = None) -> dict:
+async def rename_variable(class_name: str, method_name: str, variable_name: str, new_name: str, reg: str | None = None, ssa: str | None = None) -> dict:
     """Renames a specific variable in a method."""
     return await tools.refactor_tools.rename_variable(class_name, method_name, variable_name, new_name, reg, ssa)
 
@@ -304,10 +304,10 @@ async def rename_variable(class_name: str, method_name: str, variable_name: str,
 async def add_comment(
     class_name: str,
     comment: str,
-    method_name: str = None,
-    method_signature: str = None,
-    field_name: str = None,
-    line: int = None,
+    method_name: str | None = None,
+    method_signature: str | None = None,
+    field_name: str | None = None,
+    line: int | None = None,
     style: str = "LINE",
 ) -> dict:
     """Add a comment to decompiled code, shown in JADX-GUI and saved with the project.

@@ -83,9 +83,12 @@ from src.server.tools.xrefs_tools import (
 
 # CORRECT REGISTRATION PATTERN for FastMCP
 @mcp.tool()
-async def fetch_current_class() -> dict:
-    """Fetch the currently selected class and its code from the JADX-GUI plugin."""
-    return await tools.class_tools.fetch_current_class()
+async def fetch_current_class(slim: bool = True) -> dict:
+    """Fetch the currently selected class and its code from the JADX-GUI plugin.
+
+    Kotlin compiler metadata (@Metadata / @DebugMetadata) is stripped by default;
+    pass slim=False for a raw dump. Line numbering is unaffected."""
+    return await tools.class_tools.fetch_current_class(slim)
 
 
 @mcp.tool()
@@ -95,9 +98,11 @@ async def get_selected_text() -> dict:
 
 
 @mcp.tool()
-async def get_method_by_name(class_name: str, method_name: str, method_signature: str | None = None) -> dict:
-    """Fetch the source code of a method from a specific class."""
-    return await tools.search_tools.get_method_by_name(class_name, method_name, method_signature)
+async def get_method_by_name(class_name: str, method_name: str, method_signature: str | None = None, slim: bool = True) -> dict:
+    """Fetch the source code of a method from a specific class.
+
+    Kotlin compiler metadata is stripped by default; pass slim=False for a raw dump."""
+    return await tools.search_tools.get_method_by_name(class_name, method_name, method_signature, slim)
 
 
 @mcp.tool()
@@ -107,13 +112,17 @@ async def get_all_classes(offset: int = 0, count: int = 0) -> dict:
 
 
 @mcp.tool()
-async def get_class_source(class_name: str, with_line_numbers: bool = False) -> dict:
+async def get_class_source(class_name: str, with_line_numbers: bool = False, slim: bool = True) -> dict:
     """Fetch the Java source of a specific class.
 
     Set with_line_numbers=True to get every line prefixed with its 1-based line number.
     Those are the numbers add_comment takes as its 'line' argument, so use this before
-    placing a line comment instead of counting lines yourself."""
-    return await tools.class_tools.get_class_source(class_name, with_line_numbers)
+    placing a line comment instead of counting lines yourself.
+
+    Kotlin compiler metadata (@Metadata / @DebugMetadata) is stripped by default, which
+    is where a large part of a Kotlin dump goes; the line numbers stay the same, so
+    add_comment keeps working. Pass slim=False for a raw, unmodified dump."""
+    return await tools.class_tools.get_class_source(class_name, with_line_numbers, slim)
 
 
 @mcp.tool()
@@ -234,15 +243,20 @@ async def get_main_application_classes_names() -> dict:
 
 
 @mcp.tool()
-async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:
-    """Fetch main application classes' code with pagination."""
-    return await tools.class_tools.get_main_application_classes_code(offset, count)
+async def get_main_application_classes_code(offset: int = 0, count: int = 0, slim: bool = True) -> dict:
+    """Fetch main application classes' code with pagination.
+
+    Kotlin compiler metadata is stripped from every class by default; pass
+    slim=False for raw dumps."""
+    return await tools.class_tools.get_main_application_classes_code(offset, count, slim)
 
 
 @mcp.tool()
-async def get_main_activity_class() -> dict:
-    """Fetch the main activity class from AndroidManifest.xml."""
-    return await tools.class_tools.get_main_activity_class()
+async def get_main_activity_class(slim: bool = True) -> dict:
+    """Fetch the main activity class from AndroidManifest.xml.
+
+    Kotlin compiler metadata is stripped by default; pass slim=False for a raw dump."""
+    return await tools.class_tools.get_main_activity_class(slim)
 
 
 @mcp.tool()

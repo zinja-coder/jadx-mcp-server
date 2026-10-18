@@ -10,12 +10,19 @@ License: See LICENSE file
 """
 
 from src.server.config import get_from_jadx, post_to_jadx
+from src.server.slim import slim_payload
 from src.PaginationUtils import PaginationUtils
 
 
-async def fetch_current_class() -> dict:
+async def fetch_current_class(slim: bool = True) -> dict:
     """
     Fetch the currently selected class and its code from the JADX-GUI plugin.
+
+    Args:
+        slim: Strip Kotlin compiler metadata (@Metadata / @DebugMetadata) from the
+              returned source (default: True). Those annotations are compiler IR and
+              are often 25-50% of a Kotlin class dump. Scope and line numbering are
+              unaffected, so add_comment keeps working. Use slim=False for a raw dump
 
     Returns:
         dict: Contains class name, package, and decompiled Java source code
@@ -23,7 +30,8 @@ async def fetch_current_class() -> dict:
     MCP Tool: fetch_current_class
     Description: Retrieves the class currently open in JADX-GUI editor
     """
-    return await get_from_jadx("current-class")
+    result = await get_from_jadx("current-class")
+    return slim_payload(result) if slim else result
 
 
 async def get_selected_text() -> dict:
@@ -39,7 +47,7 @@ async def get_selected_text() -> dict:
     return await get_from_jadx("selected-text")
 
 
-async def get_class_source(class_name: str, with_line_numbers: bool = False) -> dict:
+async def get_class_source(class_name: str, with_line_numbers: bool = False, slim: bool = True) -> dict:
     """
     Fetch the Java source of a specific class.
 
@@ -48,6 +56,11 @@ async def get_class_source(class_name: str, with_line_numbers: bool = False) -> 
         with_line_numbers: Prefix every line with its 1-based line number (default: False).
                            Those numbers are the ones add_comment expects in its 'line'
                            argument, so a line comment can be placed without counting lines
+        slim: Strip Kotlin compiler metadata (@Metadata / @DebugMetadata) from the
+              returned source (default: True). Those annotations are compiler IR and
+              are often 25-50% of a Kotlin class dump. The line count is preserved,
+              so with_line_numbers and add_comment keep working. Use slim=False for
+              a raw, unmodified dump
 
     Returns:
         dict: Contains complete decompiled Java source code for the class
@@ -56,6 +69,8 @@ async def get_class_source(class_name: str, with_line_numbers: bool = False) -> 
     Description: Retrieves decompiled Java source for any class in the APK
     """
     result = await get_from_jadx("class-source", {"class_name": class_name})
+    if slim:
+        result = slim_payload(result)
     if not with_line_numbers:
         return result
     return _number_source_lines(result)
@@ -168,13 +183,16 @@ async def get_main_application_classes_names() -> dict:
     return await get_from_jadx("main-application-classes-names")
 
 
-async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> dict:
+async def get_main_application_classes_code(offset: int = 0, count: int = 0, slim: bool = True) -> dict:
     """
     Fetch main application classes' code with pagination.
 
     Args:
         offset: Starting index for pagination (default: 0)
         count: Number of classes to return (0 = all, default: 0)
+        slim: Strip Kotlin compiler metadata (@Metadata / @DebugMetadata) from each
+              class (default: True). Line counting inside every returned class is
+              preserved. Use slim=False for raw dumps
 
     Returns:
         dict: Paginated decompiled source code of main application classes
@@ -182,18 +200,24 @@ async def get_main_application_classes_code(offset: int = 0, count: int = 0) -> 
     MCP Tool: get_main_application_classes_code
     Description: Retrieves source code for core app classes with pagination
     """
-    return await PaginationUtils.get_paginated_data(
+    result = await PaginationUtils.get_paginated_data(
         endpoint="main-application-classes-code",
         offset=offset,
         count=count,
         data_extractor=lambda parsed: parsed.get("classes", []),
         fetch_function=get_from_jadx
     )
+    return slim_payload(result) if slim else result
 
 
-async def get_main_activity_class() -> dict:
+async def get_main_activity_class(slim: bool = True) -> dict:
     """
     Fetch the main activity class as defined in the AndroidManifest.xml.
+
+    Args:
+        slim: Strip Kotlin compiler metadata (@Metadata / @DebugMetadata) from the
+              returned source (default: True). Line counting is preserved, so
+              add_comment keeps working. Use slim=False for a raw dump
 
     Returns:
         dict: Main launcher activity class name and source code
@@ -201,7 +225,8 @@ async def get_main_activity_class() -> dict:
     MCP Tool: get_main_activity_class
     Description: Identifies and retrieves the app's entry point activity
     """
-    return await get_from_jadx("main-activity")
+    result = await get_from_jadx("main-activity")
+    return slim_payload(result) if slim else result
 
 
 async def get_package_tree() -> dict:

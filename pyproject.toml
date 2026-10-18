@@ -13,5 +13,8 @@ dependencies = [
 [tool.setuptools]
 py-modules = ["jadx_mcp_server"]
 
+[tool.setuptools.packages.find]
+include = ["src", "src.*"]
+
 [project.scripts]
 jadx_mcp_server = "jadx_mcp_server:main"

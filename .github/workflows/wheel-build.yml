@@ -1,0 +1,69 @@
+name: Wheel build & install check
+
+# Regression guard for issue #67: the wheel must ship the whole src/ package,
+# and the console script must run from a clean install. Before the fix in PR #68
+# the wheel contained only jadx_mcp_server.py, so `uv tool install` / `uvx`
+# failed with `ModuleNotFoundError: No module named 'src'`.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  wheel:
+    name: Build wheel, verify src/ and entry point
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # Matches .python-version. The project supports >=3.10; add a matrix
+          # here if lower-version coverage is ever needed.
+          python-version: "3.13"
+
+      - name: Build the wheel
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade build
+          python -m build --wheel
+
+      - name: Every module under src/ must be inside the wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          wheel=$(ls dist/*.whl)
+          echo "wheel: $wheel"
+          listing=$(unzip -Z1 "$wheel")
+          missing=0
+          while IFS= read -r file; do
+            if ! grep -qx "$file" <<< "$listing"; then
+              echo "::error file=$file::missing from the wheel (issue #67 regression)"
+              missing=1
+            fi
+          done < <(cd src && find . -name '*.py' -not -path './__pycache__/*' | sed 's|^\./||')
+          if [ "$missing" -ne 0 ]; then
+            echo "--- actual wheel contents ---"
+            echo "$listing"
+            exit 1
+          fi
+          echo "OK: all src/*.py modules are present in the wheel"
+
+      - name: Install the wheel into a clean venv and run the entry point
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/venv-check"
+          "$RUNNER_TEMP/venv-check/bin/pip" install "$(ls dist/*.whl)"
+          cd "$RUNNER_TEMP"   # import must come from the install, not the checkout
+          "$RUNNER_TEMP/venv-check/bin/jadx_mcp_server" --help
+
+      - name: Run unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/venv-test"
+          "$RUNNER_TEMP/venv-test/bin/pip" install -r requirements.txt
+          "$RUNNER_TEMP/venv-test/bin/python" -m unittest discover -s tests -t . -v

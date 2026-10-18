@@ -415,6 +415,37 @@ uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 9999 --jadx-host 192.168.
 >
 > Similarly, `--jadx-host` with a non-localhost address means the MCP server will make **unauthenticated HTTP requests** to that host. Ensure the target is trusted.
 
+### Driving the server from any OpenAI-compatible model
+
+MCP-aware apps connect directly. For everything else that speaks `POST /v1/chat/completions` —
+OpenRouter, LiteLLM, vLLM, Ollama's OpenAI layer, OmniRoute, … — `examples/openai_compatible_client.py`
+is a reference adapter: it connects to a running `jadx_mcp_server.py --http`, converts the MCP tool list
+into OpenAI function-calling tools, and runs the call → execute → feed-back loop until the model answers.
+
+```bash
+# terminal 1
+uv run jadx_mcp_server.py --http --host 127.0.0.1 --port 9000
+
+# the example needs the openai SDK; the server itself does not
+pip install -r examples/requirements.txt
+
+# OpenAI
+OPENAI_API_KEY=sk-... python examples/openai_compatible_client.py \
+  --prompt "What does com.example.app.MainActivity do?"
+
+# a local gateway (any placeholder key works)
+OPENAI_BASE_URL=http://127.0.0.1:11434/v1 OPENAI_API_KEY=ollama OPENAI_MODEL=llama3.1 \
+  python examples/openai_compatible_client.py
+
+# show the tool schema the model is offered, without calling a model at all
+python examples/openai_compatible_client.py --list-tools
+```
+
+`--base-url`, `--api-key` and `--model` (or the `OPENAI_BASE_URL` / `OPENAI_API_KEY` / `OPENAI_MODEL`
+environment variables) point it at any provider. `--max-steps` caps how many tool rounds a question may
+take and `--max-tool-chars` truncates a single result, so one large class dump cannot blow the model's
+context. Run it without `--prompt` for an interactive session.
+
 
 ## 🛣️ Future Roadmap
 

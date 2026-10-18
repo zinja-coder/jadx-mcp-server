@@ -1,0 +1,13 @@
+# Dependencies for the examples in this directory.
+#
+# jadx-mcp-server itself needs only ../requirements.txt - nothing here is
+# imported by jadx_mcp_server.py, so an OpenAI SDK is never forced on anyone
+# running the server.
+
+# Used by examples/openai_compatible_client.py to talk to any OpenAI-compatible
+# endpoint (OpenRouter, LiteLLM, vLLM, Ollama, OmniRoute, ...).
+openai>=1.40.0
+
+# Listed again so the example can be installed on its own; the server already
+# requires fastmcp (see ../requirements.txt).
+fastmcp>=3.0.2

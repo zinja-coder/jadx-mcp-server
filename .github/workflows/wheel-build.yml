@@ -43,7 +43,7 @@ jobs:
               echo "::error file=$file::missing from the wheel (issue #67 regression)"
               missing=1
             fi
-          done < <(cd src && find . -name '*.py' -not -path './__pycache__/*' | sed 's|^\./||')
+          done < <(find src -name '*.py' -not -path '*/__pycache__/*' | sort)
           if [ "$missing" -ne 0 ]; then
             echo "--- actual wheel contents ---"
             echo "$listing"

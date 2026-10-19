@@ -241,18 +241,23 @@ It is combination of two tools:
 
 The following MCP tools are available:
 
-- `fetch_current_class()` — Get the class name and full source of selected class
+Tools that return decompiled source strip Kotlin compiler metadata (`@Metadata` /
+`@DebugMetadata`, often 25-50% of a Kotlin dump) by default; pass `slim=False` for a
+raw dump. Stripping never changes line numbers, so `with_line_numbers=True` and
+`add_comment(line=...)` keep working.
+
+- `fetch_current_class(slim=True)` — Get the class name and full source of selected class
 - `get_selected_text()` — Get currently selected text
 - `get_all_classes()` — List all classes in the project
-- `get_class_source()` — Get full source of a given class (`with_line_numbers=True` to number the lines for `add_comment(line=...)`)
-- `get_method_by_name()` — Fetch a method’s source
+- `get_class_source(slim=True)` — Get full source of a given class (`with_line_numbers=True` to number the lines for `add_comment(line=...)`)
+- `get_method_by_name(slim=True)` — Fetch a method’s source
 - `search_method_by_name()` — Search method across classes
 - `search_classes_by_keyword()` — Search for classes whose source code contains a specific keyword (supports pagination)
 - `get_methods_of_class()` — List methods in a class
 - `get_fields_of_class()` — List fields in a class
 - `get_smali_of_class()` — Fetch smali of class
-- `get_main_activity_class()` — Fetch main activity from jadx mentioned in AndroidManifest.xml file. 
-- `get_main_application_classes_code()` — Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
+- `get_main_activity_class(slim=True)` — Fetch main activity from jadx mentioned in AndroidManifest.xml file. 
+- `get_main_application_classes_code(slim=True)` — Fetch all the main application classes' code based on the package name defined in the AndroidManifest.xml.
 - `get_main_application_classes_names()` — Fetch all the main application classes' names based on the package name defined in the AndroidManifest.xml.
 - `get_android_manifest()` — Retrieve and return the AndroidManifest.xml content.
 - `get_manifest_component` - Retrieve specific manifest component instead of whole manifest file
@@ -409,6 +414,37 @@ uv run jadx_mcp_server.py --http --host 0.0.0.0 --port 9999 --jadx-host 192.168.
 > - Consider an **SSH tunnel** instead: `ssh -L 8651:127.0.0.1:8651 remote-host`
 >
 > Similarly, `--jadx-host` with a non-localhost address means the MCP server will make **unauthenticated HTTP requests** to that host. Ensure the target is trusted.
+
+### Driving the server from any OpenAI-compatible model
+
+MCP-aware apps connect directly. For everything else that speaks `POST /v1/chat/completions` —
+OpenRouter, LiteLLM, vLLM, Ollama's OpenAI layer, OmniRoute, … — `examples/openai_compatible_client.py`
+is a reference adapter: it connects to a running `jadx_mcp_server.py --http`, converts the MCP tool list
+into OpenAI function-calling tools, and runs the call → execute → feed-back loop until the model answers.
+
+```bash
+# terminal 1
+uv run jadx_mcp_server.py --http --host 127.0.0.1 --port 9000
+
+# the example needs the openai SDK; the server itself does not
+pip install -r examples/requirements.txt
+
+# OpenAI
+OPENAI_API_KEY=sk-... python examples/openai_compatible_client.py \
+  --prompt "What does com.example.app.MainActivity do?"
+
+# a local gateway (any placeholder key works)
+OPENAI_BASE_URL=http://127.0.0.1:11434/v1 OPENAI_API_KEY=ollama OPENAI_MODEL=llama3.1 \
+  python examples/openai_compatible_client.py
+
+# show the tool schema the model is offered, without calling a model at all
+python examples/openai_compatible_client.py --list-tools
+```
+
+`--base-url`, `--api-key` and `--model` (or the `OPENAI_BASE_URL` / `OPENAI_API_KEY` / `OPENAI_MODEL`
+environment variables) point it at any provider. `--max-steps` caps how many tool rounds a question may
+take and `--max-tool-chars` truncates a single result, so one large class dump cannot blow the model's
+context. Run it without `--prompt` for an interactive session.
 
 
 ## 🛣️ Future Roadmap

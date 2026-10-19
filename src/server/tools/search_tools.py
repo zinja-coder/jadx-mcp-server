@@ -15,6 +15,7 @@ import asyncio
 import logging
 
 from src.server.config import get_from_jadx, get_search_progress, JADX_SEARCH_TIMEOUT
+from src.server.slim import slim_payload
 from src.PaginationUtils import PaginationUtils
 
 logger = logging.getLogger("jadx-mcp-server.search")
@@ -180,7 +181,7 @@ async def _poll_progress(
         pass
 
 
-async def get_method_by_name(class_name: str, method_name: str, method_signature: str = None) -> dict:
+async def get_method_by_name(class_name: str, method_name: str, method_signature: str | None = None, slim: bool = True) -> dict:
     """
     Fetch the source code of a method from a specific class.
 
@@ -188,6 +189,9 @@ async def get_method_by_name(class_name: str, method_name: str, method_signature
         class_name: Fully qualified class name
         method_name: Method name (can include signature)
         method_signature: Optional method signature/descriptor (e.g. '(I)V') to distinguish overloads
+        slim: Strip Kotlin compiler metadata (@Metadata / @DebugMetadata) from the
+              returned source (default: True). Line counting is preserved. Use
+              slim=False for a raw dump
 
     Returns:
         dict: Method source code and metadata
@@ -198,7 +202,8 @@ async def get_method_by_name(class_name: str, method_name: str, method_signature
     params = {"class_name": class_name, "method_name": method_name}
     if method_signature:
         params["method_signature"] = method_signature
-    return await get_from_jadx("method-by-name", params)
+    result = await get_from_jadx("method-by-name", params)
+    return slim_payload(result) if slim else result
 
 
 async def search_method_by_name(method_name: str, report_progress=None) -> dict:

@@ -410,6 +410,34 @@ async def get_xrefs_to_field(
     )
 
 
+@mcp.tool()
+async def jadx_mode() -> dict:
+    """Report which backend is active: live JADX-GUI plugin or headless fallback.
+
+    Headless mode activates automatically when the JADX-GUI plugin is
+    unreachable and an APK is set — via the headless_set_apk tool (any APK,
+    per session) or the JADX_MCP_HEADLESS_APK env var (static default). The
+    APK is decompiled once with the jadx CLI into a cache and served from
+    disk. Tools that need the live GUI (current-class, selected-text, smali,
+    rename, debug, comments) say so explicitly in headless mode."""
+    from src.server import headless
+    return headless.mode_report()
+
+
+@mcp.tool()
+async def headless_set_apk(apk_path: str, refresh: bool = False) -> dict:
+    """Point the headless fallback at any APK and start its decompile.
+
+    Use this when JADX-GUI is not running: the APK is decompiled once with
+    the headless jadx CLI and all read tools are served from the decompiled
+    tree. Returns immediately — check jadx_mode for progress. Re-call with
+    the same APK to retry after a failure, with refresh=True to force a
+    fresh decompile."""
+    import asyncio
+    from src.server import headless
+    return await asyncio.to_thread(headless.set_apk, apk_path, refresh)
+
+
 def main():
     parser = argparse.ArgumentParser("MCP Server for Jadx")
     parser.add_argument(

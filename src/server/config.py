@@ -139,12 +139,18 @@ async def get_from_jadx(
         return {"error": error_msg}
 
     except httpx.ConnectError:
-        error_msg = (
-            f"Cannot connect to JADX plugin at {JADX_HTTP_BASE}. "
-            "Ensure JADX-GUI is running and the AI MCP plugin is active."
-        )
-        logger.error(error_msg)
-        return {"error": error_msg}
+        # JADX-GUI plugin unreachable — fall back to the headless backend
+        # (jadx CLI decompile served from disk) when it is configured.
+        try:
+            from src.server import headless
+            return await headless.handle_get(endpoint, params)
+        except Exception as e:  # noqa: BLE001 — never crash the tool on fallback
+            error_msg = (
+                f"Cannot connect to JADX plugin at {JADX_HTTP_BASE} and the "
+                f"headless fallback failed: {type(e).__name__}: {str(e)}"
+            )
+            logger.error(error_msg)
+            return {"error": error_msg}
 
     except Exception as e:
         error_msg = f"Unexpected error communicating with JADX plugin: {type(e).__name__}: {str(e)}"
@@ -174,7 +180,13 @@ async def post_to_jadx(endpoint: str, params: Dict[str, Any] = None) -> Union[st
             )
         }
     except httpx.ConnectError:
-        return {"error": f"Cannot connect to JADX plugin at {JADX_HTTP_BASE}. Ensure JADX-GUI is running."}
+        # Headless fallback for POSTs too (only cache-clear is meaningful
+        # headless; everything else returns a gui_required error)
+        try:
+            from src.server import headless
+            return await headless.handle_post(endpoint, params)
+        except Exception as e:  # noqa: BLE001
+            return {"error": f"Cannot connect to JADX plugin and headless fallback failed: {e}"}
     except Exception as e:
         return {"error": f"POST to {endpoint} failed: {type(e).__name__}: {str(e)}"}
 

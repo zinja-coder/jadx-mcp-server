@@ -183,6 +183,18 @@ Thanks to these wonderful people for their contributions ⭐
 
 **JADX MCP Server** is a standalone Python server that interacts with a modified version of `jadx-gui` (see: [jadx-ai-mcp](https://github.com/zinja-coder/jadx-ai-mcp)) via MCP (Model Context Protocol). It lets LLMs communicate with the decompiled Android app context live.
 
+### 🪫 Headless fallback (no GUI needed)
+
+When the JADX-GUI plugin is unreachable (port 8650 refused), the server **automatically falls back to a headless backend** instead of erroring on every call. No per-APK configuration is required — point it at any APK from the conversation with the `headless_set_apk` tool:
+
+```
+assistant: headless_set_apk("/path/to/any-target.apk")   # starts the decompile in the background
+assistant: jadx_mode()                                    # idle → decompiling → ready | failed
+assistant: get_all_classes / get_class_source / ...       # served from the decompiled tree
+```
+
+The decompile runs once with the headless jadx CLI into `~/.cache/jadx-mcp-headless/<apk-stem>/` and is reused across sessions; tools called mid-decompile report "in progress" honestly, and a failed decompile names the retry path. Optionally pin a static default with `JADX_MCP_HEADLESS_APK` (env), `JADX_MCP_JADX_BIN` (binary override) and `JADX_MCP_HEADLESS_REFRESH=1` (force fresh). Every headless result is marked `"headless": true`. Endpoints that genuinely need the live GUI (`fetch_current_class`, `get_selected_text`, `get_smali_of_class`, rename/debug/comment tools) return an explicit `gui_required` error instead of pretending — run apktool for smali. The `jadx_mode` tool reports the active backend at any moment.
+
 
 ## 🤖 What is JADX-AI-MCP?
 

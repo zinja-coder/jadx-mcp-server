@@ -7,9 +7,13 @@ module lets the same server keep working: it decompiles the APK once with
 the headless jadx CLI and serves the class/resource/search tools straight
 from the decompiled tree on disk.
 
-Enabled via environment:
-    JADX_MCP_HEADLESS_APK   — absolute path to the APK to decompile
-                              (headless fallback is inactive without it)
+Enabled two ways — no per-APK configuration required:
+    * the MCP tool ``headless_set_apk(apk_path)`` — points the backend at
+      any APK for this session and starts its decompile in the background
+      (the general path; also used to retry or refresh);
+    * the static default ``JADX_MCP_HEADLESS_APK`` env var — for pinned
+      workflows that always analyze the same APK.
+
     JADX_MCP_JADX_BIN       — optional jadx binary (default: "jadx" on PATH)
     JADX_MCP_HEADLESS_REFRESH=1 — force a fresh decompile of the cached APK
 
@@ -56,6 +60,57 @@ GUI_REQUIRED_ENDPOINTS = {
 # Reported by the jadx_mode tool
 last_mode: Dict[str, Any] = {"mode": "unknown", "detail": "no call made yet"}
 
+# Runtime APK override (set by the headless_set_apk tool) and its lifecycle.
+# Priority: runtime override > JADX_MCP_HEADLESS_APK env. The decompile runs
+# in a background thread: headless_set_apk returns immediately and tools
+# called before it finishes report "decompilation in progress" honestly.
+_runtime: Dict[str, Any] = {"apk": None}
+_status: Dict[str, Any] = {"state": "idle", "apk": None, "detail": ""}
+import threading  # noqa: E402
+
+
+def active_apk() -> Optional[str]:
+    return _runtime["apk"] or os.environ.get(APK_ENV) or None
+
+
+def set_apk(apk_path: str, refresh: bool = False) -> Dict[str, Any]:
+    """Point the headless backend at any APK and start its decompile.
+
+    Returns immediately; the decompile runs in a daemon thread. Call
+    jadx_mode to check state (idle → decompiling → ready | failed).
+    """
+    path = Path(apk_path)
+    if not path.is_file():
+        return {"error": f"APK not found: {apk_path}", "headless": True}
+    if _status["state"] == "decompiling" and _status["apk"] == str(path) and not refresh:
+        return {"status": "already_running", "apk": str(path), "headless": True,
+                "note": "a decompile of this APK is already in progress — check jadx_mode"}
+    _runtime["apk"] = str(path)
+    _status.update({"state": "decompiling", "apk": str(path),
+                    "detail": "headless decompile started" if not refresh else "refreshing decompile"})
+    if refresh:
+        shutil.rmtree(_cache_dir(), ignore_errors=True)
+    thread = threading.Thread(target=_bg_decompile, daemon=True)
+    thread.start()
+    return {
+        "status": "started",
+        "apk": str(path),
+        "cache_dir": str(_cache_dir()),
+        "headless": True,
+        "note": ("decompiling in the background — check jadx_mode; tools "
+                 "report 'decompilation in progress' until it is ready"),
+    }
+
+
+def _bg_decompile() -> None:
+    try:
+        info = _decompile_locked()
+        _status.update({"state": "ready", "detail": info})
+        log.info("headless decompile ready: %s", info)
+    except HeadlessUnavailable as exc:
+        _status.update({"state": "failed", "detail": str(exc)})
+        log.error("headless decompile failed: %s", exc)
+
 
 class HeadlessUnavailable(Exception):
     """Headless fallback cannot proceed (no APK configured, jadx missing, decompile failed)."""
@@ -66,7 +121,7 @@ def configured() -> bool:
 
 
 def _cache_dir() -> Path:
-    apk = os.environ.get(APK_ENV, "")
+    apk = active_apk() or ""
     stem = re.sub(r"[^A-Za-z0-9._-]", "_", Path(apk).stem or "apk") if apk else "apk"
     return CACHE_ROOT / stem
 
@@ -93,11 +148,12 @@ def gui_required(endpoint: str) -> Dict[str, Any]:
 
 def _decompile_locked() -> Dict[str, Any]:
     """Synchronous decompile-or-reuse; called from a worker thread."""
-    apk = os.environ.get(APK_ENV)
+    apk = active_apk()
     if not apk:
         raise HeadlessUnavailable(
-            "JADX-GUI is not running and headless fallback is not configured. "
-            f"Set {APK_ENV}=<path-to-apk> to decompile with the headless jadx CLI."
+            "JADX-GUI is not running and no headless APK is set. "
+            "Call the headless_set_apk tool with the target APK path "
+            f"(or set {APK_ENV} as a static default)."
         )
     if not Path(apk).is_file():
         raise HeadlessUnavailable(f"{APK_ENV} points at a missing file: {apk}")
@@ -541,6 +597,19 @@ def _handle_sync(endpoint: str, params: Dict[str, Any], post: bool) -> Dict[str,
     """Worker-thread body for handle_get / handle_post."""
     if endpoint in GUI_REQUIRED_ENDPOINTS or (post and endpoint != "clear-cache"):
         return gui_required(endpoint)
+    # runtime APK lifecycle: report honestly while the background decompile runs
+    if _runtime["apk"] and _status["apk"] == _runtime["apk"]:
+        if _status["state"] == "decompiling":
+            return {
+                "error": "headless decompilation is still in progress — "
+                         "check the jadx_mode tool and retry shortly.",
+                "headless": True,
+            }
+        if _status["state"] == "failed":
+            return {
+                "error": f"{_status['detail']} (call headless_set_apk again to retry)",
+                "headless": True,
+            }
     try:
         info = _decompile_locked()
     except HeadlessUnavailable as exc:
@@ -569,7 +638,9 @@ async def handle_post(endpoint: str, params: Optional[Dict[str, Any]] = None) ->
 
 def mode_report() -> Dict[str, Any]:
     report = dict(last_mode)
-    report["configured"] = configured()
-    report["apk"] = os.environ.get(APK_ENV, "")
+    report["configured"] = bool(active_apk())
+    report["apk"] = active_apk() or ""
+    report["runtime_override"] = _runtime["apk"] or ""
+    report["state"] = _status["state"]
     report["cache_dir"] = str(_cache_dir())
     return report

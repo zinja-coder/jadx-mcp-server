@@ -21,6 +21,13 @@ from src.server import headless  # noqa: E402
 # captured before any fixture patches module attributes
 REAL_DECOMPILE = headless._decompile_locked
 
+
+def _reset_runtime(monkeypatch):
+    """Fresh runtime state for the headless_set_apk lifecycle tests."""
+    monkeypatch.setattr(headless, "_runtime", {"apk": None})
+    monkeypatch.setattr(headless, "_status", {"state": "idle", "apk": None, "detail": ""})
+    monkeypatch.delenv("JADX_MCP_HEADLESS_APK", raising=False)
+
 SAMPLE_JAVA = """package com.example.app;
 
 public class MainActivity {
@@ -179,7 +186,82 @@ def test_unconfigured_reports_how_to_enable(tmp_path, monkeypatch):
     monkeypatch.setattr(headless, "_cache_dir", lambda: tmp_path / "c")
     monkeypatch.setattr(headless, "_decompile_locked", REAL_DECOMPILE)
     out = headless._handle_sync("class-source", {"class_name": "x"}, False)
-    assert "JADX_MCP_HEADLESS_APK" in out["error"]
+    assert "headless_set_apk" in out["error"]
+
+
+# ── runtime APK via headless_set_apk (no per-APK config) ──────────────────
+
+def test_set_apk_starts_and_serves_any_apk(tmp_path, monkeypatch):
+    _reset_runtime(monkeypatch)
+    apk = tmp_path / "anyapp.apk"
+    apk.write_bytes(b"PK\x03\x04")
+    # fake the real decompile: point cache at the prebuilt fixture tree
+    tree_dir = tmp_path / "tree"
+    (tree_dir / "sources/com/other").mkdir(parents=True)
+    (tree_dir / "sources/com/other/B.java").write_text("package com.other;\npublic class B {}\n")
+    (tree_dir / "resources").mkdir()
+    monkeypatch.setattr(headless, "_cache_dir", lambda: tree_dir)
+    result = headless.set_apk(str(apk))
+    assert result["status"] == "started"
+    # wait out the (stubbed-fast) background decompile
+    import time
+    for _ in range(50):
+        if headless._status["state"] == "ready":
+            break
+        time.sleep(0.02)
+    assert headless._status["state"] == "ready"
+    out = headless._handle_sync("all-classes", {"offset": 0, "count": 0}, False)
+    assert out["classes"] == ["com.other.B"]
+    assert headless.active_apk() == str(apk)
+
+
+def test_set_apk_missing_file_is_honest(tmp_path, monkeypatch):
+    _reset_runtime(monkeypatch)
+    out = headless.set_apk(str(tmp_path / "ghost.apk"))
+    assert "error" in out
+    assert headless._status["state"] == "idle"
+
+
+def test_unconfigured_error_names_the_tool(tmp_path, monkeypatch):
+    _reset_runtime(monkeypatch)
+    monkeypatch.setattr(headless, "_decompile_locked", REAL_DECOMPILE)
+    out = headless._handle_sync("class-source", {"class_name": "x"}, False)
+    assert "headless_set_apk" in out["error"]
+
+
+def test_runtime_override_beats_env(tmp_path, monkeypatch):
+    _reset_runtime(monkeypatch)
+    monkeypatch.setenv("JADX_MCP_HEADLESS_APK", str(tmp_path / "env.apk"))
+    headless._runtime["apk"] = str(tmp_path / "runtime.apk")
+    assert headless.active_apk() == str(tmp_path / "runtime.apk")
+
+
+def test_decompiling_gate_reports_progress(tmp_path, monkeypatch):
+    _reset_runtime(monkeypatch)
+    headless._runtime["apk"] = str(tmp_path / "a.apk")
+    headless._status.update({"state": "decompiling", "apk": str(tmp_path / "a.apk"), "detail": ""})
+    out = headless._handle_sync("all-classes", {}, False)
+    assert "in progress" in out["error"]
+    assert "jadx_mode" in out["error"]
+
+
+def test_failed_status_names_retry_path(tmp_path, monkeypatch):
+    _reset_runtime(monkeypatch)
+    headless._runtime["apk"] = str(tmp_path / "a.apk")
+    headless._status.update({"state": "failed", "apk": str(tmp_path / "a.apk"), "detail": "boom"})
+    out = headless._handle_sync("all-classes", {}, False)
+    assert out["error"].startswith("boom")
+    assert "headless_set_apk again" in out["error"]
+
+
+def test_jadx_mode_report_shows_lifecycle(tmp_path, monkeypatch):
+    _reset_runtime(monkeypatch)
+    headless._runtime["apk"] = str(tmp_path / "a.apk")
+    headless._status.update({"state": "ready", "apk": str(tmp_path / "a.apk"), "detail": {}})
+    report = headless.mode_report()
+    assert report["state"] == "ready"
+    assert report["runtime_override"] == str(tmp_path / "a.apk")
+    assert report["configured"] is True
 
 
 # ── the config.py seam: ConnectError routes to headless ───────────────────
@@ -221,4 +303,4 @@ def test_connect_error_without_apk_config_reports_setup_hint(tree, monkeypatch):
     finally:
         config.JADX_HTTP_BASE = monkey_old
     assert "error" in result
-    assert "JADX_MCP_HEADLESS_APK" in result["error"]
+    assert "headless_set_apk" in result["error"]

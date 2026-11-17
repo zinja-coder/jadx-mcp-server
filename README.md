@@ -185,16 +185,15 @@ Thanks to these wonderful people for their contributions ⭐
 
 ### 🪫 Headless fallback (no GUI needed)
 
-When the JADX-GUI plugin is unreachable (port 8650 refused), the server **automatically falls back to a headless backend** instead of erroring on every call — provided you tell it which APK to work on:
+When the JADX-GUI plugin is unreachable (port 8650 refused), the server **automatically falls back to a headless backend** instead of erroring on every call. No per-APK configuration is required — point it at any APK from the conversation with the `headless_set_apk` tool:
 
-```bash
-export JADX_MCP_HEADLESS_APK=/path/to/target.apk   # enables headless fallback
-# optional:
-export JADX_MCP_JADX_BIN=/path/to/jadx              # default: jadx on PATH
-export JADX_MCP_HEADLESS_REFRESH=1                  # force a fresh decompile
+```
+assistant: headless_set_apk("/path/to/any-target.apk")   # starts the decompile in the background
+assistant: jadx_mode()                                    # idle → decompiling → ready | failed
+assistant: get_all_classes / get_class_source / ...       # served from the decompiled tree
 ```
 
-The APK is decompiled once with the headless jadx CLI into `~/.cache/jadx-mcp-headless/<apk-stem>/` and reused across sessions. Class sources, class/method/field listings, the manifest, string resources, package tree, method extraction, keyword/method searches and text-based xrefs are all served from the decompiled tree; every headless result is marked `"headless": true`. Endpoints that genuinely need the live GUI (`fetch_current_class`, `get_selected_text`, `get_smali_of_class`, rename/debug/comment tools) return an explicit `gui_required` error instead of pretending — run apktool for smali. The new `jadx_mode` tool reports which backend is active at any moment.
+The decompile runs once with the headless jadx CLI into `~/.cache/jadx-mcp-headless/<apk-stem>/` and is reused across sessions; tools called mid-decompile report "in progress" honestly, and a failed decompile names the retry path. Optionally pin a static default with `JADX_MCP_HEADLESS_APK` (env), `JADX_MCP_JADX_BIN` (binary override) and `JADX_MCP_HEADLESS_REFRESH=1` (force fresh). Every headless result is marked `"headless": true`. Endpoints that genuinely need the live GUI (`fetch_current_class`, `get_selected_text`, `get_smali_of_class`, rename/debug/comment tools) return an explicit `gui_required` error instead of pretending — run apktool for smali. The `jadx_mode` tool reports the active backend at any moment.
 
 
 ## 🤖 What is JADX-AI-MCP?

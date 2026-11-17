@@ -183,6 +183,19 @@ Thanks to these wonderful people for their contributions ⭐
 
 **JADX MCP Server** is a standalone Python server that interacts with a modified version of `jadx-gui` (see: [jadx-ai-mcp](https://github.com/zinja-coder/jadx-ai-mcp)) via MCP (Model Context Protocol). It lets LLMs communicate with the decompiled Android app context live.
 
+### 🪫 Headless fallback (no GUI needed)
+
+When the JADX-GUI plugin is unreachable (port 8650 refused), the server **automatically falls back to a headless backend** instead of erroring on every call — provided you tell it which APK to work on:
+
+```bash
+export JADX_MCP_HEADLESS_APK=/path/to/target.apk   # enables headless fallback
+# optional:
+export JADX_MCP_JADX_BIN=/path/to/jadx              # default: jadx on PATH
+export JADX_MCP_HEADLESS_REFRESH=1                  # force a fresh decompile
+```
+
+The APK is decompiled once with the headless jadx CLI into `~/.cache/jadx-mcp-headless/<apk-stem>/` and reused across sessions. Class sources, class/method/field listings, the manifest, string resources, package tree, method extraction, keyword/method searches and text-based xrefs are all served from the decompiled tree; every headless result is marked `"headless": true`. Endpoints that genuinely need the live GUI (`fetch_current_class`, `get_selected_text`, `get_smali_of_class`, rename/debug/comment tools) return an explicit `gui_required` error instead of pretending — run apktool for smali. The new `jadx_mode` tool reports which backend is active at any moment.
+
 
 ## 🤖 What is JADX-AI-MCP?
 

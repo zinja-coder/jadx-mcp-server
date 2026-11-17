@@ -396,6 +396,19 @@ async def get_xrefs_to_field(
     )
 
 
+@mcp.tool()
+async def jadx_mode() -> dict:
+    """Report which backend is active: live JADX-GUI plugin or headless fallback.
+
+    Headless mode activates automatically when the JADX-GUI plugin is
+    unreachable and JADX_MCP_HEADLESS_APK is set (the APK is decompiled once
+    with the jadx CLI into a cache and served from disk). Tools that need the
+    live GUI (current-class, selected-text, smali, rename, debug, comments)
+    say so explicitly in headless mode."""
+    from src.server import headless
+    return headless.mode_report()
+
+
 def main():
     parser = argparse.ArgumentParser("MCP Server for Jadx")
     parser.add_argument(
